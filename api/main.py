@@ -1,29 +1,10 @@
-import subprocess
-from typing import Optional
+from typing import Final
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from api.util.errors import ApiError, KaldiError, error_response
-from api.presenter.score.gop import Gop
-from api.infra.repository.score import Score
+from api.presenter import route
 
-app = FastAPI()
+app: Final = FastAPI()
 
-
-# エラーの共通処理
-@app.exception_handler(ApiError)
-async def api_error_handler(request, err: ApiError):
-    return JSONResponse(
-        status_code=err.status_code,
-        content={"message": f"{err.message}\n{err.reason}"},
-    )
-
-
-@app.get("/")
-def read_root():
-    score = Score()
-    gop = Gop(score=Score)
-    gop.get_gop()
-
+route.add_routes(app=app)
 
 # @app.get("/", responses=error_response([KaldiError]))
 # def read_root():
