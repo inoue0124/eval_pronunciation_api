@@ -1,0 +1,46 @@
+# mfcc計算
+# compute-mfcc-feats [options...] <wav-rspecifier> <feats-wspecifier>
+mfcc_feats="ark:compute-mfcc-feats --use-energy=false --sample-frequency=16000 scp,p:data/wav.scp ark:-|"
+
+# cmvn計算
+# compute-cmvn-stats  [options] <feats-rspecifier> (<stats-wspecifier>|<stats-wxfilename>)
+cmvn_feats="ark:compute-mfcc-feats --use-energy=false --sample-frequency=16000 scp,p:data/wav.scp ark:- | compute-cmvn-stats --spk2utt=ark:data/spk2utt ark:- ark:-|"
+
+# gmmデコーディング get trans
+# gmm-latgen-faster [options] model-in (fst-in|fsts-rspecifier) features-rspecifier lattice-wspecifier [ words-wspecifier [alignments-wspecifier] ]
+# lda: apply-cmvn --utt2spk=ark:data/utt2spk "$cmvn_feats" "$mfcc_feats" ark:- | splice-feats ark:- ark:- | transform-feats model/gmm/final.mat ark:- ark,t:-
+delta: apply-cmvn --utt2spk=ark:data/utt2spk "$cmvn_feats" "$mfcc_feats" ark:- | add-deltas ark:- ark:-
+
+feats="ark:apply-cmvn --utt2spk=ark:data/utt2spk 'ark:compute-mfcc-feats --use-energy=false --sample-frequency=16000 scp,p:data/wav.scp ark:- | compute-cmvn-stats --spk2utt=ark:data/spk2utt ark:- ark:-|' 'ark:compute-mfcc-feats --use-energy=false --sample-frequency=16000 scp,p:data/wav.scp ark:-|' ark:- | splice-feats ark:- ark:- | transform-feats model/gmm/final.mat ark:- ark:-|"
+
+gmm-latgen-faster --max-active=7000 --beam=13.0 --lattice-beam=6.0 --acoustic-scale=0.083333 --allow-partial=true --word-symbol-table=model/lang/words_no_class.txt model/gmm/final.alimdl model/gmm/HCLG.fst "$feats" ark:- |
+lattice-to-post --acoustic-scale=0.083333 ark:- ark:- | \
+weight-silence-post 0.01 1:2:3:4:5:6:7:8:9:10 model/gmm/final.alimdl ark:- ark:- | \
+gmm-post-to-gpost model/gmm/final.alimdl "$feats" ark:- ark:- | \
+gmm-est-fmllr-gpost --fmllr-update-type=full --spk2utt=ark:data/spk2utt model/gmm/final.mdl "$feats" ark,s,cs:- ark:data/trans.1
+
+# dnn feats
+dnn_feats="ark:apply-cmvn --utt2spk=ark:data/utt2spk \
+\"ark:compute-mfcc-feats --use-energy=false --sample-frequency=16000 scp,p:data/wav.scp ark:- | compute-cmvn-stats --spk2utt=ark:data/spk2utt ark:- ark:-|\" \
+\"ark:compute-mfcc-feats --use-energy=false --sample-frequency=16000 scp,p:data/wav.scp ark:-|\" \
+ark:- | \
+splice-feats ark:- ark:- | \
+transform-feats model/gmm/final.mat ark:- ark:- | \
+transform-feats --utt2spk=ark:data/utt2spk ark:data/trans.1 ark:- ark:- |"
+
+# dnn forword (gpu optionあり)
+nnet-forward --no-softmax=true --prior-scale=1.0 --feature-transform=model/dnn/final.feature_transform --class-frame-counts=model/dnn/prior_counts model/dnn/final.nnet "$dnn_feats" ark,t:-
+
+# alignment
+forword="ark:nnet-forward --no-softmax=true --prior-scale=1.0 --feature-transform=model/dnn/final.feature_transform --class-frame-counts=model/dnn/prior_counts model/dnn/final.nnet '$dnn_feats' ark,t:-|"
+
+oov=`cat model/lang/oov.int`
+tra="ark:perl sym2int.pl --map-oov ${oov} -f 2- model/lang/words_no_class.txt data/text |"
+compile-train-graphs --read-disambig-syms=model/lang/disambig.int model/dnn/tree model/dnn/final.mdl model/lang/L.fst "$tra" ark:- |\
+align-compiled-mapped --transition-scale=1.0 --acoustic-scale=0.1 --self-loop-scale=0.1 --beam=10 --retry-beam=40 model/dnn/final.mdl ark:- \
+"$forword" \
+ark,t:-
+
+# compute-gop
+nnet-forward --no-softmax=true --prior-scale=1.0 --feature-transform=model/dnn/final.feature_transform --class-frame-counts=model/dnn/prior_counts model/dnn/final.nnet "$dnn_feats" ark:- |\
+compute-gop model/dnn/final.mdl ark:data.ark ark:- ark:gop.1 ark:phone-feat.1
