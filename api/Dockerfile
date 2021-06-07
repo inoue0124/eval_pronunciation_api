@@ -16,7 +16,13 @@ RUN rm src/*/*cc && \
   libreadline-dev \
   libffi-dev \
   curl \
-  libbz2-dev && \
+  libbz2-dev \
+  mecab \
+  libmecab-dev \
+  libmecab2 \
+  swig \
+  mecab-ipadic \
+  mecab-ipadic-utf8 && \
   curl -O https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz && \
   tar -xf Python-3.9.5.tar.xz && \
   rm Python-3.9.5.tar.xz && \
@@ -28,7 +34,7 @@ RUN rm src/*/*cc && \
   update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.9 10 && \
   rm -rf /opt/kaldi/Python-3.9.5
 
-RUN pip3.9 install fastapi uvicorn vosk
+RUN pip3.9 install fastapi uvicorn vosk mecab-python3 unidic-lite
 
 WORKDIR /
 

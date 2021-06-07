@@ -4,5 +4,5 @@ from api.factory import EvaluatorFactory
 
 
 async def get_gop(evaluator: Evaluator = Depends(EvaluatorFactory.create)):
-    evaluator.compute_gop()
-    return None
+    gop: float = evaluator.compute_gop()
+    return {"gop": gop}
