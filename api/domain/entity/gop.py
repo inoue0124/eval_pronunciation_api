@@ -1,7 +1,8 @@
-import dataclasses
+from datetime import datetime
+from pydantic.main import BaseModel
 
 
-@dataclasses.dataclass
-class Gop:
+class Gop(BaseModel):
     sequence: list[float]
     frame_based_mean: float
+    created_at: datetime

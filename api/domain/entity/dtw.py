@@ -1,6 +1,7 @@
-import dataclasses
+from datetime import datetime
+from pydantic.main import BaseModel
 
 
-@dataclasses.dataclass
-class Dtw:
+class Dtw(BaseModel):
     frame_based_mean: float
+    created_at: datetime
