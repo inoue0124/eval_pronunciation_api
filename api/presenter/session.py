@@ -7,5 +7,9 @@ class LoginRequest(BaseModel):
     password: str
 
 
-async def create_session(loginRequest: LoginRequest):
+async def login(loginRequest: LoginRequest):
+    return None
+
+
+async def logout():
     return None

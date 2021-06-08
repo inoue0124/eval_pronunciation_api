@@ -1,9 +1,11 @@
+from pydantic.main import create_model
 from api.domain.entity.dtw import Dtw
 from re import A
 from typing import Sequence
 from api.domain.entity.gop import Gop
 from .kaldi.kaldi import Kaldi
 from concurrent import futures
+from datetime import datetime
 
 
 class Evaluator:
@@ -16,7 +18,9 @@ class Evaluator:
         kaldi.compute_alignment()
         sequence, frame_based_mean = kaldi.compute_gop()
 
-        return Gop(sequence=sequence, frame_based_mean=frame_based_mean)
+        return Gop(sequence=sequence,
+                   frame_based_mean=frame_based_mean,
+                   created_at=datetime.now())
 
     def compute_dtw(self) -> Dtw:
         # ポステリア計算までは並行処理で行う
@@ -33,13 +37,14 @@ class Evaluator:
             future = executor.submit(self.compute_posterior,
                                      kaldi=kaldi,
                                      text="千 九百 六十 四 年 十 月",
-                                     speech="/api/infra/kaldi/data/test.wav")
+                                     speech="/api/infra/kaldi/data/test.mp3")
             future_list.append(future)
 
             futures.as_completed(fs=future_list)
 
-        return Dtw(frame_based_mean=kaldi.compute_dtw(
-            ref_utterance_id="U1_M1_L1"))
+        return Dtw(
+            frame_based_mean=kaldi.compute_dtw(ref_utterance_id="U1_M1_L1"),
+            created_at=datetime.now())
 
     def compute_posterior(self, kaldi, text, speech):
         kaldi.prepare_data(text=text, speech=speech)
