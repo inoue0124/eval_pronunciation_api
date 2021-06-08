@@ -7,8 +7,8 @@ resource "aws_vpc" "main" {
   }
 }
 
-# create 2 subnets
-resource "aws_subnet" "sn_public" {
+# create 1 public subnet and 2 private subnets
+resource "aws_subnet" "public" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.0.0/24"
 
@@ -17,12 +17,21 @@ resource "aws_subnet" "sn_public" {
   }
 }
 
-resource "aws_subnet" "sn_private" {
+resource "aws_subnet" "private_1" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.1.0/24"
 
   tags = {
-    Name = "private-${var.prj_name}"
+    Name = "private-${var.prj_name}-1"
+  }
+}
+
+resource "aws_subnet" "private_2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.2.0/24"
+
+  tags = {
+    Name = "private-${var.prj_name}-2"
   }
 }
 
@@ -36,7 +45,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 # route table
-resource "aws_route_table" "rt_public" {
+resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   route {
@@ -49,7 +58,7 @@ resource "aws_route_table" "rt_public" {
   }
 }
 
-resource "aws_route_table_association" "rta_sn_public" {
-  subnet_id      = aws_subnet.sn_public.id
-  route_table_id = aws_route_table.rt_public.id
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
 }
