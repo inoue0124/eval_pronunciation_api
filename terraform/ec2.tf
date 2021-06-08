@@ -9,9 +9,6 @@ resource "aws_instance" "api" {
   subnet_id              = aws_subnet.sn_public.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.api_http.id]
-  lifecycle {
-    prevent_destroy = true
-  }
 
   tags = {
     Name = "${var.prj_name}"
@@ -21,9 +18,6 @@ resource "aws_instance" "api" {
 # eip
 resource "aws_eip" "api" {
   vpc = true
-  lifecycle {
-    prevent_destroy = true
-  }
 
   tags = {
     Name = "${var.prj_name}-ec2"
