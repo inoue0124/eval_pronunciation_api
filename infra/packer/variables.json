@@ -1,0 +1,7 @@
+{
+  "ssh_username": "ec2-user",
+  "region": "ap-northeast-1",
+  "instance_type": "t2.micro",
+  "source_ami_name": "amzn2-ami-hvm-*-x86_64-gp2",
+  "ami_name": "eval-speech"
+}

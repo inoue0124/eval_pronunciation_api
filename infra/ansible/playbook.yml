@@ -1,0 +1,32 @@
+- name: "Provision Image"
+  hosts: default
+  become: true
+  vars:
+    user_name: ec2-user
+
+  tasks:
+    - name: Install packages
+      package:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - docker
+
+    - name: Start docker service
+      service:
+        name: "docker"
+        state: started
+        enabled: yes
+
+    - name: Install docker-compose
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-{{ ansible_system }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
+        mode: +x
+
+    - name: Add user to docker group
+      user:
+        name: "{{ user_name }}"
+        groups: docker
+        append: yes

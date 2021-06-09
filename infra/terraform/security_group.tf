@@ -19,6 +19,14 @@ resource "aws_security_group" "api_http" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["131.213.199.136/32"]
+  }
+
   egress {
     from_port        = 0
     to_port          = 0
@@ -29,6 +37,24 @@ resource "aws_security_group" "api_http" {
 
   tags = {
     Name = "http-${var.prj_name}"
+  }
+}
+
+resource "aws_security_group" "api_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  tags = {
+    Name = "ssh-${var.prj_name}"
   }
 }
 
