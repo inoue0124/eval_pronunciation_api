@@ -18,12 +18,27 @@ jobs:
           docker build -t inoue0124/eval-speech_api:latest --cache-from=inoue0124/eval-speech_api:latest --build-arg BUILDKIT_INLINE_CACHE=1 -f api/Dockerfile.prod api
           docker push inoue0124/eval-speech_api:latest
 
+      - name: Get CI IP
+        id: ip
+        uses: haythem/public-ip@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-1
+
       - name: Deploy
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_ADDR: ${{ secrets.SSH_ADDR }}
+          SECURITY_GROUP_ID: ${{ secrets.SECURITY_GROUP_ID }}
         run: |
+          IP_ADDRESS=`echo ${{ steps.ip.outputs.ipv4 }}`
+          aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol tcp --port 22 --cidr "$IP_ADDRESS"/32
           echo "$SECRET_KEY" > secret_key
           chmod 600 secret_key
           ssh -oStrictHostKeyChecking=no ${SSH_USER}@${SSH_ADDR} -i secret_key "docker pull inoue0124/eval-speech_api:latest && docker run -d -p 80:80 inoue0124/eval-speech_api"
+          aws ec2 revoke-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol tcp --port 22 --cidr "$IP_ADDRESS"/32
