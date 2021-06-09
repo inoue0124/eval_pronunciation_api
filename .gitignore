@@ -24,3 +24,7 @@ archive.zip
 tmp
 data
 model
+
+*.tfstate*
+.terraform*
+key*
