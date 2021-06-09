@@ -1,0 +1,20 @@
+name: build-and-push-image
+on:
+  push:
+    tags:
+      - api.build*
+
+jobs:
+  build_and_deploy_api:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@main
+      - name: Build and Push
+        env:
+          DOCKER_BUILDKIT: 1
+          DOCKERHUB_USER: ${{ secrets.DOCKER_USERNAME }}
+          DOCKERHUB_PASS: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
+          docker build -t inoue0124/eval-speech_api:latest --cache-from=inoue0124/eval-speech_api:latest --build-arg BUILDKIT_INLINE_CACHE=1 -f api/Dockerfile.prod api
+          docker push inoue0124/eval-speech_api:latest
