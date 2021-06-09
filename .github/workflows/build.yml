@@ -17,3 +17,13 @@ jobs:
           docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASS
           docker build -t inoue0124/eval-speech_api:latest --cache-from=inoue0124/eval-speech_api:latest --build-arg BUILDKIT_INLINE_CACHE=1 -f api/Dockerfile.prod api
           docker push inoue0124/eval-speech_api:latest
+
+      - name: Deploy
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_ADDR: ${{ secrets.SSH_ADDR }}
+        run: |
+          echo "$SECRET_KEY" > secret_key
+          chmod 600 secret_key
+          ssh -oStrictHostKeyChecking=no ${SSH_USER}@${SSH_ADDR} -i secret_key "docker pull inoue0124/eval-speech_api:latest && docker run -d -p 80:80 inoue0124/eval-speech_api"
