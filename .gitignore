@@ -28,3 +28,5 @@ model
 *.tfstate*
 .terraform*
 key*
+
+.data
