@@ -31,14 +31,14 @@ jobs:
 
       - name: Deploy
         env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SSH_SECRET_KEY: ${{ secrets.SSH_SECRET_KEY }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_ADDR: ${{ secrets.SSH_ADDR }}
           SECURITY_GROUP_ID: ${{ secrets.SECURITY_GROUP_ID }}
         run: |
           IP_ADDRESS=`echo ${{ steps.ip.outputs.ipv4 }}`
           aws ec2 authorize-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol tcp --port 22 --cidr "$IP_ADDRESS"/32
-          echo "$SECRET_KEY" > secret_key
+          echo "$SSH_SECRET_KEY" > secret_key
           chmod 600 secret_key
           ssh -oStrictHostKeyChecking=no ${SSH_USER}@${SSH_ADDR} -i secret_key "docker pull inoue0124/eval-speech_api:latest && docker run -d -p 80:80 inoue0124/eval-speech_api"
           aws ec2 revoke-security-group-ingress --group-id ${SECURITY_GROUP_ID} --protocol tcp --port 22 --cidr "$IP_ADDRESS"/32
