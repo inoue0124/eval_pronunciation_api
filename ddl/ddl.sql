@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
 -- Schema eval-speech
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `eval-speech` DEFAULT CHARACTER SET utf8 ;
+CREATE SCHEMA IF NOT EXISTS `eval-speech` DEFAULT CHARACTER SET utf8mb4;
 USE `eval-speech` ;
 
 -- -----------------------------------------------------
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`users` (
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC)
-);
+) CHARACTER SET utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -27,13 +27,14 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teachers` (
   `gender` INT NULL,
   `birth_date` DATETIME NULL,
   `birth_place` INT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_tearcher_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `eval-speech`.`users` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) CHARACTER SET utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learners` (
   `gender` INT NULL,
   `birth_date` DATETIME NULL,
   `birth_place` INT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   INDEX `fk_learner_teacher_id_idx` (`teacher_id` ASC),
   CONSTRAINT `fk_learner_user_id`
@@ -58,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learners` (
     REFERENCES `eval-speech`.`teachers` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -76,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`units` (
     REFERENCES `eval-speech`.`teachers` (`user_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
-);
+) CHARACTER SET utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -95,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teacher_speeches` (
     REFERENCES `eval-speech`.`teachers` (`user_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -132,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learner_speeches` (
     REFERENCES `eval-speech`.`teacher_speeches` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8mb4;
 
 
 -- -----------------------------------------------------
@@ -141,6 +143,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learner_speeches` (
 CREATE TABLE IF NOT EXISTS `eval-speech`.`units_teacher_speeches` (
   `unit_id` INT NOT NULL,
   `teacher_speech_id` INT NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX `fk_md_unit_id_idx` (`unit_id` ASC),
   INDEX `fk_md_teacher_speech_id_idx` (`teacher_speech_id` ASC),
   CONSTRAINT `fk_md_unit_id`
@@ -153,4 +156,4 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`units_teacher_speeches` (
     REFERENCES `eval-speech`.`teacher_speeches` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
-);
+) CHARACTER SET utf8mb4;

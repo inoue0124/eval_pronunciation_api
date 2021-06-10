@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8' % (
+DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (
     "evalspeech",
     "evalspeech",
     "evp_db",

@@ -1,9 +1,13 @@
 from datetime import date
-from api.domain.entity.user import User
+from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
 
 
-class Teacher(User):
-    name: str
-    gender: int
-    birth_date: date
-    birth_place: int
+class Teacher(BaseModel):
+    user_id: Optional[int]
+    name: Optional[str]
+    gender: Optional[int]
+    birth_date: Optional[date]
+    birth_place: Optional[int]
+    created_at: Optional[datetime]

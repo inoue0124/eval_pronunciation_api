@@ -33,6 +33,14 @@ def add_routes(app: FastAPI) -> None:
                       teacher.register,
                       methods=["POST"],
                       response_model=Teacher,
+                      responses=error_response([DbError]),
+                      tags=["teachers"])
+
+    app.add_api_route("/teachers",
+                      teacher.search,
+                      methods=["GET"],
+                      response_model=list[Teacher],
+                      responses=error_response([DbError]),
                       tags=["teachers"])
 
     app.add_api_route("/laerners",

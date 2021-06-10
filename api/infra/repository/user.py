@@ -1,4 +1,3 @@
-from typing import Protocol, runtime_checkable
 from api.domain.entity.user import User
 from .db.user import UserTable
 
