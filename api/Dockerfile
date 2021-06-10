@@ -35,7 +35,8 @@ RUN rm src/*/*cc && \
   update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.9 10 && \
   rm -rf /opt/kaldi/Python-3.9.5
 
-RUN pip3.9 install fastapi uvicorn vosk mecab-python3 unidic-lite fastdtw scipy numpy
+RUN apt install -y --no-install-recommends gcc libmariadb-dev
+RUN pip3.9 install fastapi uvicorn vosk mecab-python3 unidic-lite fastdtw scipy numpy sqlalchemy mysqlclient bcrypt
 
 WORKDIR /
 

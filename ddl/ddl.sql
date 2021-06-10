@@ -9,8 +9,8 @@ USE `eval-speech` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `eval-speech`.`users` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `email` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(200) NOT NULL,
+  `password` VARCHAR(200) NOT NULL,
   `type` INT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`users` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `eval-speech`.`teachers` (
   `user_id` INT NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
   `gender` INT NULL,
   `birth_date` DATETIME NULL,
   `birth_place` INT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teachers` (
 CREATE TABLE IF NOT EXISTS `eval-speech`.`learners` (
   `user_id` INT NOT NULL,
   `teacher_id` INT NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
+  `name` VARCHAR(200) NOT NULL,
   `gender` INT NULL,
   `birth_date` DATETIME NULL,
   `birth_place` INT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learners` (
 CREATE TABLE IF NOT EXISTS `eval-speech`.`units` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `teacher_id` INT NOT NULL,
-  `name` VARCHAR(45) NULL,
+  `name` VARCHAR(200) NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `idx_teacher_id` (`teacher_id` ASC),

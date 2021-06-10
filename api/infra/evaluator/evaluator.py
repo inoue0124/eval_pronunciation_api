@@ -3,7 +3,7 @@ from api.domain.entity.dtw import Dtw
 from re import A
 from typing import Sequence
 from api.domain.entity.gop import Gop
-from .kaldi.kaldi import Kaldi
+from api.infra.evaluator.kaldi import Kaldi
 from concurrent import futures
 from datetime import datetime
 
@@ -14,7 +14,7 @@ class Evaluator:
         kaldi: Kaldi = Kaldi(utterance_id="U1_M1_L1", speaker_id=1)
         self.compute_posterior(kaldi=kaldi,
                                text=text,
-                               speech="/api/infra/kaldi/data/test.mp3")
+                               speech="/api/infra/evaluator/data/test.mp3")
         kaldi.compute_alignment()
         sequence, frame_based_mean = kaldi.compute_gop()
 
@@ -27,17 +27,19 @@ class Evaluator:
         with futures.ThreadPoolExecutor(max_workers=2) as executor:
             future_list = []
             kaldi: Kaldi = Kaldi(utterance_id="U1_M1_L1", speaker_id=1)
-            future = executor.submit(self.compute_posterior,
-                                     kaldi=kaldi,
-                                     text="千 九百 六十 四 年 十 月",
-                                     speech="/api/infra/kaldi/data/test.wav")
+            future = executor.submit(
+                self.compute_posterior,
+                kaldi=kaldi,
+                text="千 九百 六十 四 年 十 月",
+                speech="/api/infra/evaluator/data/test.wav")
             future_list.append(future)
 
             kaldi: Kaldi = Kaldi(utterance_id="U1_M1_L2", speaker_id=2)
-            future = executor.submit(self.compute_posterior,
-                                     kaldi=kaldi,
-                                     text="千 九百 六十 四 年 十 月",
-                                     speech="/api/infra/kaldi/data/test.mp3")
+            future = executor.submit(
+                self.compute_posterior,
+                kaldi=kaldi,
+                text="千 九百 六十 四 年 十 月",
+                speech="/api/infra/evaluator/data/test.mp3")
             future_list.append(future)
 
             futures.as_completed(fs=future_list)

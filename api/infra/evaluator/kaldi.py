@@ -13,7 +13,7 @@ class Kaldi:
         self.speaker_id = speaker_id
         self.data_dir = f"/tmp/{utterance_id}/data"
         self.feats_dir = f"/tmp/{utterance_id}/feats"
-        self.model_dir = "/api/infra/kaldi/model"
+        self.model_dir = "/api/infra/evaluator/model"
         self.score_dir = f"/tmp/{utterance_id}/scores"
         os.makedirs(self.data_dir, exist_ok=True)
         os.makedirs(self.feats_dir, exist_ok=True)
@@ -163,12 +163,13 @@ class Kaldi:
                     seq: list[float] = []
                     for post_frame, phone in zip(post, ali):
                         if phone not in nsil_set:
+                            seq.append(0.0)
                             continue
                         s = 0
                         for pdf in phone2pdfs[phone].keys():
                             s += post_frame[pdf]
                         total += s
-                        seq.append(total)
+                        seq.append(s)
                         cnt += 1
 
                     return seq, total / cnt
