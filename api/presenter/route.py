@@ -10,6 +10,7 @@ from api.util.errors import DbError, KaldiError, error_response
 
 
 def add_routes(app: FastAPI) -> None:
+    # session
     app.add_api_route("/session",
                       session.login,
                       methods=["POST"],
@@ -22,6 +23,7 @@ def add_routes(app: FastAPI) -> None:
                       response_model=Union[Learner, Teacher],
                       tags=["session"])
 
+    # user
     app.add_api_route("/users",
                       user.register,
                       methods=["POST"],
@@ -29,6 +31,7 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["users"])
 
+    # teacher
     app.add_api_route("/teachers",
                       teacher.register,
                       methods=["POST"],
@@ -43,12 +46,22 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["teachers"])
 
-    app.add_api_route("/laerners",
+    # learner
+    app.add_api_route("/learners",
                       learner.register,
                       methods=["POST"],
                       response_model=Learner,
+                      responses=error_response([DbError]),
                       tags=["learners"])
 
+    app.add_api_route("/learners",
+                      learner.search,
+                      methods=["GET"],
+                      response_model=list[Learner],
+                      responses=error_response([DbError]),
+                      tags=["learners"])
+
+    # score
     app.add_api_route("/scores/gop",
                       learner_speech.get_gop,
                       methods=["GET"],

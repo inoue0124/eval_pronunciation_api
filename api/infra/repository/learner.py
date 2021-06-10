@@ -1,0 +1,54 @@
+from api.infra.repository.db.learner import LearnerTable
+from pydantic.utils import T
+from api.domain.entity.learner import Learner
+from typing import Optional
+from api.infra.repository.converter.learner import LearnerConverter
+from sqlalchemy import desc, asc
+
+
+class LearnerRepository:
+    def __init__(self, db):
+        self.db = db
+
+    def create(self, learner: Learner) -> Learner:
+        learner_table = LearnerTable()
+        learner_table.user_id = learner.user_id
+        learner_table.teacher_id = learner.teacher_id
+        learner_table.name = learner.name
+        learner_table.gender = learner.gender
+        learner_table.birth_date = learner.birth_date
+        learner_table.birth_place = learner.birth_place
+        learner_table.year_of_learning = learner.year_of_learning
+
+        self.db.add(learner_table)
+        try:
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            raise e
+
+        # データベースインサート語に確定した値を埋める
+        learner.created_at = learner_table.created_at
+
+        return learner
+
+    def search(self, page: int, limit: int, search_query: Optional[str],
+               is_asc: Optional[bool]) -> list[Learner]:
+        offset: int = (page - 1) * limit
+
+        query = self.db.query(LearnerTable)
+
+        # 検索ワードがある場合はfilterを追加
+        if search_query != None:
+            query = query.filter(LearnerTable.name.like(f"%{search_query}%"))
+
+        # 昇順と降順の切り替え
+        if is_asc:
+            query = query.order_by(asc(LearnerTable.created_at))
+        else:
+            query = query.order_by(desc(LearnerTable.created_at))
+
+        learnerTables = query.offset(offset).limit(limit).offset(offset).all()
+
+        return LearnerConverter().convert_from_list(
+            learnerTables=learnerTables)
