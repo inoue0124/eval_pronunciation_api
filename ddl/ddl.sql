@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teachers` (
   `gender` INT NULL,
   `birth_date` DATETIME NULL,
   `birth_place` INT NULL,
+  `year_of_learning` INT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_tearcher_user_id`
@@ -57,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learners` (
     ON UPDATE CASCADE,
   CONSTRAINT `fk_learner_teacher_id`
     FOREIGN KEY (`teacher_id`)
-    REFERENCES `eval-speech`.`teachers` (`user_id`)
+    REFERENCES `eval-speech`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) CHARACTER SET utf8mb4;
