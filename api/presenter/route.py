@@ -6,6 +6,7 @@ from api.domain.entity.learner import Learner
 from typing import Union
 from fastapi import FastAPI
 from api.presenter import learner_speech, session, user, teacher, learner
+from api.util.errors import DbError, KaldiError, error_response
 
 
 def add_routes(app: FastAPI) -> None:
@@ -25,6 +26,7 @@ def add_routes(app: FastAPI) -> None:
                       user.register,
                       methods=["POST"],
                       response_model=User,
+                      responses=error_response([DbError]),
                       tags=["users"])
 
     app.add_api_route("/teachers",

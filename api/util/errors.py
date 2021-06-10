@@ -5,18 +5,23 @@ class ApiError(Exception):
     """ エラーの基底となるクラス """
     status_code: int = 400
     message: str = 'API error'
+    detail: str = "Error detail"
 
-    def __init__(self, reason: Optional[str] = None):
-        if reason:
-            self.reason = reason
+    def __init__(self, detail: Optional[str] = ""):
+        self.detail = detail
 
-    def __str__(self):
-        return f'{self.message}\n{self.reason}'
+    def asDict(self):
+        return {"message": self.message, "detail": self.detail}
 
 
 class KaldiError(ApiError):
     status_code = 500
-    message = 'an error has occured while computing by kaldi'
+    message = 'Kaldi error'
+
+
+class DbError(ApiError):
+    status_code = 500
+    message = 'DB error'
 
 
 def error_response(error_types: List[Type[ApiError]]) -> dict:
@@ -29,7 +34,8 @@ def error_response(error_types: List[Type[ApiError]]) -> dict:
                 'content': {
                     'application/json': {
                         'example': {
-                            'message': et.message
+                            'message': et.message,
+                            'detail': et.detail
                         }
                     }
                 }
