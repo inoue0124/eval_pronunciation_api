@@ -1,4 +1,4 @@
-from typing import Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 from api.domain.entity.teacher import Teacher
 
 
@@ -8,4 +8,8 @@ class TeacherRepository(Protocol):
         ...
 
     def create(self, teacher: Teacher) -> Teacher:
+        ...
+
+    def search(self, page: int, limit: int, search_query: Optional[str],
+               is_asc: Optional[bool]) -> list[Teacher]:
         ...
