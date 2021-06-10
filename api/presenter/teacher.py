@@ -1,13 +1,16 @@
+from fastapi import Depends
 from datetime import date
 from pydantic import BaseModel
+from api.domain.repository.repository import Repository
+from api.domain.entity.teacher import Teacher
+from api.factory import RepositoryFactory
+from api.util.errors import DbError
 
 
-class RegisterTeacherRequest(BaseModel):
-    name: str
-    gender: int
-    birth_date: date
-    birth_place: int
-
-
-async def register(registerTeacherRequest: RegisterTeacherRequest):
-    return None
+async def register(registerTeacherRequest: Teacher,
+                   repository: Repository = Depends(RepositoryFactory.create)):
+    try:
+        teacher = repository.Teacher().create(teacher=registerTeacherRequest)
+    except Exception as e:
+        raise DbError(detail=str(e))
+    return teacher
