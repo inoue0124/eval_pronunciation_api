@@ -1,5 +1,4 @@
 from api.infra.repository.db.learner import LearnerTable
-from pydantic.utils import T
 from api.domain.entity.learner import Learner
 from typing import Optional
 from api.infra.repository.converter.learner import LearnerConverter
