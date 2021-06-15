@@ -4,7 +4,7 @@ from api.domain.entity.gop import Gop
 from api.domain.entity.teacher import Teacher
 from api.domain.entity.learner import Learner
 from fastapi import FastAPI
-from api.presenter import learner_speech, session, user, teacher, learner
+from api.presenter import learner_speech, session, user, teacher, learner, teacher_speech
 from api.util.errors import DbError, KaldiError, error_response
 
 
@@ -42,6 +42,13 @@ def add_routes(app: FastAPI) -> None:
                       teacher.search,
                       methods=["GET"],
                       response_model=list[Teacher],
+                      responses=error_response([DbError]),
+                      tags=["teachers"])
+
+    app.add_api_route("/teachers/speeches",
+                      teacher_speech.register_speech,
+                      methods=["POST"],
+                      response_model=None,
                       responses=error_response([DbError]),
                       tags=["teachers"])
 
