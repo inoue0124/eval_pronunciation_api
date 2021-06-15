@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`units` (
   INDEX `idx_teacher_id` (`teacher_id` ASC),
   CONSTRAINT `fk_unit_teacher_id`
     FOREIGN KEY (`id`)
-    REFERENCES `eval-speech`.`teachers` (`user_id`)
+    REFERENCES `eval-speech`.`users` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) CHARACTER SET utf8mb4;
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`units` (
 -- Table `eval-speech`.`teacher_speeches`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `eval-speech`.`teacher_speeches` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `teacher_id` INT NOT NULL,
   `text` VARCHAR(1000) NULL,
   `object_key` VARCHAR(200) NULL,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teacher_speeches` (
   INDEX `fk_model_speech_teacher_id_idx` (`teacher_id` ASC),
   CONSTRAINT `fk_model_speech_teacher_id`
     FOREIGN KEY (`teacher_id`)
-    REFERENCES `eval-speech`.`teachers` (`user_id`)
+    REFERENCES `eval-speech`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) CHARACTER SET utf8mb4;
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teacher_speeches` (
 -- Table `eval-speech`.`learner_speeches`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `eval-speech`.`learner_speeches` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `learner_id` INT NULL,
   `unit_id` INT NULL,
   `teacher_speech_id` INT NULL,
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learner_speeches` (
   INDEX `fk_teacher_id_idx` (`teacher_speech_id` ASC),
   CONSTRAINT `fk_learner_speech_learner_id`
     FOREIGN KEY (`learner_id`)
-    REFERENCES `eval-speech`.`learners` (`user_id`)
+    REFERENCES `eval-speech`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_learner_speech_unit_id`

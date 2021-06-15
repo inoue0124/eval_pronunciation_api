@@ -1,4 +1,3 @@
-import sys
 from .db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from .mixin import TimestampMixin
