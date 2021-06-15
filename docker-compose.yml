@@ -17,6 +17,9 @@ services:
       MYSQL_PASSWORD: evalspeech
       MYSQL_HOST: evp_db
       MYSQL_DATABASE: eval-speech
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_KEY: ${AWS_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
 
   db:
     container_name: evp_db
