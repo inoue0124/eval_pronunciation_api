@@ -9,7 +9,15 @@ services:
     # image: inoue0124/eval-speech_api
     ports:
       - 8080:80
-  
+    environment:
+      SECRET_KEY: "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+      ALGORITHM: "HS256"
+      ACCESS_TOKEN_EXPIRE_DAYS: 7
+      MYSQL_USER: evalspeech
+      MYSQL_PASSWORD: evalspeech
+      MYSQL_HOST: evp_db
+      MYSQL_DATABASE: eval-speech
+
   db:
     container_name: evp_db
     image: mysql:5.7

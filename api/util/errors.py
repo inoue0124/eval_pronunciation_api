@@ -1,4 +1,5 @@
 from typing import Optional, List, Type
+from fastapi import status
 
 
 class ApiError(Exception):
@@ -14,13 +15,18 @@ class ApiError(Exception):
         return {"message": self.message, "detail": self.detail}
 
 
+class AuthError(ApiError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    message = 'not authorized'
+
+
 class KaldiError(ApiError):
-    status_code = 500
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     message = 'Kaldi error'
 
 
 class DbError(ApiError):
-    status_code = 500
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     message = 'DB error'
 
 

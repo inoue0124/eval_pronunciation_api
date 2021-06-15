@@ -3,7 +3,6 @@ from api.domain.entity.dtw import Dtw
 from api.domain.entity.gop import Gop
 from api.domain.entity.teacher import Teacher
 from api.domain.entity.learner import Learner
-from typing import Union
 from fastapi import FastAPI
 from api.presenter import learner_speech, session, user, teacher, learner
 from api.util.errors import DbError, KaldiError, error_response
@@ -14,13 +13,13 @@ def add_routes(app: FastAPI) -> None:
     app.add_api_route("/session",
                       session.login,
                       methods=["POST"],
-                      response_model=Union[Learner, Teacher],
+                      response_model=User,
                       tags=["session"])
 
     app.add_api_route("/session",
                       session.logout,
                       methods=["DELETE"],
-                      response_model=Union[Learner, Teacher],
+                      response_model=User,
                       tags=["session"])
 
     # user

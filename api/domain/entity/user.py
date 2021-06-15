@@ -12,13 +12,10 @@ class User(BaseModel):
     created_at: Optional[datetime]
 
     def set_password(self, password: str) -> None:
-        self.password: str = self._generate_hashed_password(password=password)
+        self.password: str = bcrypt.hashpw(
+            password.encode(), bcrypt.gensalt(rounds=10,
+                                              prefix=b'2a')).decode()
 
     def check_password(self, password: str) -> bool:
-        return bcrypt.checkpw(
-            self.password.encode(),
-            self._generate_hashed_password(password=password))
-
-    def _generate_hashed_password(self, password: str) -> str:
-        return bcrypt.hashpw(password.encode(),
-                             bcrypt.gensalt(rounds=10, prefix=b'2a'))
+        return self.password == bcrypt.hashpw(password.encode(),
+                                              self.password.encode()).decode()

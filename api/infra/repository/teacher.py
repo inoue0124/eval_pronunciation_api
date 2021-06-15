@@ -1,5 +1,4 @@
 from api.infra.repository.db.teacher import TeacherTable
-from pydantic.utils import T
 from api.domain.entity.teacher import Teacher
 from typing import Optional
 from api.infra.repository.converter.teacher import TeacherConverter
