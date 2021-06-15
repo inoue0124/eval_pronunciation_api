@@ -1,15 +1,39 @@
+from api.domain.entity.teacher import Teacher
+from api.presenter.request import get_current_uid
+from datetime import date
 from typing import Optional
 from fastapi import Depends
+from pydantic.main import BaseModel
 from api.domain.repository.repository import Repository
 from api.domain.entity.learner import Learner
 from api.factory import RepositoryFactory
 from api.util.errors import DbError
 
 
-async def register(registerLearnerRequest: Learner,
-                   repository: Repository = Depends(RepositoryFactory.create)):
+class RegisterLearnerRequest(BaseModel):
+    teacher_id: int
+    name: str
+    gender: int
+    birth_date: date
+    birth_place: int
+    year_of_learning: int
+
+
+async def register(registerLearnerRequest: RegisterLearnerRequest,
+                   repository: Repository = Depends(RepositoryFactory.create),
+                   current_uid=Depends(get_current_uid)):
+    # learnerエンティティを作成
+    learner: Learner = Learner(
+        user_id=current_uid,
+        teacher_id=registerLearnerRequest.teacher_id,
+        name=registerLearnerRequest.name,
+        gender=registerLearnerRequest.gender,
+        birth_date=registerLearnerRequest.birth_date,
+        birth_place=registerLearnerRequest.birth_place,
+        year_of_learning=registerLearnerRequest.year_of_learning)
+
     try:
-        learner = repository.Learner().create(learner=registerLearnerRequest)
+        learner = repository.Learner().create(learner=learner)
     except Exception as e:
         raise DbError(detail=str(e))
     return learner

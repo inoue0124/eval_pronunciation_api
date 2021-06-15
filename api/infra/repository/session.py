@@ -1,15 +1,10 @@
-from typing import Optional
-from fastapi import Depends, HTTPException, status
+from api.util.config import ALGORITHM, SECRET_KEY, ACCESS_TOKEN_EXPIRE_DAYS
 from datetime import datetime, timedelta
 from api.domain.repository.session import LoginRequest
 from api.infra.repository.converter.user import UserConverter
 from api.domain.entity.user import User
 from .db.user import UserTable
-from jose import JWTError, jwt
-
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_DAYS = 7
+from jose import jwt
 
 
 class SessionRepository():
@@ -27,7 +22,7 @@ class SessionRepository():
             raise ValueError("the password is not correct")
 
         # jwt tokenを発行
-        token = self._create_access_token(data={"sub": user.id})
+        token = self._create_access_token(data={"sub": str(user.id)})
 
         return user, token
 
