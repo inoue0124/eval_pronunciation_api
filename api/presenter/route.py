@@ -60,6 +60,13 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["units"])
 
+    app.add_api_route("/units/{unit_id}",
+                      unit.update,
+                      methods=["PUT"],
+                      response_model=None,
+                      responses=error_response([DbError]),
+                      tags=["units"])
+
     # learner
     app.add_api_route("/learners",
                       learner.register,
