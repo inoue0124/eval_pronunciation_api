@@ -67,6 +67,13 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["learners"])
 
+    app.add_api_route("/learners/speeches",
+                      learner_speech.register_speech,
+                      methods=["POST"],
+                      response_model=None,
+                      responses=error_response([DbError]),
+                      tags=["learners"])
+
     # score
     app.add_api_route("/scores/gop",
                       learner_speech.get_gop,

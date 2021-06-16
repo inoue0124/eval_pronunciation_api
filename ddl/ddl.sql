@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`units` (
   PRIMARY KEY (`id`),
   INDEX `idx_teacher_id` (`teacher_id` ASC),
   CONSTRAINT `fk_unit_teacher_id`
-    FOREIGN KEY (`id`)
+    FOREIGN KEY (`teacher_id`)
     REFERENCES `eval-speech`.`users` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
