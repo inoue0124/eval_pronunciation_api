@@ -16,7 +16,7 @@ def get_current_uid(cred: HTTPAuthorizationCredentials = Depends(
                              SECRET_KEY,
                              algorithms=[ALGORITHM])
 
-        user_id: int = payload.get("sub")
+        user_id: int = int(payload.get("sub"))
         if user_id is None:
             raise AuthError(detail='the token is invalid')
 

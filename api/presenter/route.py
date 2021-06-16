@@ -1,10 +1,12 @@
+from api.domain.entity.unit import Unit
+from api.domain.entity.teacher_speech import TeacherSpeech
 from api.domain.entity.user import User
 from api.domain.entity.dtw import Dtw
 from api.domain.entity.gop import Gop
 from api.domain.entity.teacher import Teacher
 from api.domain.entity.learner import Learner
 from fastapi import FastAPI
-from api.presenter import learner_speech, session, user, teacher, learner, teacher_speech
+from api.presenter import learner_speech, session, user, teacher, learner, teacher_speech, unit
 from api.util.errors import DbError, KaldiError, error_response
 
 
@@ -48,9 +50,31 @@ def add_routes(app: FastAPI) -> None:
     app.add_api_route("/teachers/speeches",
                       teacher_speech.register_speech,
                       methods=["POST"],
-                      response_model=None,
+                      response_model=TeacherSpeech,
                       responses=error_response([DbError]),
                       tags=["teachers"])
+
+    # unit
+    app.add_api_route("/units",
+                      unit.register,
+                      methods=["POST"],
+                      response_model=Unit,
+                      responses=error_response([DbError]),
+                      tags=["units"])
+
+    app.add_api_route("/units/{unit_id}",
+                      unit.get_by_id,
+                      methods=["GET"],
+                      response_model=Unit,
+                      responses=error_response([DbError]),
+                      tags=["units"])
+
+    app.add_api_route("/units/{unit_id}",
+                      unit.update,
+                      methods=["PUT"],
+                      response_model=Unit,
+                      responses=error_response([DbError]),
+                      tags=["units"])
 
     # learner
     app.add_api_route("/learners",

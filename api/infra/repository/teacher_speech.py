@@ -1,3 +1,4 @@
+from api.infra.repository.converter.teacher_speech import TeacherSpeechConverter
 from datetime import datetime
 from api.util.config import S3_BUCKET_NAME
 from api.domain.entity.teacher_speech import TeacherSpeech
