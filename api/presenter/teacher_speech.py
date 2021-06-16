@@ -1,13 +1,13 @@
 from api.domain.entity.teacher_speech import TeacherSpeech
-from api.util.config import AWS_ACCESS_KEY, AWS_REGION, AWS_SECRET_KEY, S3_BUCKET_NAME
-from fastapi import Depends, File, UploadFile
 from api.domain.repository.repository import Repository
 from api.presenter.request import get_current_uid
-from api.factory import RepositoryFactory
 from api.util.errors import DbError
+from api.factory import RepositoryFactory
+from fastapi import Depends, File, UploadFile
+from fastapi.param_functions import Form
 
 
-async def register_speech(text: str = File(...),
+async def register_speech(text: str = Form(...),
                           speech: UploadFile = File(...),
                           repository: Repository = Depends(
                               RepositoryFactory.create),

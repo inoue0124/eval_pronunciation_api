@@ -1,5 +1,4 @@
 from datetime import date
-from os import name
 from pydantic.main import BaseModel
 from api.presenter.request import get_current_uid
 from typing import Optional
