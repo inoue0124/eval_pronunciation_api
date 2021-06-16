@@ -1,3 +1,4 @@
+from .unit import UnitRepository
 from .learner_speech import LearnerSpeechRepository
 from .teacher_speech import TeacherSpeechRepository
 from typing import Protocol, runtime_checkable
@@ -25,4 +26,7 @@ class Repository(Protocol):
         ...
 
     def LearnerSpeech(self) -> LearnerSpeechRepository:
+        ...
+
+    def Unit(self) -> UnitRepository:
         ...
