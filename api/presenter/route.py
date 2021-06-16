@@ -1,3 +1,5 @@
+from api.domain.entity.unit import Unit
+from api.domain.entity.teacher_speech import TeacherSpeech
 from api.domain.entity.user import User
 from api.domain.entity.dtw import Dtw
 from api.domain.entity.gop import Gop
@@ -48,7 +50,7 @@ def add_routes(app: FastAPI) -> None:
     app.add_api_route("/teachers/speeches",
                       teacher_speech.register_speech,
                       methods=["POST"],
-                      response_model=None,
+                      response_model=TeacherSpeech,
                       responses=error_response([DbError]),
                       tags=["teachers"])
 
@@ -56,14 +58,21 @@ def add_routes(app: FastAPI) -> None:
     app.add_api_route("/units",
                       unit.register,
                       methods=["POST"],
-                      response_model=None,
+                      response_model=Unit,
+                      responses=error_response([DbError]),
+                      tags=["units"])
+
+    app.add_api_route("/units/{unit_id}",
+                      unit.get_by_id,
+                      methods=["GET"],
+                      response_model=Unit,
                       responses=error_response([DbError]),
                       tags=["units"])
 
     app.add_api_route("/units/{unit_id}",
                       unit.update,
                       methods=["PUT"],
-                      response_model=None,
+                      response_model=Unit,
                       responses=error_response([DbError]),
                       tags=["units"])
 

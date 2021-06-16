@@ -35,17 +35,36 @@ async def update(unit_id: int,
                  repository: Repository = Depends(RepositoryFactory.create),
                  current_uid=Depends(get_current_uid)):
 
-    # try:
-    unit: Unit = repository.Unit().get_by_id(unit_id=unit_id)
+    try:
+        unit: Unit = repository.Unit().get_by_id(unit_id=unit_id)
+    except Exception as e:
+        raise DbError(detail=str(e))
     # 自分のteacher_id以外だったらエラー
-    # if unit.teacher_id != current_uid:
-    #     raise AuthError
+    if unit.teacher_id != current_uid:
+        raise AuthError
 
     unit.name = updateUnitRequest.name
 
-    unit: Unit = repository.Unit().update(
-        unit=unit, speech_ids=updateUnitRequest.speech_ids)
-    # except Exception as e:
-    #     raise DbError(detail=str(e))
+    try:
+        unit: Unit = repository.Unit().update(
+            unit=unit, speech_ids=updateUnitRequest.speech_ids)
+    except Exception as e:
+        raise DbError(detail=str(e))
+
+    return unit
+
+
+async def get_by_id(unit_id: int,
+                    repository: Repository = Depends(RepositoryFactory.create),
+                    current_uid=Depends(get_current_uid)):
+
+    try:
+        unit: Unit = repository.Unit().get_by_id(unit_id=unit_id)
+    except Exception as e:
+        raise e
+
+    # 自分のteacher_id以外だったらエラー
+    if unit.teacher_id != current_uid:
+        raise AuthError
 
     return unit
