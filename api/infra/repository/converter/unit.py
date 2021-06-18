@@ -17,7 +17,7 @@ class UnitConverter:
 
     def convert_from_list(self, unit_tables: list[UnitTable]) -> list[Unit]:
         units = []
-        for unitTable in unit_tables:
-            units.append(self.convert(unitTable=unitTable))
+        for unit_table in unit_tables:
+            units.append(self.convert(unit_table=unit_table))
 
         return units

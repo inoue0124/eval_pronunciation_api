@@ -1,3 +1,6 @@
+from typing import Optional
+
+from sqlalchemy.sql.expression import asc, desc
 from api.infra.repository.db.teacher_speech import TeacherSpeechTable
 from api.infra.repository.converter.unit import UnitConverter
 from api.domain.entity.unit import Unit
@@ -25,6 +28,34 @@ class UnitRepository:
         unit.created_at = unit_table.created_at
 
         return unit
+
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               teacher_id: Optional[int] = None) -> list[Unit]:
+        offset: int = (page - 1) * limit
+
+        query = self.db.query(UnitTable)
+
+        # 検索ワードがある場合はfilterを追加
+        if search_query != None:
+            query = query.filter(UnitTable.name.like(f"%{search_query}%"))
+
+        # teacher_idがある場合はfilterを追加
+        if teacher_id != None:
+            query = query.filter(UnitTable.teacher_id == teacher_id)
+
+        # 昇順と降順の切り替え
+        if is_asc:
+            query = query.order_by(asc(UnitTable.created_at))
+        else:
+            query = query.order_by(desc(UnitTable.created_at))
+
+        unit_tables = query.offset(offset).limit(limit).offset(offset).all()
+
+        return UnitConverter().convert_from_list(unit_tables=unit_tables)
 
     def update(self, unit: Unit, speech_ids: list[int]) -> Unit:
 

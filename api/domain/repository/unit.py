@@ -1,4 +1,4 @@
-from typing import Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 from api.domain.entity.unit import Unit
 
 
@@ -8,4 +8,14 @@ class UnitRepository(Protocol):
         ...
 
     def create(self, unit: Unit) -> Unit:
+        ...
+
+    def search(self, page: int, limit: int, search_query: Optional[str],
+               is_asc: Optional[bool]) -> list[Unit]:
+        ...
+
+    def update(self, unit: Unit, speech_ids: list[int]) -> Unit:
+        ...
+
+    def get_by_id(self, unit_id: int) -> Unit:
         ...
