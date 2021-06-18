@@ -2,9 +2,6 @@ from api.util.config import ALGORITHM, SECRET_KEY
 from api.util.errors import AuthError
 from fastapi import Depends
 from fastapi.security.http import HTTPAuthorizationCredentials, HTTPBearer
-from api.domain.entity.user import User
-from api.infra.repository.db.user import UserTable
-from api.infra.repository.converter.user import UserConverter
 from jose import JWTError, jwt
 
 

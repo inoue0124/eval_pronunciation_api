@@ -1,3 +1,4 @@
+from api.domain.entity.unit import Unit
 from datetime import date
 from pydantic.main import BaseModel
 from api.presenter.request import get_current_uid
@@ -6,7 +7,7 @@ from fastapi import Depends
 from api.domain.repository.repository import Repository
 from api.domain.entity.teacher import Teacher
 from api.factory import RepositoryFactory
-from api.util.errors import DbError
+from api.util.errors import AuthError, DbError
 
 
 class RegisterTeacherRequest(BaseModel):
@@ -48,3 +49,28 @@ async def search(page: int,
         raise DbError(detail=str(e))
 
     return teachers
+
+
+async def search_units(teacher_id: int,
+                       page: int,
+                       limit: int,
+                       search_query: Optional[str] = None,
+                       is_asc: Optional[bool] = True,
+                       repository: Repository = Depends(
+                           RepositoryFactory.create),
+                       current_uid=Depends(get_current_uid)):
+
+    # 自分のteacher_id以外だったらエラー
+    if teacher_id != current_uid:
+        raise AuthError
+
+    try:
+        units: list[Unit] = repository.Unit().search(page=page,
+                                                     limit=limit,
+                                                     search_query=search_query,
+                                                     is_asc=is_asc,
+                                                     teacher_id=teacher_id)
+    except Exception as e:
+        raise DbError(detail=str(e))
+
+    return units

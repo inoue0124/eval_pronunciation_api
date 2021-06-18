@@ -30,6 +30,22 @@ async def register(registerUnitRequest: RegisterUnitRequest,
     return unit
 
 
+async def search(page: int,
+                 limit: int,
+                 search_query: Optional[str] = None,
+                 is_asc: Optional[bool] = True,
+                 repository: Repository = Depends(RepositoryFactory.create)):
+    try:
+        units: list[Unit] = repository.Unit().search(page=page,
+                                                     limit=limit,
+                                                     search_query=search_query,
+                                                     is_asc=is_asc)
+    except Exception as e:
+        raise DbError(detail=str(e))
+
+    return units
+
+
 async def update(unit_id: int,
                  updateUnitRequest: UpdateUnitRequest,
                  repository: Repository = Depends(RepositoryFactory.create),
@@ -43,6 +59,7 @@ async def update(unit_id: int,
     if unit.teacher_id != current_uid:
         raise AuthError
 
+    # 変更内容を設定
     unit.name = updateUnitRequest.name
 
     try:
