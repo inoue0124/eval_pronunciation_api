@@ -39,7 +39,8 @@ async def search(page: int,
                  limit: int,
                  search_query: Optional[str] = None,
                  is_asc: Optional[bool] = True,
-                 repository: Repository = Depends(RepositoryFactory.create)):
+                 repository: Repository = Depends(RepositoryFactory.create),
+                 _=Depends(get_current_uid)):
     try:
         teachers = repository.Teacher().search(page=page,
                                                limit=limit,
