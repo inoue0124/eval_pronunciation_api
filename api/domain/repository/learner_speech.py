@@ -11,3 +11,6 @@ class LearnerSpeechRepository(Protocol):
     def create(self, learner_speech: LearnerSpeech,
                speech: UploadFile) -> LearnerSpeech:
         ...
+
+    def get_by_id(self, learner_speech_id: int) -> LearnerSpeech:
+        ...

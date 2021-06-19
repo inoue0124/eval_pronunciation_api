@@ -54,9 +54,9 @@ async def search_by_learner_id(learner_id: int,
                                    RepositoryFactory.create),
                                current_uid=Depends(get_current_uid)):
 
-    # 自分のlearner_id or teacher_id以外だったらエラー
-    # if learner_id != current_uid:
-    #     raise AuthError
+    # 自分のlearner_id or teacher_id以外だったらエラー TODO:バリデーション
+    if learner_id != current_uid:
+        raise AuthError
 
     try:
         learner_speeches: list[Learner] = repository.LearnerSpeech().search(
@@ -69,3 +69,20 @@ async def search_by_learner_id(learner_id: int,
         raise DbError(detail=str(e))
 
     return learner_speeches
+
+
+async def get_by_id(learner_speech_id: int,
+                    repository: Repository = Depends(RepositoryFactory.create),
+                    current_uid=Depends(get_current_uid)):
+
+    try:
+        learner_speech: LearnerSpeech = repository.LearnerSpeech().get_by_id(
+            learner_speech_id=learner_speech_id)
+    except Exception as e:
+        raise e
+
+    # 自分のlearner_id以外だったらエラー TODO:バリデーション
+    if learner_speech.learner_id != current_uid:
+        raise AuthError
+
+    return learner_speech
