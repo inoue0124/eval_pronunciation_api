@@ -112,6 +112,13 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["learners"])
 
+    app.add_api_route("/teachers/{teacher_id}/learners",
+                      learner.search_by_teacher_id,
+                      methods=["GET"],
+                      response_model=list[Learner],
+                      responses=error_response([DbError]),
+                      tags=["learners"])
+
     # score
     app.add_api_route("/scores/gop",
                       learner_speech.get_gop,
