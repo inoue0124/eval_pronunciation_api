@@ -19,3 +19,7 @@ class TeacherSpeechRepository(Protocol):
                is_asc: Optional[bool],
                teacher_id: Optional[int] = None) -> list[TeacherSpeech]:
         ...
+
+    def list_by_ids(self,
+                    teacher_speech_ids: list[int]) -> list[TeacherSpeech]:
+        ...

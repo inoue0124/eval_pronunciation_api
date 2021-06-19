@@ -95,3 +95,13 @@ class LearnerSpeechRepository:
         # ドメインモデルに変換
         return LearnerSpeechConverter().convert(
             learner_speech_table=learner_speech_table)
+
+    def list_by_ids(self,
+                    learner_speech_ids: list[int]) -> list[LearnerSpeech]:
+        # ユニットIDからテーブルモデルを取得
+        learner_speech_tables = self.db.query(LearnerSpeechTable).filter(
+            LearnerSpeechTable.id.in_(learner_speech_ids)).all()
+
+        # ドメインモデルに変換
+        return LearnerSpeechConverter().convert_from_list(
+            learner_speech_tables=learner_speech_tables)

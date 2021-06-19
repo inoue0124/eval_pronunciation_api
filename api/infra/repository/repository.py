@@ -5,6 +5,7 @@ from .session import SessionRepository
 from .teacher import TeacherRepository
 from .user import UserRepository
 from .learner import LearnerRepository
+from .file import FileRepository
 from .db.db import session
 from .aws.s3 import s3_client
 
@@ -20,6 +21,7 @@ class Repository:
         self.learnerSpeechRepository = LearnerSpeechRepository(
             db=session, s3_client=s3_client)
         self.unitRepository = UnitRepository(db=session)
+        self.fileRepository = FileRepository(s3_client=s3_client)
 
     def Session(self) -> SessionRepository:
         return self.sessionRepository
@@ -41,3 +43,6 @@ class Repository:
 
     def Unit(self) -> UnitRepository:
         return self.unitRepository
+
+    def File(self) -> FileRepository:
+        return self.fileRepository

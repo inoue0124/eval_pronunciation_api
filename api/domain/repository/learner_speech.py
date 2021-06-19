@@ -22,3 +22,10 @@ class LearnerSpeechRepository(Protocol):
 
     def get_by_id(self, learner_speech_id: int) -> LearnerSpeech:
         ...
+
+    def download(self, learner_speech: LearnerSpeech, dest_file: str):
+        ...
+
+    def list_by_ids(self,
+                    learner_speech_ids: list[int]) -> list[LearnerSpeech]:
+        ...

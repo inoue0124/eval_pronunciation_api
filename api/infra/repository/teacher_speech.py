@@ -84,3 +84,13 @@ class TeacherSpeechRepository:
 
         return TeacherSpeechConverter().convert_from_list(
             teacher_speech_tables=teacher_speech_tables)
+
+    def list_by_ids(self,
+                    teacher_speech_ids: list[int]) -> list[TeacherSpeech]:
+        # ユニットIDからテーブルモデルを取得
+        teacher_speech_tables = self.db.query(TeacherSpeechTable).filter(
+            TeacherSpeechTable.id.in_(teacher_speech_ids)).all()
+
+        # ドメインモデルに変換
+        return TeacherSpeechConverter().convert_from_list(
+            teacher_speech_tables=teacher_speech_tables)

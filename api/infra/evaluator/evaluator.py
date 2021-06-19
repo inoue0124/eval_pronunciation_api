@@ -1,7 +1,5 @@
-from pydantic.main import create_model
 from api.domain.entity.dtw import Dtw
 from re import A
-from typing import Sequence
 from api.domain.entity.gop import Gop
 from api.infra.evaluator.kaldi import Kaldi
 from concurrent import futures
