@@ -71,6 +71,12 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["teacher-speeches"])
 
+    app.add_api_route("/teacher-speeches/archive",
+                      teacher_speech.download,
+                      methods=["POST"],
+                      responses=error_response([DbError]),
+                      tags=["teacher-speeches"])
+
     # unit
     app.add_api_route("/units",
                       unit.register,
