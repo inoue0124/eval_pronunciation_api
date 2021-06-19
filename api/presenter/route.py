@@ -50,9 +50,23 @@ def add_routes(app: FastAPI) -> None:
 
     # teacher-speeches
     app.add_api_route("/teacher-speeches",
-                      teacher_speech.register_speech,
+                      teacher_speech.register,
                       methods=["POST"],
                       response_model=TeacherSpeech,
+                      responses=error_response([DbError]),
+                      tags=["teacher-speeches"])
+
+    app.add_api_route("/teacher-speeches",
+                      teacher_speech.search,
+                      methods=["GET"],
+                      response_model=list[TeacherSpeech],
+                      responses=error_response([DbError]),
+                      tags=["teacher-speeches"])
+
+    app.add_api_route("/teachers/{teacher_id}/teacher-speeches",
+                      teacher_speech.search_by_teacher_id,
+                      methods=["GET"],
+                      response_model=list[TeacherSpeech],
                       responses=error_response([DbError]),
                       tags=["teacher-speeches"])
 

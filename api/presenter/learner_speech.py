@@ -77,12 +77,12 @@ async def search_by_learner_id(learner_id: int,
         raise AuthError
 
     try:
-        learner_speeches: list[Learner] = repository.LearnerSpeech().search(
-            page=page,
-            limit=limit,
-            search_query=search_query,
-            is_asc=is_asc,
-            learner_id=learner_id)
+        learner_speeches: list[LearnerSpeech] = repository.LearnerSpeech(
+        ).search(page=page,
+                 limit=limit,
+                 search_query=search_query,
+                 is_asc=is_asc,
+                 learner_id=learner_id)
     except Exception as e:
         raise DbError(detail=str(e))
 
