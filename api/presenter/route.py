@@ -54,13 +54,6 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["teachers"])
 
-    app.add_api_route("/teachers/{teacher_id}/units",
-                      teacher.search_units,
-                      methods=["GET"],
-                      response_model=list[Unit],
-                      responses=error_response([DbError]),
-                      tags=["teachers"])
-
     # unit
     app.add_api_route("/units",
                       unit.register,
@@ -87,6 +80,13 @@ def add_routes(app: FastAPI) -> None:
                       unit.update,
                       methods=["PUT"],
                       response_model=Unit,
+                      responses=error_response([DbError]),
+                      tags=["units"])
+
+    app.add_api_route("/teachers/{teacher_id}/units",
+                      unit.search_by_teacher_id,
+                      methods=["GET"],
+                      response_model=list[Unit],
                       responses=error_response([DbError]),
                       tags=["units"])
 
