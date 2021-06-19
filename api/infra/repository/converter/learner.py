@@ -3,20 +3,20 @@ from api.domain.entity.learner import Learner
 
 
 class LearnerConverter:
-    def convert(self, learnerTable: LearnerTable) -> Learner:
-        return Learner(user_id=learnerTable.user_id,
-                       teacher_id=learnerTable.teacher_id,
-                       name=learnerTable.name,
-                       gender=learnerTable.gender,
-                       birth_date=learnerTable.birth_date,
-                       birth_place=learnerTable.birth_place,
-                       year_of_learning=learnerTable.year_of_learning,
-                       created_at=learnerTable.created_at)
+    def convert(self, learner_table: LearnerTable) -> Learner:
+        return Learner(user_id=learner_table.user_id,
+                       teacher_id=learner_table.teacher_id,
+                       name=learner_table.name,
+                       gender=learner_table.gender,
+                       birth_date=learner_table.birth_date,
+                       birth_place=learner_table.birth_place,
+                       year_of_learning=learner_table.year_of_learning,
+                       created_at=learner_table.created_at)
 
     def convert_from_list(self,
-                          learnerTables: list[LearnerTable]) -> list[Learner]:
+                          learner_tables: list[LearnerTable]) -> list[Learner]:
         learners = []
-        for learnerTable in learnerTables:
-            learners.append(self.convert(learnerTable=learnerTable))
+        for learner_table in learner_tables:
+            learners.append(self.convert(learner_table=learner_table))
 
         return learners

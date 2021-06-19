@@ -1,6 +1,6 @@
 from fastapi.datastructures import UploadFile
 from api.domain.entity.teacher_speech import TeacherSpeech
-from typing import Protocol, runtime_checkable
+from typing import Optional, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -10,4 +10,12 @@ class TeacherSpeechRepository(Protocol):
 
     def create(self, teacher_speech: TeacherSpeech,
                speech: UploadFile) -> TeacherSpeech:
+        ...
+
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               teacher_id: Optional[int] = None) -> list[TeacherSpeech]:
         ...

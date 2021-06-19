@@ -10,8 +10,12 @@ class UnitRepository(Protocol):
     def create(self, unit: Unit) -> Unit:
         ...
 
-    def search(self, page: int, limit: int, search_query: Optional[str],
-               is_asc: Optional[bool]) -> list[Unit]:
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               teacher_id: Optional[int] = None) -> list[Unit]:
         ...
 
     def update(self, unit: Unit, speech_ids: list[int]) -> Unit:

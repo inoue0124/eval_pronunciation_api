@@ -55,7 +55,15 @@ class LearnerRepository:
         else:
             query = query.order_by(desc(LearnerTable.created_at))
 
-        learnerTables = query.offset(offset).limit(limit).offset(offset).all()
+        learner_tables = query.offset(offset).limit(limit).offset(offset).all()
 
         return LearnerConverter().convert_from_list(
-            learnerTables=learnerTables)
+            learner_tables=learner_tables)
+
+    def get_by_id(self, learner_id: int) -> Learner:
+        # ユニットIDからテーブルモデルを取得
+        learner_table = self.db.query(LearnerTable).filter(
+            LearnerTable.id == learner_id).first()
+
+        # ドメインモデルに変換
+        return LearnerConverter().convert(learner_table=learner_table)

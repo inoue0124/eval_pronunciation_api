@@ -1,5 +1,7 @@
+from api.domain.entity.learner import Learner
+from typing import Optional
 from api.domain.entity.learner_speech import LearnerSpeech
-from api.util.errors import DbError
+from api.util.errors import AuthError, DbError
 from api.domain.entity.teacher_speech import TeacherSpeech
 from api.presenter.request import get_current_uid
 from api.domain.repository.repository import Repository
@@ -22,13 +24,12 @@ async def get_dtw(evaluator: Evaluator = Depends(EvaluatorFactory.create)):
     return dtw
 
 
-async def register_speech(unit_id: int = Form(...),
-                          teacher_speech_id: int = Form(...),
-                          type: int = Form(...),
-                          speech: UploadFile = File(...),
-                          repository: Repository = Depends(
-                              RepositoryFactory.create),
-                          current_uid=Depends(get_current_uid)):
+async def register(unit_id: int = Form(...),
+                   teacher_speech_id: int = Form(...),
+                   type: int = Form(...),
+                   speech: UploadFile = File(...),
+                   repository: Repository = Depends(RepositoryFactory.create),
+                   current_uid=Depends(get_current_uid)):
 
     learner_speech: LearnerSpeech = LearnerSpeech(
         learner_id=current_uid,
@@ -40,5 +41,66 @@ async def register_speech(unit_id: int = Form(...),
             learner_speech=learner_speech, speech=speech)
     except Exception as e:
         raise DbError(detail=str(e))
+
+    return learner_speech
+
+
+async def search(page: int,
+                 limit: int,
+                 search_query: Optional[str] = None,
+                 is_asc: Optional[bool] = True,
+                 repository: Repository = Depends(RepositoryFactory.create),
+                 _=Depends(get_current_uid)):
+    try:
+        learner_speeches: list[LearnerSpeech] = repository.LearnerSpeech(
+        ).search(page=page,
+                 limit=limit,
+                 search_query=search_query,
+                 is_asc=is_asc)
+    except Exception as e:
+        raise DbError(detail=str(e))
+
+    return learner_speeches
+
+
+async def search_by_learner_id(learner_id: int,
+                               page: int,
+                               limit: int,
+                               search_query: Optional[str] = None,
+                               is_asc: Optional[bool] = True,
+                               repository: Repository = Depends(
+                                   RepositoryFactory.create),
+                               current_uid=Depends(get_current_uid)):
+
+    # 自分のlearner_id or teacher_id以外だったらエラー TODO:バリデーション
+    if learner_id != current_uid:
+        raise AuthError
+
+    try:
+        learner_speeches: list[LearnerSpeech] = repository.LearnerSpeech(
+        ).search(page=page,
+                 limit=limit,
+                 search_query=search_query,
+                 is_asc=is_asc,
+                 learner_id=learner_id)
+    except Exception as e:
+        raise DbError(detail=str(e))
+
+    return learner_speeches
+
+
+async def get_by_id(learner_speech_id: int,
+                    repository: Repository = Depends(RepositoryFactory.create),
+                    current_uid=Depends(get_current_uid)):
+
+    try:
+        learner_speech: LearnerSpeech = repository.LearnerSpeech().get_by_id(
+            learner_speech_id=learner_speech_id)
+    except Exception as e:
+        raise e
+
+    # 自分のlearner_id以外だったらエラー TODO:バリデーション
+    if learner_speech.learner_id != current_uid:
+        raise AuthError
 
     return learner_speech

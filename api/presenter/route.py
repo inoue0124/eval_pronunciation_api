@@ -1,3 +1,4 @@
+from api.domain.entity.learner_speech import LearnerSpeech
 from api.domain.entity.unit import Unit
 from api.domain.entity.teacher_speech import TeacherSpeech
 from api.domain.entity.user import User
@@ -47,12 +48,27 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["teachers"])
 
-    app.add_api_route("/teachers/speeches",
-                      teacher_speech.register_speech,
+    # teacher-speeches
+    app.add_api_route("/teacher-speeches",
+                      teacher_speech.register,
                       methods=["POST"],
                       response_model=TeacherSpeech,
                       responses=error_response([DbError]),
-                      tags=["teachers"])
+                      tags=["teacher-speeches"])
+
+    app.add_api_route("/teacher-speeches",
+                      teacher_speech.search,
+                      methods=["GET"],
+                      response_model=list[TeacherSpeech],
+                      responses=error_response([DbError]),
+                      tags=["teacher-speeches"])
+
+    app.add_api_route("/teachers/{teacher_id}/teacher-speeches",
+                      teacher_speech.search_by_teacher_id,
+                      methods=["GET"],
+                      response_model=list[TeacherSpeech],
+                      responses=error_response([DbError]),
+                      tags=["teacher-speeches"])
 
     # unit
     app.add_api_route("/units",
@@ -105,19 +121,41 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["learners"])
 
-    app.add_api_route("/learners/speeches",
-                      learner_speech.register_speech,
-                      methods=["POST"],
-                      response_model=None,
-                      responses=error_response([DbError]),
-                      tags=["learners"])
-
     app.add_api_route("/teachers/{teacher_id}/learners",
                       learner.search_by_teacher_id,
                       methods=["GET"],
                       response_model=list[Learner],
                       responses=error_response([DbError]),
                       tags=["learners"])
+
+    # learner-speeches
+    app.add_api_route("/learner-speeches",
+                      learner_speech.register,
+                      methods=["POST"],
+                      response_model=LearnerSpeech,
+                      responses=error_response([DbError]),
+                      tags=["learner-speeches"])
+
+    app.add_api_route("/learner-speeches",
+                      learner_speech.search,
+                      methods=["GET"],
+                      response_model=list[LearnerSpeech],
+                      responses=error_response([DbError]),
+                      tags=["learner-speeches"])
+
+    app.add_api_route("/learners/{learner_id}/learner-speeches",
+                      learner_speech.search_by_learner_id,
+                      methods=["GET"],
+                      response_model=list[LearnerSpeech],
+                      responses=error_response([DbError]),
+                      tags=["learner-speeches"])
+
+    app.add_api_route("/learner-speeches/{learner_speech_id}",
+                      learner_speech.get_by_id,
+                      methods=["GET"],
+                      response_model=LearnerSpeech,
+                      responses=error_response([DbError]),
+                      tags=["learner-speeches"])
 
     # score
     app.add_api_route("/scores/gop",

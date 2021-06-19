@@ -1,4 +1,8 @@
+from api.infra.repository.converter.learner_speech import LearnerSpeechConverter
 from datetime import datetime
+from typing import Optional
+
+from sqlalchemy.sql.expression import asc, desc
 from api.util.config import S3_BUCKET_NAME
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.infra.repository.db.learner_speech import LearnerSpeechTable
@@ -51,3 +55,43 @@ class LearnerSpeechRepository:
             raise e
 
         return learner_speech
+
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               learner_id: Optional[int] = None) -> list[LearnerSpeech]:
+        offset: int = (page - 1) * limit
+
+        query = self.db.query(LearnerSpeechTable)
+
+        # 検索ワードがある場合はfilterを追加
+        if search_query != None:
+            query = query.filter(
+                LearnerSpeechTable.object_key.like(f"%{search_query}%"))
+
+        # learner_idがある場合はfilterを追加
+        if learner_id != None:
+            query = query.filter(LearnerSpeechTable.learner_id == learner_id)
+
+        # 昇順と降順の切り替え
+        if is_asc:
+            query = query.order_by(asc(LearnerSpeechTable.created_at))
+        else:
+            query = query.order_by(desc(LearnerSpeechTable.created_at))
+
+        learner_speech_tables = query.offset(offset).limit(limit).offset(
+            offset).all()
+
+        return LearnerSpeechConverter().convert_from_list(
+            learner_speech_tables=learner_speech_tables)
+
+    def get_by_id(self, learner_speech_id: int) -> LearnerSpeech:
+        # ユニットIDからテーブルモデルを取得
+        learner_speech_table = self.db.query(LearnerSpeechTable).filter(
+            LearnerSpeechTable.id == learner_speech_id).first()
+
+        # ドメインモデルに変換
+        return LearnerSpeechConverter().convert(
+            learner_speech_table=learner_speech_table)

@@ -1,3 +1,6 @@
+from typing import Optional
+
+from sqlalchemy.sql.expression import asc, desc
 from api.infra.repository.converter.teacher_speech import TeacherSpeechConverter
 from datetime import datetime
 from api.util.config import S3_BUCKET_NAME
@@ -50,3 +53,34 @@ class TeacherSpeechRepository:
             raise e
 
         return teacher_speech
+
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               teacher_id: Optional[int] = None) -> list[TeacherSpeech]:
+        offset: int = (page - 1) * limit
+
+        query = self.db.query(TeacherSpeechTable)
+
+        # 検索ワードがある場合はfilterを追加
+        if search_query != None:
+            query = query.filter(
+                TeacherSpeechTable.object_key.like(f"%{search_query}%"))
+
+        # teacher_idがある場合はfilterを追加
+        if teacher_id != None:
+            query = query.filter(TeacherSpeechTable.teacher_id == teacher_id)
+
+        # 昇順と降順の切り替え
+        if is_asc:
+            query = query.order_by(asc(TeacherSpeechTable.created_at))
+        else:
+            query = query.order_by(desc(TeacherSpeechTable.created_at))
+
+        teacher_speech_tables = query.offset(offset).limit(limit).offset(
+            offset).all()
+
+        return TeacherSpeechConverter().convert_from_list(
+            teacher_speech_tables=teacher_speech_tables)
