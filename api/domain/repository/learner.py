@@ -10,6 +10,10 @@ class LearnerRepository(Protocol):
     def create(self, learner: Learner) -> Learner:
         ...
 
-    def search(self, page: int, limit: int, search_query: Optional[str],
-               is_asc: Optional[bool]) -> list[Learner]:
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               teacher_id: Optional[int] = None) -> list[Learner]:
         ...

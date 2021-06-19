@@ -69,7 +69,7 @@ async def search_by_teacher_id(teacher_id: int,
         raise AuthError
 
     try:
-        units: list[Learner] = repository.Learner().search(
+        learners: list[Learner] = repository.Learner().search(
             page=page,
             limit=limit,
             search_query=search_query,
@@ -78,4 +78,4 @@ async def search_by_teacher_id(teacher_id: int,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return units
+    return learners
