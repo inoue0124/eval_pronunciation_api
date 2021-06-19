@@ -31,8 +31,12 @@ class LearnerRepository:
 
         return learner
 
-    def search(self, page: int, limit: int, search_query: Optional[str],
-               is_asc: Optional[bool]) -> list[Learner]:
+    def search(self,
+               page: int,
+               limit: int,
+               search_query: Optional[str],
+               is_asc: Optional[bool],
+               teacher_id: Optional[int] = None) -> list[Learner]:
         offset: int = (page - 1) * limit
 
         query = self.db.query(LearnerTable)
@@ -40,6 +44,10 @@ class LearnerRepository:
         # 検索ワードがある場合はfilterを追加
         if search_query != None:
             query = query.filter(LearnerTable.name.like(f"%{search_query}%"))
+
+        # teacher_idがある場合はfilterを追加
+        if teacher_id != None:
+            query = query.filter(LearnerTable.teacher_id == teacher_id)
 
         # 昇順と降順の切り替え
         if is_asc:
