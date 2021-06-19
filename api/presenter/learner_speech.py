@@ -45,6 +45,24 @@ async def register(unit_id: int = Form(...),
     return learner_speech
 
 
+async def search(page: int,
+                 limit: int,
+                 search_query: Optional[str] = None,
+                 is_asc: Optional[bool] = True,
+                 repository: Repository = Depends(RepositoryFactory.create),
+                 _=Depends(get_current_uid)):
+    try:
+        learner_speeches: list[LearnerSpeech] = repository.LearnerSpeech(
+        ).search(page=page,
+                 limit=limit,
+                 search_query=search_query,
+                 is_asc=is_asc)
+    except Exception as e:
+        raise DbError(detail=str(e))
+
+    return learner_speeches
+
+
 async def search_by_learner_id(learner_id: int,
                                page: int,
                                limit: int,
