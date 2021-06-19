@@ -6,6 +6,7 @@ from .teacher import TeacherRepository
 from .user import UserRepository
 from .learner import LearnerRepository
 from .session import SessionRepository
+from .file import FileRepository
 
 
 @runtime_checkable
@@ -29,4 +30,7 @@ class Repository(Protocol):
         ...
 
     def Unit(self) -> UnitRepository:
+        ...
+
+    def File(self) -> FileRepository:
         ...

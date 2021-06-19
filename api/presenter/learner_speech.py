@@ -1,8 +1,9 @@
-from api.domain.entity.learner import Learner
+import os, shutil
+from api.util.config import TMP_DOWNLOAD_DIR
+from pydantic.main import BaseModel
 from typing import Optional
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.util.errors import AuthError, DbError
-from api.domain.entity.teacher_speech import TeacherSpeech
 from api.presenter.request import get_current_uid
 from api.domain.repository.repository import Repository
 from fastapi.datastructures import UploadFile
@@ -12,6 +13,13 @@ from api.domain.entity.gop import Gop
 from fastapi import Depends
 from api.domain.evaluator import Evaluator
 from api.factory import EvaluatorFactory, RepositoryFactory
+from concurrent import futures
+from fastapi.responses import StreamingResponse
+from api.util.config import TMP_DOWNLOAD_DIR
+
+
+class DownloadLearnerSpeechRequest(BaseModel):
+    learner_speech_ids: Optional[list[int]]
 
 
 async def get_gop(evaluator: Evaluator = Depends(EvaluatorFactory.create)):
@@ -104,3 +112,48 @@ async def get_by_id(learner_speech_id: int,
         raise AuthError
 
     return learner_speech
+
+
+async def download(downloadLearnerSpeechRequest: DownloadLearnerSpeechRequest,
+                   repository: Repository = Depends(RepositoryFactory.create),
+                   current_uid=Depends(get_current_uid)):
+
+    download_dir = f'{TMP_DOWNLOAD_DIR}/{current_uid}/learner_speech'
+    os.makedirs(download_dir, exist_ok=True)
+
+    # downloadリクエスト対象のLearnerSpeechを取得
+    try:
+        learner_speechs: list[LearnerSpeech] = repository.LearnerSpeech(
+        ).list_by_ids(
+            learner_speech_ids=downloadLearnerSpeechRequest.learner_speech_ids)
+    except Exception as e:
+        raise e
+
+    # 一つずつ権限のチェック
+    for learner_speech in learner_speechs:
+        if learner_speech.learner_id != current_uid:
+            raise AuthError
+
+    # 並列でアーカイブの処理をしていく
+    future_list = []
+    with futures.ThreadPoolExecutor() as executor:
+        for learner_speech in learner_speechs:
+            if learner_speech.object_key == None:
+                continue
+
+            dest_file = download_dir + '/' + learner_speech.object_key.split(
+                '/')[-1]
+            future = executor.submit(repository.File().download,
+                                     object_key=learner_speech.object_key,
+                                     dest_file=dest_file)
+            future_list.append(future)
+
+        futures.as_completed(fs=future_list)
+
+    # zip化する
+    repository.File().create_zip(zipfile_name=download_dir,
+                                 src_dir=download_dir)
+
+    shutil.rmtree(download_dir)
+    zipfile = open(download_dir + '.zip', mode='rb')
+    return StreamingResponse(zipfile, media_type='application/zip')

@@ -1,3 +1,4 @@
+from starlette.responses import FileResponse
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.domain.entity.unit import Unit
 from api.domain.entity.teacher_speech import TeacherSpeech
@@ -154,6 +155,12 @@ def add_routes(app: FastAPI) -> None:
                       learner_speech.get_by_id,
                       methods=["GET"],
                       response_model=LearnerSpeech,
+                      responses=error_response([DbError]),
+                      tags=["learner-speeches"])
+
+    app.add_api_route("/learner-speeches/archive",
+                      learner_speech.download,
+                      methods=["POST"],
                       responses=error_response([DbError]),
                       tags=["learner-speeches"])
 
