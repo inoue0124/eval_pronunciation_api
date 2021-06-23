@@ -12,7 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import LibraryMusicIcon from '@material-ui/icons/LibraryMusic'
 import ViewListIcon from '@material-ui/icons/ViewList'
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt'
-import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 const drawerWidth = 240
 
@@ -42,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const SideMenu: React.FC = ({ children }) => {
   const classes = useStyles()
+  const router = useRouter()
 
   return (
     <div className={classes.root}>
@@ -63,24 +64,30 @@ export const SideMenu: React.FC = ({ children }) => {
         <Toolbar />
         <div className={classes.drawerContainer}>
           <List>
-            <Link href="/teacher/speech">
-              <ListItem button selected={location.pathname.includes('/teacher/speech')}>
-                <ListItemIcon>{<LibraryMusicIcon />}</ListItemIcon>
-                <ListItemText primary="教師音声管理" />
-              </ListItem>
-            </Link>
-            <Link href="/teacher/unit">
-              <ListItem button selected={location.pathname.includes('/teacher/unit')}>
-                <ListItemIcon>{<ViewListIcon />}</ListItemIcon>
-                <ListItemText primary="課題管理" />
-              </ListItem>
-            </Link>
-            <Link href="/teacher/learner">
-              <ListItem button selected={location.pathname.includes('/teacher/learner')}>
-                <ListItemIcon>{<PeopleAltIcon />}</ListItemIcon>
-                <ListItemText primary="学習者管理" />
-              </ListItem>
-            </Link>
+            <ListItem
+              button
+              selected={router.pathname.includes('/teacher/speech')}
+              onClick={() => router.push('/teacher/speech')}
+            >
+              <ListItemIcon>{<LibraryMusicIcon />}</ListItemIcon>
+              <ListItemText primary="教師音声管理" />
+            </ListItem>
+            <ListItem
+              button
+              selected={router.pathname.includes('/teacher/unit')}
+              onClick={() => router.push('/teacher/unit')}
+            >
+              <ListItemIcon>{<ViewListIcon />}</ListItemIcon>
+              <ListItemText primary="課題管理" />
+            </ListItem>
+            <ListItem
+              button
+              selected={router.pathname.includes('/teacher/learner')}
+              onClick={() => router.push('/teacher/learner')}
+            >
+              <ListItemIcon>{<PeopleAltIcon />}</ListItemIcon>
+              <ListItemText primary="学習者管理" />
+            </ListItem>
           </List>
         </div>
       </Drawer>
