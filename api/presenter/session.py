@@ -18,8 +18,7 @@ async def login(loginRequest: LoginRequest,
     response.set_cookie(key="token",
                         value=token,
                         max_age=604800,
-                        secure=True,
-                        httponly=True)
+                        secure=True)
     return user
 
 
@@ -27,6 +26,5 @@ async def logout(response: Response):
     response.set_cookie(key="token",
                         value="",
                         max_age=0,
-                        secure=True,
-                        httponly=True)
+                        secure=True)
     return None
