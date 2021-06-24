@@ -59,7 +59,7 @@ class TeacherSpeechRepository:
                limit: int,
                search_query: Optional[str],
                is_asc: Optional[bool],
-               teacher_id: Optional[int] = None) -> list[TeacherSpeech]:
+               teacher_id: Optional[int] = None) -> tuple[list[TeacherSpeech], int]:
         offset: int = (page - 1) * limit
 
         query = self.db.query(TeacherSpeechTable)
@@ -81,9 +81,10 @@ class TeacherSpeechRepository:
 
         teacher_speech_tables = query.offset(offset).limit(limit).offset(
             offset).all()
+        count = query.count()
 
         return TeacherSpeechConverter().convert_from_list(
-            teacher_speech_tables=teacher_speech_tables)
+            teacher_speech_tables=teacher_speech_tables), count
 
     def list_by_ids(self,
                     teacher_speech_ids: list[int]) -> list[TeacherSpeech]:
