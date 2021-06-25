@@ -14,12 +14,33 @@ export default class ApiClient {
     responseType: 'json',
   })
 
+  // POST /teachers/${teacher_id}/teacher-speeches
   async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
     let res: AxiosResponse<SearchResponse<TeacherSpeech>>
     try {
       res = await this.client.get(endpoint, {
         params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // POST /teacher-speeches
+  async registerTeacherSpeech(text: string, speech: File) {
+    const endpoint: string = `/teacher-speeches`
+    const params = new FormData()
+    params.append('text', text)
+    params.append('speech', speech)
+    let res: AxiosResponse<TeacherSpeech>
+    try {
+      res = await this.client.post(endpoint, params, {
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
       })
       return res.data
     } catch (e) {

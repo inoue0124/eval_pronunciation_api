@@ -20,7 +20,7 @@ import ApiClient from '../../../api'
 import { TeacherSpeech } from '../../../types/TeacherSpeech'
 import { SearchRequest } from '../../../types/SearchRequest'
 
-const SpeechListTable: React.FC = () => {
+export const SpeechListTable: React.FC = () => {
   const api = new ApiClient()
   const [data, setData] = useState<TeacherSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -130,5 +130,3 @@ const SpeechListTable: React.FC = () => {
     </Paper>
   )
 }
-
-export default SpeechListTable
