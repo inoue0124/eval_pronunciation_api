@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy.sql.expression import asc, desc
+from sqlalchemy.sql.expression import asc, desc, or_
 from api.infra.repository.converter.teacher_speech import TeacherSpeechConverter
 from datetime import datetime
 from api.util.config import S3_BUCKET_NAME
@@ -66,8 +66,8 @@ class TeacherSpeechRepository:
 
         # 検索ワードがある場合はfilterを追加
         if search_query != None:
-            query = query.filter(
-                TeacherSpeechTable.object_key.like(f"%{search_query}%"))
+            query = query.filter(or_(
+                TeacherSpeechTable.text.like(f"%{search_query}%"),TeacherSpeechTable.object_key.like(f"%{search_query}%")))
 
         # teacher_idがある場合はfilterを追加
         if teacher_id != None:
