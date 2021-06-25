@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
 import { TeacherSpeech } from '../types/TeacherSpeech'
+import { Unit } from '../types/Unit'
 import { getCookie } from '../util/cookie'
 
 export default class ApiClient {
@@ -41,6 +42,21 @@ export default class ApiClient {
         headers: {
           'content-type': 'multipart/form-data',
         },
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // POST /teachers/${teacher_id}/units
+  async searchUnitsByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacher_id}/units`
+    let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
       })
       return res.data
     } catch (e) {
