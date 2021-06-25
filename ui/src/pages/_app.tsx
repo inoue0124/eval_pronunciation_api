@@ -3,6 +3,7 @@ import { AppProps } from 'next/app'
 import Head from 'next/head'
 import PropTypes from 'prop-types'
 import CssBaseline from '@material-ui/core/CssBaseline'
+import 'tailwindcss/tailwind.css'
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   React.useEffect(() => {
