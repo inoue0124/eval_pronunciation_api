@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
 import { TeacherSpeech } from '../types/TeacherSpeech'
 import { getCookie } from '../util/cookie'
@@ -13,24 +14,12 @@ export default class ApiClient {
     responseType: 'json',
   })
 
-  async searchTeacherSpeechesByTeacherID(
-    teacher_id: number,
-    page: number,
-    limit: number,
-    search_query?: string,
-    is_asc?: boolean,
-  ) {
-    let endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
-    let params = {
-      page,
-      limit,
-      search_query,
-      is_asc,
-    }
+  async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
     let res: AxiosResponse<SearchResponse<TeacherSpeech>>
     try {
       res = await this.client.get(endpoint, {
-        params,
+        params: searchRequest,
       })
       return res.data
     } catch (e) {
