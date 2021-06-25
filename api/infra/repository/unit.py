@@ -34,7 +34,7 @@ class UnitRepository:
                limit: int,
                search_query: Optional[str],
                is_asc: Optional[bool],
-               teacher_id: Optional[int] = None) -> list[Unit]:
+               teacher_id: Optional[int] = None) -> tuple[list[Unit], int]:
         offset: int = (page - 1) * limit
 
         query = self.db.query(UnitTable)
@@ -54,8 +54,9 @@ class UnitRepository:
             query = query.order_by(desc(UnitTable.created_at))
 
         unit_tables = query.offset(offset).limit(limit).offset(offset).all()
+        count = query.count()
 
-        return UnitConverter().convert_from_list(unit_tables=unit_tables)
+        return UnitConverter().convert_from_list(unit_tables=unit_tables), count
 
     def update(self, unit: Unit, speech_ids: list[int]) -> Unit:
 

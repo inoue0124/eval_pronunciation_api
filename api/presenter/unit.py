@@ -37,14 +37,14 @@ async def search(page: int,
                  repository: Repository = Depends(RepositoryFactory.create),
                  _=Depends(get_current_uid)):
     try:
-        units: list[Unit] = repository.Unit().search(page=page,
+        units, count = repository.Unit().search(page=page,
                                                      limit=limit,
                                                      search_query=search_query,
                                                      is_asc=is_asc)
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return units
+    return {"data": units, "count": count}
 
 
 async def update(unit_id: int,
@@ -102,12 +102,12 @@ async def search_by_teacher_id(teacher_id: int,
         raise AuthError
 
     try:
-        units: list[Unit] = repository.Unit().search(page=page,
-                                                     limit=limit,
-                                                     search_query=search_query,
-                                                     is_asc=is_asc,
-                                                     teacher_id=teacher_id)
+        units, count = repository.Unit().search(page=page,
+                                                limit=limit,
+                                                search_query=search_query,
+                                                is_asc=is_asc,
+                                                teacher_id=teacher_id)
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return units
+    return {"data": units, "count": count}
