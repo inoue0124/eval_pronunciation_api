@@ -1,4 +1,4 @@
-from starlette.responses import FileResponse
+from api.presenter.response import SearchResponse
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.domain.entity.unit import Unit
 from api.domain.entity.teacher_speech import TeacherSpeech
@@ -9,7 +9,7 @@ from api.domain.entity.teacher import Teacher
 from api.domain.entity.learner import Learner
 from fastapi import FastAPI
 from api.presenter import learner_speech, session, user, teacher, learner, teacher_speech, unit
-from api.util.errors import DbError, KaldiError, error_response
+from api.util.errors import DbError, error_response
 
 
 def add_routes(app: FastAPI) -> None:
@@ -60,14 +60,14 @@ def add_routes(app: FastAPI) -> None:
     app.add_api_route("/teacher-speeches",
                       teacher_speech.search,
                       methods=["GET"],
-                      response_model=list[TeacherSpeech],
+                      response_model=SearchResponse[TeacherSpeech],
                       responses=error_response([DbError]),
                       tags=["teacher-speeches"])
 
     app.add_api_route("/teachers/{teacher_id}/teacher-speeches",
                       teacher_speech.search_by_teacher_id,
                       methods=["GET"],
-                      response_model=list[TeacherSpeech],
+                      response_model=SearchResponse[TeacherSpeech],
                       responses=error_response([DbError]),
                       tags=["teacher-speeches"])
 
