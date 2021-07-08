@@ -11,10 +11,15 @@ class UnitRepository:
     def __init__(self, db):
         self.db = db
 
-    def create(self, unit: Unit) -> Unit:
+    def create(self, unit: Unit, speech_ids: list[int]) -> Unit:
         unit_table = UnitTable()
         unit_table.name = unit.name
         unit_table.teacher_id = unit.teacher_id
+
+        teacher_speech_tables: list[TeacherSpeechTable] = self.db.query(
+            TeacherSpeechTable).filter(
+                TeacherSpeechTable.id.in_(speech_ids)).all()
+        unit_table.teacher_speeches = teacher_speech_tables
 
         self.db.add(unit_table)
         try:
@@ -24,8 +29,7 @@ class UnitRepository:
             raise e
 
         # データベースインサート語に確定した値を埋める
-        unit.id = unit_table.id
-        unit.created_at = unit_table.created_at
+        unit = self.get_by_id(unit_table.id)
 
         return unit
 

@@ -10,6 +10,7 @@ from api.util.errors import AuthError, DbError
 
 class RegisterUnitRequest(BaseModel):
     name: str
+    speech_ids: Optional[list[int]]
 
 
 class UpdateUnitRequest(BaseModel):
@@ -23,7 +24,7 @@ async def register(registerUnitRequest: RegisterUnitRequest,
 
     unit = Unit(teacher_id=current_uid, name=registerUnitRequest.name)
     try:
-        unit = repository.Unit().create(unit=unit)
+        unit = repository.Unit().create(unit=unit, speech_ids=registerUnitRequest.speech_ids)
     except Exception as e:
         raise DbError(detail=str(e))
 
