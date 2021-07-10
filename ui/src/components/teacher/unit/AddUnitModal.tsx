@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react'
 import ApiClient from '../../../api'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
-import { Button } from '@material-ui/core'
+import { Button, TextField } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
 import TextareaAutosize from '@material-ui/core/TextareaAutosize'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
-import { useSetRecoilState } from 'recoil'
-import { addedSpeechState } from '../../../states/addTeacherSpeech/addedSpeechState'
-import { TeacherSpeech } from '../../../types/TeacherSpeech'
+import { SpeechListTable } from '../speech/SpeechListTable'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -25,20 +23,16 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(2, 4, 3),
       borderRadius: theme.spacing(1),
     },
-    marginTop: {
-      marginTop: theme.spacing(3),
-    },
   }),
 )
 
-export const AddSpeechModal: React.FC = () => {
+export const AddUnitModal: React.FC = () => {
   const api = new ApiClient()
   const classes = useStyles()
   const [open, setOpen] = useState<boolean>(false)
   const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState<string>('')
   const [isValid, setIsValid] = useState<boolean>(false)
-  const setAddedSpeech = useSetRecoilState<TeacherSpeech | null>(addedSpeechState)
   useEffect(() => {
     setIsValid(file !== null && 0 < text.length && text.length <= 1000)
   }, [file, text])
@@ -55,8 +49,7 @@ export const AddSpeechModal: React.FC = () => {
     setText(event.target.value)
   }
   const handleRegister = async () => {
-    const res = await api.registerTeacherSpeech(text, file!)
-    setAddedSpeech(res!)
+    await api.registerTeacherSpeech(text, file!)
     setOpen(false)
   }
 
@@ -84,34 +77,16 @@ export const AddSpeechModal: React.FC = () => {
         <Fade in={open}>
           <div className={classes.paper}>
             <Typography variant="h5" gutterBottom>
-              新規教師音声登録
+              新規課題登録
             </Typography>
-            <div className={classes.marginTop}>
-              <Typography variant="subtitle2" gutterBottom>
-                1.音声ファイル（mp3形式）を選択してください。
-              </Typography>
-              <div className="text-center">
-                <Button className="mb-4" variant="outlined" color="primary">
-                  <input
-                    type="file"
-                    className="appearance-none"
-                    onChange={onSelectFile}
-                    accept="audio/mp3"
-                  />
-                </Button>
-              </div>
-            </div>
-            <div className={classes.marginTop}>
-              <Typography variant="subtitle2" gutterBottom>
-                2.音声の内容（スクリプト）を入力してください。
-              </Typography>
-              <TextareaAutosize
-                className="w-full p-2 mb-4 border-2 resize-none"
-                rowsMin={5}
-                placeholder="スクリプト"
-                onChange={onChangeText}
-              />
-            </div>
+            <Typography variant="subtitle2" gutterBottom>
+              1.課題名を入力してください。
+            </Typography>
+            <TextField className="w-full" variant="outlined" />
+            <Typography variant="subtitle2" gutterBottom>
+              2.音声を選択して下さい。
+            </Typography>
+            <SpeechListTable />
             <div className="text-center">
               <Button
                 className="mr-2"

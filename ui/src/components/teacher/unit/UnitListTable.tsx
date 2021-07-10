@@ -103,7 +103,7 @@ export const UnitListTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={d.id}>
+              <TableRow key={`unit_${d.id}`}>
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>

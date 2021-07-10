@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Box from '@material-ui/core/Box'
+import Checkbox from '@material-ui/core/Checkbox'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import SearchIcon from '@material-ui/icons/Search'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -19,6 +20,9 @@ import Paper from '@material-ui/core/Paper'
 import ApiClient from '../../../api'
 import { TeacherSpeech } from '../../../types/TeacherSpeech'
 import { SearchRequest } from '../../../types/SearchRequest'
+import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
+import { useRecoilState, useRecoilValue } from 'recoil'
+import { addedSpeechState } from '../../../states/addTeacherSpeech/addedSpeechState'
 
 export const SpeechListTable: React.FC = () => {
   const api = new ApiClient()
@@ -28,6 +32,8 @@ export const SpeechListTable: React.FC = () => {
   const [count, setCount] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isAsc, setIsAsc] = useState<boolean>(false)
+  const [selected, setSelected] = useRecoilState<number[]>(selectedSpeechIdsState)
+  const addedSpeech = useRecoilValue<TeacherSpeech | null>(addedSpeechState)
   useEffect(() => {
     ;(async function () {
       const searchRequest: SearchRequest = {
@@ -42,7 +48,7 @@ export const SpeechListTable: React.FC = () => {
         setCount(res.count)
       }
     })()
-  }, [page, rowsPerPage, searchQuery, isAsc])
+  }, [page, rowsPerPage, searchQuery, isAsc, addedSpeech])
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
   }
@@ -52,6 +58,31 @@ export const SpeechListTable: React.FC = () => {
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
+  }
+  const handleCheckAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelecteds = data.map((d) => d.id)
+      setSelected(newSelecteds)
+      return
+    }
+    setSelected([])
+  }
+  const handleCheck = (_: React.ChangeEvent<HTMLInputElement>, id: number) => {
+    const selectedIndex = selected.indexOf(id)
+    let newSelected: number[] = []
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id)
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1))
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1))
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      )
+    }
+    setSelected(newSelected)
   }
 
   return (
@@ -83,6 +114,9 @@ export const SpeechListTable: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>
+                <Checkbox onChange={handleCheckAll} />
+              </TableCell>
               <TableCell sortDirection={isAsc ? 'asc' : 'desc'}>
                 <TableSortLabel
                   active={true}
@@ -103,6 +137,14 @@ export const SpeechListTable: React.FC = () => {
           <TableBody>
             {data.map((d) => (
               <TableRow key={d.id}>
+                <TableCell>
+                  <Checkbox
+                    checked={selected.includes(d.id)}
+                    onChange={(event) => {
+                      handleCheck(event, d.id)
+                    }}
+                  />
+                </TableCell>
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
