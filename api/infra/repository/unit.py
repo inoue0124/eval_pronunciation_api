@@ -11,10 +11,15 @@ class UnitRepository:
     def __init__(self, db):
         self.db = db
 
-    def create(self, unit: Unit) -> Unit:
+    def create(self, unit: Unit, speech_ids: list[int]) -> Unit:
         unit_table = UnitTable()
         unit_table.name = unit.name
         unit_table.teacher_id = unit.teacher_id
+
+        teacher_speech_tables: list[TeacherSpeechTable] = self.db.query(
+            TeacherSpeechTable).filter(
+                TeacherSpeechTable.id.in_(speech_ids)).all()
+        unit_table.teacher_speeches = teacher_speech_tables
 
         self.db.add(unit_table)
         try:
@@ -24,8 +29,7 @@ class UnitRepository:
             raise e
 
         # データベースインサート語に確定した値を埋める
-        unit.id = unit_table.id
-        unit.created_at = unit_table.created_at
+        unit = self.get_by_id(unit_table.id)
 
         return unit
 
@@ -34,7 +38,7 @@ class UnitRepository:
                limit: int,
                search_query: Optional[str],
                is_asc: Optional[bool],
-               teacher_id: Optional[int] = None) -> list[Unit]:
+               teacher_id: Optional[int] = None) -> tuple[list[Unit], int]:
         offset: int = (page - 1) * limit
 
         query = self.db.query(UnitTable)
@@ -54,8 +58,9 @@ class UnitRepository:
             query = query.order_by(desc(UnitTable.created_at))
 
         unit_tables = query.offset(offset).limit(limit).offset(offset).all()
+        count = query.count()
 
-        return UnitConverter().convert_from_list(unit_tables=unit_tables)
+        return UnitConverter().convert_from_list(unit_tables=unit_tables), count
 
     def update(self, unit: Unit, speech_ids: list[int]) -> Unit:
 

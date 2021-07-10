@@ -4,6 +4,7 @@ import Head from 'next/head'
 import PropTypes from 'prop-types'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import 'tailwindcss/tailwind.css'
+import { RecoilRoot } from 'recoil'
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   React.useEffect(() => {
@@ -21,7 +22,9 @@ const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
       </Head>
       <CssBaseline />
-      <Component {...pageProps} />
+      <RecoilRoot>
+        <Component {...pageProps} />
+      </RecoilRoot>
     </React.Fragment>
   )
 }

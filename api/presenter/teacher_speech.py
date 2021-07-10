@@ -43,7 +43,7 @@ async def search(page: int,
                  repository: Repository = Depends(RepositoryFactory.create),
                  _=Depends(get_current_uid)):
     try:
-        teacher_speeches: list[TeacherSpeech] = repository.TeacherSpeech(
+        teacher_speeches, count = repository.TeacherSpeech(
         ).search(page=page,
                  limit=limit,
                  search_query=search_query,
@@ -51,7 +51,7 @@ async def search(page: int,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return teacher_speeches
+    return {"data": teacher_speeches, "count": count}
 
 
 async def search_by_teacher_id(teacher_id: int,

@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
 import { TeacherSpeech } from '../types/TeacherSpeech'
+import { Unit } from '../types/Unit'
 import { getCookie } from '../util/cookie'
 
 export default class ApiClient {
@@ -14,7 +15,7 @@ export default class ApiClient {
     responseType: 'json',
   })
 
-  // POST /teachers/${teacher_id}/teacher-speeches
+  // GET /teachers/${teacher_id}/teacher-speeches
   async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
     let res: AxiosResponse<SearchResponse<TeacherSpeech>>
@@ -41,6 +42,37 @@ export default class ApiClient {
         headers: {
           'content-type': 'multipart/form-data',
         },
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /teachers/${teacher_id}/units
+  async searchUnitsByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacher_id}/units`
+    let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // POST /teachers/${teacher_id}/units
+  async registerUnit(name: string, speechIds: number[]) {
+    const endpoint: string = `/units`
+    let res: AxiosResponse<Unit>
+    try {
+      res = await this.client.post(endpoint, {
+        name,
+        speech_ids: speechIds,
       })
       return res.data
     } catch (e) {
