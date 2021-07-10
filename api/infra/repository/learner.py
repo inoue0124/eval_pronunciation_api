@@ -56,9 +56,10 @@ class LearnerRepository:
             query = query.order_by(desc(LearnerTable.created_at))
 
         learner_tables = query.offset(offset).limit(limit).offset(offset).all()
+        count = query.count()
 
         return LearnerConverter().convert_from_list(
-            learner_tables=learner_tables)
+            learner_tables=learner_tables), count
 
     def get_by_id(self, learner_id: int) -> Learner:
         # ユニットIDからテーブルモデルを取得
