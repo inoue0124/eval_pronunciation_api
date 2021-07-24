@@ -61,7 +61,7 @@ class LearnerSpeechRepository:
                limit: int,
                search_query: Optional[str],
                is_asc: Optional[bool],
-               learner_id: Optional[int] = None) -> list[LearnerSpeech]:
+               learner_id: Optional[int] = None) -> tuple[list[LearnerSpeech], int]:
         offset: int = (page - 1) * limit
 
         query = self.db.query(LearnerSpeechTable)
@@ -83,9 +83,10 @@ class LearnerSpeechRepository:
 
         learner_speech_tables = query.offset(offset).limit(limit).offset(
             offset).all()
+        count = query.count()
 
         return LearnerSpeechConverter().convert_from_list(
-            learner_speech_tables=learner_speech_tables)
+            learner_speech_tables=learner_speech_tables), count
 
     def get_by_id(self, learner_speech_id: int) -> LearnerSpeech:
         # ユニットIDからテーブルモデルを取得

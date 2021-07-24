@@ -3,6 +3,7 @@ from api.util.config import TMP_DOWNLOAD_DIR
 from pydantic.main import BaseModel
 from typing import Optional
 from api.domain.entity.learner_speech import LearnerSpeech
+from api.domain.entity.learner import Learner
 from api.util.errors import AuthError, DbError
 from api.presenter.request import get_current_uid
 from api.domain.repository.repository import Repository
@@ -60,7 +61,7 @@ async def search(page: int,
                  repository: Repository = Depends(RepositoryFactory.create),
                  _=Depends(get_current_uid)):
     try:
-        learner_speeches: list[LearnerSpeech] = repository.LearnerSpeech(
+        learner_speeches, count = repository.LearnerSpeech(
         ).search(page=page,
                  limit=limit,
                  search_query=search_query,
@@ -68,7 +69,7 @@ async def search(page: int,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return learner_speeches
+    return {"data": learner_speeches, "count": count}
 
 
 async def search_by_learner_id(learner_id: int,
@@ -81,11 +82,12 @@ async def search_by_learner_id(learner_id: int,
                                current_uid=Depends(get_current_uid)):
 
     # 自分のlearner_id or teacher_id以外だったらエラー TODO:バリデーション
-    if learner_id != current_uid:
+    learner: Learner = repository.Learner().get_by_id(learner_id=learner_id)
+    if learner.user_id != current_uid and learner.teacher_id != current_uid:
         raise AuthError
 
     try:
-        learner_speeches: list[LearnerSpeech] = repository.LearnerSpeech(
+        learner_speeches, count = repository.LearnerSpeech(
         ).search(page=page,
                  limit=limit,
                  search_query=search_query,
@@ -94,7 +96,7 @@ async def search_by_learner_id(learner_id: int,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return learner_speeches
+    return {"data": learner_speeches, "count": count}
 
 
 async def get_by_id(learner_speech_id: int,

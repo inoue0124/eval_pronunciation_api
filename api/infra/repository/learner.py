@@ -64,7 +64,7 @@ class LearnerRepository:
     def get_by_id(self, learner_id: int) -> Learner:
         # ユニットIDからテーブルモデルを取得
         learner_table = self.db.query(LearnerTable).filter(
-            LearnerTable.id == learner_id).first()
+            LearnerTable.user_id == learner_id).first()
 
         # ドメインモデルに変換
         return LearnerConverter().convert(learner_table=learner_table)
