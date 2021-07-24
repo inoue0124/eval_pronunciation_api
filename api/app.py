@@ -8,7 +8,7 @@ from .util.errors import ApiError
 app: Final = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "*",
 ]
 
 app.add_middleware(

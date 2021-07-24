@@ -45,14 +45,14 @@ async def search(page: int,
                  repository: Repository = Depends(RepositoryFactory.create),
                  _=Depends(get_current_uid)):
     try:
-        learners = repository.Learner().search(page=page,
+        learners, count = repository.Learner().search(page=page,
                                                limit=limit,
                                                search_query=search_query,
                                                is_asc=is_asc)
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return learners
+    return {"data": learners, "count": count}
 
 
 async def search_by_teacher_id(teacher_id: int,
@@ -69,7 +69,7 @@ async def search_by_teacher_id(teacher_id: int,
         raise AuthError
 
     try:
-        learners: list[Learner] = repository.Learner().search(
+        learners, count = repository.Learner().search(
             page=page,
             limit=limit,
             search_query=search_query,
@@ -78,4 +78,4 @@ async def search_by_teacher_id(teacher_id: int,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return learners
+    return {"data": learners, "count": count}

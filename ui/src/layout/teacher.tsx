@@ -50,7 +50,7 @@ export const SideMenu: React.FC = ({ children }) => {
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" noWrap>
-            Clipped drawer
+            学習者音声評価Web
           </Typography>
         </Toolbar>
       </AppBar>
