@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { Learner } from '../types/Learner'
+import { LearnerSpeech } from '../types/LearnerSpeech'
 import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
 import { TeacherSpeech } from '../types/TeacherSpeech'
@@ -86,6 +87,21 @@ export default class ApiClient {
   async searchLearnersByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/teachers/${teacher_id}/learners`
     let res: AxiosResponse<SearchResponse<Learner>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /learners/${learner_id}/learner-speeches
+  async searchLearnerSpeechesByLearnerID(learner_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/learners/${learner_id}/learner-speeches`
+    let res: AxiosResponse<SearchResponse<LearnerSpeech>>
     try {
       res = await this.client.get(endpoint, {
         params: searchRequest,

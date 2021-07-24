@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/router'
 import Box from '@material-ui/core/Box'
+import Checkbox from '@material-ui/core/Checkbox'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import SearchIcon from '@material-ui/icons/Search'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -18,13 +18,16 @@ import TablePagination from '@material-ui/core/TablePagination'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import ApiClient from '../../../api'
-import { Learner } from '../../../types/Learner'
 import { SearchRequest } from '../../../types/SearchRequest'
+import { LearnerSpeech } from '../../../types/LearnerSpeech'
 
-export const LearnerListTable: React.FC = () => {
+type Props = {
+  learnerId: number
+}
+
+export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId }) => {
   const api = new ApiClient()
-  const router = useRouter()
-  const [data, setData] = useState<Learner[]>([])
+  const [data, setData] = useState<LearnerSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [count, setCount] = useState<number>(0)
@@ -38,7 +41,7 @@ export const LearnerListTable: React.FC = () => {
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchLearnersByTeacherID(18, searchRequest)
+      const res = await api.searchLearnerSpeechesByLearnerID(learnerId, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -47,9 +50,6 @@ export const LearnerListTable: React.FC = () => {
   }, [page, rowsPerPage, searchQuery, isAsc])
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
-  }
-  const handleClickRow = (learner_id: number) => {
-    router.push(`/teacher/learner/${learner_id}`)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -65,7 +65,7 @@ export const LearnerListTable: React.FC = () => {
         <Grid container direction="row" justify="space-between" alignItems="center">
           <Box mr={2}>
             <Typography variant="h6" id="tableTitle" component="div">
-              学習者一覧
+              音声一覧
             </Typography>
           </Box>
           <TextField
@@ -96,30 +96,36 @@ export const LearnerListTable: React.FC = () => {
                     setIsAsc(!isAsc)
                   }}
                 >
-                  学習者ID
+                  音声ID
                 </TableSortLabel>
               </TableCell>
-              <TableCell>教師ID</TableCell>
-              <TableCell>名前</TableCell>
-              <TableCell>性別</TableCell>
-              <TableCell>年齢</TableCell>
-              <TableCell>出身地</TableCell>
-              <TableCell>学習年数</TableCell>
+              <TableCell>学習者ID</TableCell>
+              <TableCell>ユニットID</TableCell>
+              <TableCell>教師音声ID</TableCell>
+              <TableCell>録音タイプ</TableCell>
+              <TableCell>ファイルキー</TableCell>
+              <TableCell>GOPスコア</TableCell>
+              <TableCell>GOPファイルキー</TableCell>
+              <TableCell>DTWスコア</TableCell>
+              <TableCell>DTWファイルキー</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={d.user_id} onClick={(event) => handleClickRow(d.user_id)} hover={true}>
+              <TableRow key={d.id}>
                 <TableCell component="th" scope="row">
-                  {d.user_id}
+                  {d.id}
                 </TableCell>
-                <TableCell>{d.teacher_id}</TableCell>
-                <TableCell>{d.name}</TableCell>
-                <TableCell>{d.gender}</TableCell>
-                <TableCell>{d.birth_date}</TableCell>
-                <TableCell>{d.birth_place}</TableCell>
-                <TableCell>{d.year_of_learning}</TableCell>
+                <TableCell>{d.learner_id}</TableCell>
+                <TableCell>{d.unit_id}</TableCell>
+                <TableCell>{d.teacher_speech_id}</TableCell>
+                <TableCell>{d.type}</TableCell>
+                <TableCell>{d.object_key}</TableCell>
+                <TableCell>{d.gop_average}</TableCell>
+                <TableCell>{d.gop_file_key}</TableCell>
+                <TableCell>{d.dtw_average}</TableCell>
+                <TableCell>{d.dtw_file_key}</TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
