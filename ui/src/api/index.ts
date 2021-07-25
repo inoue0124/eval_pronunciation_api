@@ -96,6 +96,19 @@ export default class ApiClient {
     }
   }
 
+  // GET /learners/{learner_id}
+  async getLearnerById(learnerId: number) {
+    const endpoint: string = `/learners/${learnerId}`
+    let res: AxiosResponse<Learner>
+    try {
+      res = await this.client.get(endpoint)
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
   // GET /teachers/${teacher_id}/learners
   async searchLearnersByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/teachers/${teacher_id}/learners`

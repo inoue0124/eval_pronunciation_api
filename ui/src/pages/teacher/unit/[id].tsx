@@ -47,7 +47,7 @@ const UnitDetail: React.FC = () => {
         <Link color="inherit" href="/teacher/unit">
           課題一覧
         </Link>
-        <Typography color="textPrimary">{unitId}</Typography>
+        <Typography color="textPrimary">課題ID:{unitId}</Typography>
       </Breadcrumbs>
 
       {unit && (
