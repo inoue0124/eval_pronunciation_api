@@ -79,3 +79,19 @@ async def search_by_teacher_id(teacher_id: int,
         raise DbError(detail=str(e))
 
     return {"data": learners, "count": count}
+
+
+async def get_by_id(learner_id: int,
+                    repository: Repository = Depends(RepositoryFactory.create),
+                    current_uid=Depends(get_current_uid)):
+
+    try:
+        learner: Learner = repository.Learner().get_by_id(learner_id=learner_id)
+    except Exception as e:
+        raise e
+
+    # 自分のteacher_idかuser_id以外だったらエラー
+    if learner.teacher_id != current_uid and learner.user_id != current_uid:
+        raise AuthError
+
+    return learner

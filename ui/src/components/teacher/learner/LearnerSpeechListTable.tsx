@@ -20,12 +20,14 @@ import Paper from '@material-ui/core/Paper'
 import ApiClient from '../../../api'
 import { SearchRequest } from '../../../types/SearchRequest'
 import { LearnerSpeech } from '../../../types/LearnerSpeech'
+import { Link } from '@material-ui/core'
 
 type Props = {
   learnerId: number
+  speeches?: LearnerSpeech[]
 }
 
-export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId }) => {
+export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId, speeches }) => {
   const api = new ApiClient()
   const [data, setData] = useState<LearnerSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -33,8 +35,10 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId }) => {
   const [count, setCount] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isAsc, setIsAsc] = useState<boolean>(false)
-  useEffect(() => {
-    ;(async function () {
+
+  // 学習者音声リストが渡された場合はAPIを叩きに行かない
+  const fetchData = async () => {
+    if (speeches == undefined) {
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
@@ -46,7 +50,13 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId }) => {
         setData(res.data)
         setCount(res.count)
       }
-    })()
+    } else {
+      setData(speeches)
+      setCount(speeches.length)
+    }
+  }
+  useEffect(() => {
+    fetchData()
   }, [page, rowsPerPage, searchQuery, isAsc])
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
@@ -100,7 +110,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId }) => {
                 </TableSortLabel>
               </TableCell>
               <TableCell>学習者ID</TableCell>
-              <TableCell>ユニットID</TableCell>
+              <TableCell>課題ID</TableCell>
               <TableCell>教師音声ID</TableCell>
               <TableCell>録音タイプ</TableCell>
               <TableCell>ファイルキー</TableCell>
@@ -118,7 +128,9 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId }) => {
                   {d.id}
                 </TableCell>
                 <TableCell>{d.learner_id}</TableCell>
-                <TableCell>{d.unit_id}</TableCell>
+                <TableCell>
+                  <Link href={`/teacher/unit/${d.unit_id}`}>{d.unit_id}</Link>
+                </TableCell>
                 <TableCell>{d.teacher_speech_id}</TableCell>
                 <TableCell>{d.type}</TableCell>
                 <TableCell>{d.object_key}</TableCell>

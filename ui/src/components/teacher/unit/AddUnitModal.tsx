@@ -4,11 +4,10 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
 import { Button, TextField } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
-import TextareaAutosize from '@material-ui/core/TextareaAutosize'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
-import { SpeechListTable } from '../speech/SpeechListTable'
+import { TeacherSpeechListTable } from '../speech/TeacherSpeechListTable'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -86,7 +85,7 @@ export const AddUnitModal: React.FC = () => {
             <Typography variant="subtitle2" gutterBottom>
               2.音声を選択して下さい。
             </Typography>
-            <SpeechListTable />
+            <TeacherSpeechListTable teacherId={18} />
             <div className="text-center">
               <Button
                 className="mr-2"

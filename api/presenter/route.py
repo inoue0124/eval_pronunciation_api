@@ -128,6 +128,13 @@ def add_routes(app: FastAPI) -> None:
                       responses=error_response([DbError]),
                       tags=["learners"])
 
+    app.add_api_route("/learners/{learner_id}",
+                      learner.get_by_id,
+                      methods=["GET"],
+                      response_model=Learner,
+                      responses=error_response([DbError]),
+                      tags=["learners"])
+
     app.add_api_route("/teachers/{teacher_id}/learners",
                       learner.search_by_teacher_id,
                       methods=["GET"],

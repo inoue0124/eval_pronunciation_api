@@ -1,3 +1,5 @@
+import { LearnerSpeech } from './LearnerSpeech'
+
 export interface Learner {
   user_id: number
   teacher_id: number
@@ -7,4 +9,5 @@ export interface Learner {
   birth_place: number
   year_of_learning: number
   created_at: string
+  speeches: LearnerSpeech[]
 }
