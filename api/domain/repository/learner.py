@@ -17,3 +17,6 @@ class LearnerRepository(Protocol):
                is_asc: Optional[bool],
                teacher_id: Optional[int] = None) -> list[Learner]:
         ...
+
+    def get_by_id(self, learner_id: int) -> Learner:
+        ...
