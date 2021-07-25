@@ -24,7 +24,12 @@ import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechId
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { addedSpeechState } from '../../../states/addTeacherSpeech/addedSpeechState'
 
-export const SpeechListTable: React.FC = () => {
+type Props = {
+  teacherId: number
+  speeches?: TeacherSpeech[]
+}
+
+export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches }) => {
   const api = new ApiClient()
   const [data, setData] = useState<TeacherSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -32,23 +37,39 @@ export const SpeechListTable: React.FC = () => {
   const [count, setCount] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isAsc, setIsAsc] = useState<boolean>(false)
-  const [selected, setSelected] = useRecoilState<number[]>(selectedSpeechIdsState)
-  const addedSpeech = useRecoilValue<TeacherSpeech | null>(addedSpeechState)
-  useEffect(() => {
-    ;(async function () {
+
+  // 教師音声リストが渡された場合はそれを選択済みにする。
+  // そうでない場合はrecoilのステートを使う。
+  const [selected, setSelected] =
+    speeches != undefined
+      ? useState<number[]>(speeches.map((speech) => speech.id))
+      : useRecoilState<number[]>(selectedSpeechIdsState)
+  const addedSpeech =
+    speeches != undefined ? speeches : useRecoilValue<TeacherSpeech | null>(addedSpeechState)
+
+  // 教師音声リストが渡された場合はAPIを叩きに行かない
+  const fetchData = async () => {
+    if (speeches == undefined) {
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchTeacherSpeechesByTeacherID(18, searchRequest)
+      const res = await api.searchTeacherSpeechesByTeacherID(teacherId, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
       }
-    })()
+    } else {
+      setData(speeches)
+      setCount(speeches.length)
+    }
+  }
+  useEffect(() => {
+    fetchData()
   }, [page, rowsPerPage, searchQuery, isAsc, addedSpeech])
+
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
   }
@@ -94,20 +115,22 @@ export const SpeechListTable: React.FC = () => {
               教師音声一覧
             </Typography>
           </Box>
-          <TextField
-            style={{ width: 400 }}
-            id="outlined-basic"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
+          {speeches == undefined && (
+            <TextField
+              style={{ width: 400 }}
+              id="outlined-basic"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              variant="outlined"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+          )}
         </Grid>
       </Toolbar>
       <TableContainer>
@@ -115,7 +138,7 @@ export const SpeechListTable: React.FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>
-                <Checkbox onChange={handleCheckAll} />
+                <Checkbox onChange={handleCheckAll} disabled={speeches != undefined} />
               </TableCell>
               <TableCell sortDirection={isAsc ? 'asc' : 'desc'}>
                 <TableSortLabel
@@ -143,6 +166,7 @@ export const SpeechListTable: React.FC = () => {
                     onChange={(event) => {
                       handleCheck(event, d.id)
                     }}
+                    disabled={speeches != undefined}
                   />
                 </TableCell>
                 <TableCell component="th" scope="row">

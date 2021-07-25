@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { Link } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -23,6 +24,7 @@ import { Unit } from '../../../types/Unit'
 
 export const UnitListTable: React.FC = () => {
   const api = new ApiClient()
+  const router = useRouter()
   const [data, setData] = useState<Unit[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
@@ -46,6 +48,9 @@ export const UnitListTable: React.FC = () => {
   }, [page, rowsPerPage, searchQuery, isAsc])
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
+  }
+  const handleClickRow = (learner_id: number) => {
+    router.push(`/teacher/unit/${learner_id}`)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -103,7 +108,7 @@ export const UnitListTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={`unit_${d.id}`}>
+              <TableRow key={`unit_${d.id}`} onClick={(event) => handleClickRow(d.id)} hover={true}>
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
@@ -112,9 +117,7 @@ export const UnitListTable: React.FC = () => {
                 <TableCell>
                   {d.teacher_speeches.map((ts) => (
                     <>
-                      <Link key={ts.id} href={'speech/' + ts.id}>
-                        {ts.id}
-                      </Link>
+                      {ts.id}
                       <span> </span>
                     </>
                   ))}

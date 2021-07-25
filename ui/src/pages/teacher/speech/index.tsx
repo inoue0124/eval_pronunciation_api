@@ -1,4 +1,4 @@
-import { SpeechListTable } from '../../../components/teacher/speech/SpeechListTable'
+import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
 import { AddSpeechModal } from '../../../components/teacher/speech/AddSpeechModal'
 import { SideMenu } from '../../../layout/teacher'
 
@@ -8,7 +8,7 @@ const SpeechList: React.FC = () => {
       <div className="mb-1" style={{ textAlign: 'right' }}>
         <AddSpeechModal />
       </div>
-      <SpeechListTable />
+      <TeacherSpeechListTable teacherId={18} />
     </SideMenu>
   )
 }

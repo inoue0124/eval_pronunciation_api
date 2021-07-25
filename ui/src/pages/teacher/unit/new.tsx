@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { SpeechListTable } from '../../../components/teacher/speech/SpeechListTable'
+import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
 import { Button, Typography, TextField, makeStyles, Theme, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { SideMenu } from '../../../layout/teacher'
@@ -85,7 +85,7 @@ const RegisterUnit: React.FC = () => {
             <AddSpeechModal />
           </Grid>
         </Grid>
-        <SpeechListTable />
+        <TeacherSpeechListTable teacherId={18} />
       </div>
     </SideMenu>
   )

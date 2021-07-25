@@ -52,13 +52,14 @@ export default class ApiClient {
     }
   }
 
-  // GET /teachers/${teacher_id}/units
-  async searchUnitsByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
-    const endpoint: string = `/teachers/${teacher_id}/units`
-    let res: AxiosResponse<SearchResponse<Unit>>
+  // POST /units
+  async registerUnit(name: string, speechIds: number[]) {
+    const endpoint: string = `/units`
+    let res: AxiosResponse<Unit>
     try {
-      res = await this.client.get(endpoint, {
-        params: searchRequest,
+      res = await this.client.post(endpoint, {
+        name,
+        speech_ids: speechIds,
       })
       return res.data
     } catch (e) {
@@ -67,14 +68,26 @@ export default class ApiClient {
     }
   }
 
-  // POST /teachers/${teacher_id}/units
-  async registerUnit(name: string, speechIds: number[]) {
-    const endpoint: string = `/units`
+  // GET /units/{unit_id}
+  async getUnitById(unitId: number) {
+    const endpoint: string = `/units/${unitId}`
     let res: AxiosResponse<Unit>
     try {
-      res = await this.client.post(endpoint, {
-        name,
-        speech_ids: speechIds,
+      res = await this.client.get(endpoint)
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /teachers/${teacher_id}/units
+  async searchUnitsByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacher_id}/units`
+    let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
       })
       return res.data
     } catch (e) {
