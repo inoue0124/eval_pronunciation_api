@@ -26,10 +26,14 @@ const RegisterUnit: React.FC = () => {
   const [name, setName] = useRecoilState(unitNameState)
   const [isValid, setIsValid] = useState<boolean>(false)
   const handleRegister = async (_: React.MouseEvent<HTMLButtonElement>) => {
-    await api.registerUnit(name, selectedSpeechIds)
+    const unit = await api.registerUnit(name, selectedSpeechIds)
+    if (unit === undefined) {
+      alert('エラーが発生しました。')
+      return
+    }
+    router.push(`/teacher/unit/${unit.id}`)
     setSelectedSpeechIds([])
     setName('')
-    router.back()
   }
   const handleClose = (_: React.MouseEvent<HTMLButtonElement>) => {
     router.back()

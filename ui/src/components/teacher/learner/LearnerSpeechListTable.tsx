@@ -38,7 +38,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId, speeches })
 
   // 学習者音声リストが渡された場合はAPIを叩きに行かない
   const fetchData = async () => {
-    if (speeches == undefined) {
+    if (speeches === undefined) {
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
