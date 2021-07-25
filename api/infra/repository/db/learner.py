@@ -1,3 +1,4 @@
+from sqlalchemy.orm import relationship
 from .db import Base
 from sqlalchemy import Column, Integer, String, ForeignKey
 from .mixin import TimestampMixin
@@ -13,3 +14,4 @@ class LearnerTable(Base, TimestampMixin):
     birth_date = Column(Timestamp, nullable=False)
     birth_place = Column(Integer)
     year_of_learning = Column(Integer)
+    speeches = relationship("LearnerSpeechTable")
