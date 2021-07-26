@@ -1,3 +1,5 @@
+from starlette.responses import Response
+from api.domain.repository.session import LoginRequest
 from fastapi import Depends
 from pydantic import BaseModel
 from api.domain.repository.repository import Repository
@@ -13,13 +15,22 @@ class RegisterUserRequest(BaseModel):
 
 
 async def register(registerUserRequest: RegisterUserRequest,
+                   response: Response,
                    repository: Repository = Depends(RepositoryFactory.create)):
 
     user = User(email=registerUserRequest.email, type=registerUserRequest.type)
     user.set_password(password=registerUserRequest.password)
+
     try:
-        user = repository.User().create(user=user)
+        user, token = repository.User().create(user=user)
     except Exception as e:
         raise DbError(detail=str(e))
+
+    # cookieにjwtを付与
+    response.set_cookie(key="EVAL_SPEECH_SESSION",
+                        value=token,
+                        max_age=604800,
+                        samesite='none',
+                        secure=True)
 
     return user
