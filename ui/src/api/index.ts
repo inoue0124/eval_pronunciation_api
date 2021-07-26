@@ -19,6 +19,16 @@ export default class ApiClient {
     withCredentials: true,
   })
 
+  // POST /session
+  async login(email: string, password: string) {
+    const endpoint: string = `/session`
+    let res: AxiosResponse<User> = await this.client.post(endpoint, {
+      email,
+      password,
+    })
+    return res.data
+  }
+
   // POST /users
   async register(email: string, password: string, type: number) {
     const endpoint: string = `/users`
