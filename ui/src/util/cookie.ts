@@ -1,4 +1,4 @@
-import { parseCookies } from 'nookies'
+import { parseCookies, setCookie } from 'nookies'
 import { NextPageContext } from 'next'
 
 export const getCookie = (ctx?: NextPageContext) => {

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -9,6 +9,8 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import ApiClient from '../../api'
+import { setCookie } from 'nookies'
+import { useRouter } from 'next/router'
 
 const Copyright: React.FC = () => {
   return (
@@ -46,6 +48,24 @@ type Props = {
 export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
   const api = new ApiClient()
   const classes = useStyles()
+  const router = useRouter()
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const type = isTeacher ? 1 : 2
+
+  const handleRegister = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault()
+    try {
+      const user = await api.register(email, password, type)
+      setCookie(undefined, 'logged_user', JSON.stringify(user), {
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60,
+      })
+      router.push('/learner/register-profile')
+    } catch (e) {
+      alert(e)
+    }
+  }
 
   return (
     <Container component="main">
@@ -64,6 +84,10 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
             name="email"
             autoComplete="email"
             autoFocus
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value)
+            }}
           />
           <TextField
             variant="outlined"
@@ -75,6 +99,10 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
             type="password"
             id="password"
             autoComplete="current-password"
+            value={password}
+            onChange={(event) => {
+              setPassword(event.target.value)
+            }}
           />
           <Button
             type="submit"
@@ -82,6 +110,7 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={handleRegister}
           >
             登録
           </Button>

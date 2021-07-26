@@ -20,6 +20,7 @@ import DoneIcon from '@material-ui/icons/Done'
 import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
 import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
+import { getCookie } from '../../../util/cookie'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,6 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const UnitDetail: React.FC = () => {
   const api = new ApiClient()
+  const user = JSON.parse(getCookie().logged_user)
   const classes = useStyles()
   const router = useRouter()
   const unitId = Number(router.query.id)
@@ -95,7 +97,7 @@ const UnitDetail: React.FC = () => {
       )}
 
       {router.isReady && unit && (
-        <TeacherSpeechListTable teacherId={18} speeches={unit.teacher_speeches} />
+        <TeacherSpeechListTable teacherId={user.id} speeches={unit.teacher_speeches} />
       )}
     </SideMenu>
   )

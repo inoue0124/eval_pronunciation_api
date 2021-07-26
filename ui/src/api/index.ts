@@ -5,6 +5,7 @@ import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
 import { TeacherSpeech } from '../types/TeacherSpeech'
 import { Unit } from '../types/Unit'
+import { User } from '../types/User'
 import { getCookie } from '../util/cookie'
 
 export default class ApiClient {
@@ -12,10 +13,22 @@ export default class ApiClient {
     baseURL: 'http://localhost:8080',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + getCookie().token,
+      Authorization: 'Bearer ' + getCookie().EVAL_SPEECH_SESSION,
     },
     responseType: 'json',
+    withCredentials: true,
   })
+
+  // POST /users
+  async register(email: string, password: string, type: number) {
+    const endpoint: string = `/users`
+    let res: AxiosResponse<User> = await this.client.post(endpoint, {
+      email,
+      password,
+      type,
+    })
+    return res.data
+  }
 
   // GET /teachers/${teacher_id}/teacher-speeches
   async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
