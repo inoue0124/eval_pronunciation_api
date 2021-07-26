@@ -1,3 +1,4 @@
+from api.util.config import TOKEN_COOKIE_NAME
 from api.domain.repository.session import LoginRequest
 from api.util.errors import DbError
 from api.factory import RepositoryFactory
@@ -15,7 +16,7 @@ async def login(loginRequest: LoginRequest,
         raise DbError(detail=str(e))
 
     # cookieにjwtを付与
-    response.set_cookie(key="token",
+    response.set_cookie(key=TOKEN_COOKIE_NAME,
                         value=token,
                         max_age=604800,
                         secure=True)
@@ -23,7 +24,7 @@ async def login(loginRequest: LoginRequest,
 
 
 async def logout(response: Response):
-    response.set_cookie(key="token",
+    response.set_cookie(key=TOKEN_COOKIE_NAME,
                         value="",
                         max_age=0,
                         secure=True)

@@ -1,3 +1,4 @@
+from api.util.config import TOKEN_COOKIE_NAME
 from starlette.responses import Response
 from api.domain.repository.session import LoginRequest
 from fastapi import Depends
@@ -27,7 +28,7 @@ async def register(registerUserRequest: RegisterUserRequest,
         raise DbError(detail=str(e))
 
     # cookieにjwtを付与
-    response.set_cookie(key="EVAL_SPEECH_SESSION",
+    response.set_cookie(key=TOKEN_COOKIE_NAME,
                         value=token,
                         max_age=604800,
                         samesite='none',
