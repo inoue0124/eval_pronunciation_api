@@ -8,6 +8,6 @@ class TeacherTable(Base, TimestampMixin):
     __tablename__ = 'teachers'
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     name = Column(String(200), nullable=False)
-    gender = Column(Integer)
+    gender = Column(String(200))
     birth_date = Column(Timestamp, nullable=False)
-    birth_place = Column(Integer)
+    birth_place = Column(String(200))

@@ -53,8 +53,8 @@ export default class ApiClient {
     let res: AxiosResponse<Teacher> = await this.client.post(endpoint, {
       name,
       gender,
-      birthDate,
-      birthPlace,
+      birth_date: birthDate,
+      birth_place: birthPlace,
     })
     return res.data
   }
