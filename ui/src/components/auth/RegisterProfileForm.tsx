@@ -36,11 +36,13 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
+  const years = [...Array(30)].map((_, i) => i / 2)
   const [countries, setCountries] = useState<Country[]>([])
   const [name, setName] = useState<string>()
   const [gender, setGender] = useState<number>()
   const [birthDate, setBirthDate] = useState<string>()
   const [birthPlace, setBirthPlace] = useState<string>()
+  const [yearOfLearning, setYearOfLearning] = useState<number>()
 
   useEffect(() => {
     ;(async function () {
@@ -57,7 +59,7 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
     setBirthDate(formatted)
   }
 
-  const handleRegister = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleRegisterTeacher = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()
     if (
       name === undefined ||
@@ -74,7 +76,38 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
-      router.push(isTeacher ? '/teacher/unit' : '/learner/unit')
+      router.push('/teacher/unit')
+    } catch (e) {
+      alert(e)
+    }
+  }
+
+  const handleRegisterLearner = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault()
+    if (
+      name === undefined ||
+      gender === undefined ||
+      birthDate === undefined ||
+      birthPlace === undefined ||
+      yearOfLearning === undefined
+    ) {
+      alert('すべての項目を入力して下さい！')
+      return
+    }
+    try {
+      const learner = await api.registerLearner(
+        18, // TODO: teacher IDの取り回し考える
+        name,
+        gender,
+        birthDate,
+        birthPlace,
+        yearOfLearning,
+      )
+      setCookie(undefined, 'learner', JSON.stringify(learner), {
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60,
+      })
+      router.push('/learner/unit')
     } catch (e) {
       alert(e)
     }
@@ -151,13 +184,33 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
             ))}
           </Select>
 
+          {!isTeacher && (
+            <Select
+              variant="outlined"
+              required
+              fullWidth
+              id="demo-simple-select-outlined"
+              value={yearOfLearning}
+              onChange={(event) => {
+                setYearOfLearning(event.target.value as number)
+              }}
+              label="日本語学習年数"
+            >
+              {years.map((year, index) => (
+                <MenuItem key={index} value={year}>
+                  {year}年
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={handleRegister}
+            onClick={isTeacher ? handleRegisterTeacher : handleRegisterLearner}
           >
             登録
           </Button>
