@@ -48,7 +48,7 @@ export default class ApiClient {
   }
 
   // POST /teachers
-  async registerTeacher(name: string, gender: number, birthDate: Date, birthPlace: string) {
+  async registerTeacher(name: string, gender: number, birthDate: string, birthPlace: string) {
     const endpoint: string = `/teachers`
     let res: AxiosResponse<Teacher> = await this.client.post(endpoint, {
       name,
