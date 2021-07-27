@@ -11,6 +11,6 @@ class Learner(BaseModel):
     gender: Optional[str]
     birth_date: Optional[date]
     birth_place: Optional[str]
-    year_of_learning: Optional[int]
+    year_of_learning: Optional[float]
     created_at: Optional[datetime]
     speeches: Optional[list[LearnerSpeech]]

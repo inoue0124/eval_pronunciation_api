@@ -15,7 +15,7 @@ class RegisterLearnerRequest(BaseModel):
     gender: str
     birth_date: date
     birth_place: str
-    year_of_learning: int
+    year_of_learning: float
 
 
 async def register(registerLearnerRequest: RegisterLearnerRequest,

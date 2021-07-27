@@ -27,7 +27,6 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`teachers` (
   `gender` VARCHAR(200) NULL,
   `birth_date` DATETIME NULL,
   `birth_place` VARCHAR(200) NULL,
-  `year_of_learning` INT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `fk_tearcher_user_id`
@@ -48,6 +47,7 @@ CREATE TABLE IF NOT EXISTS `eval-speech`.`learners` (
   `gender` VARCHAR(200) NULL,
   `birth_date` DATETIME NULL,
   `birth_place` VARCHAR(200) NULL,
+  `year_of_learning` DOUBLE NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   INDEX `fk_learner_teacher_id_idx` (`teacher_id` ASC),

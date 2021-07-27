@@ -138,6 +138,27 @@ export default class ApiClient {
     }
   }
 
+  // POST /learners
+  async registerLearner(
+    teacherId: number,
+    name: string,
+    gender: number,
+    birthDate: string,
+    birthPlace: string,
+    yearOfLearning: number,
+  ) {
+    const endpoint: string = `/learners`
+    let res: AxiosResponse<Learner> = await this.client.post(endpoint, {
+      teacher_id: teacherId,
+      name,
+      gender,
+      birth_date: birthDate,
+      birth_place: birthPlace,
+      year_of_learning: yearOfLearning,
+    })
+    return res.data
+  }
+
   // GET /learners/{learner_id}
   async getLearnerById(learnerId: number) {
     const endpoint: string = `/learners/${learnerId}`
