@@ -51,7 +51,6 @@ export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
   const router = useRouter()
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const type = isTeacher ? 1 : 2
 
   const handleRegister = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()
@@ -61,7 +60,7 @@ export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
-      router.push('/learner/register-profile')
+      router.push(isTeacher ? '/teacher/unit' : '/learner/unit')
     } catch (e) {
       alert(e)
     }

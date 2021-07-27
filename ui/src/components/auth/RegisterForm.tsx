@@ -61,7 +61,7 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
-      router.push('/learner/register-profile')
+      router.push(isTeacher ? '/teacher/register-profile' : '/learner/register-profile')
     } catch (e) {
       alert(e)
     }

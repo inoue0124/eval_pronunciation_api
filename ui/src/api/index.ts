@@ -3,6 +3,7 @@ import { Learner } from '../types/Learner'
 import { LearnerSpeech } from '../types/LearnerSpeech'
 import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
+import { Teacher } from '../types/Teacher'
 import { TeacherSpeech } from '../types/TeacherSpeech'
 import { Unit } from '../types/Unit'
 import { User } from '../types/User'
@@ -29,6 +30,12 @@ export default class ApiClient {
     return res.data
   }
 
+  // DELETE /session
+  async logout() {
+    const endpoint: string = `/session`
+    await this.client.delete(endpoint)
+  }
+
   // POST /users
   async register(email: string, password: string, type: number) {
     const endpoint: string = `/users`
@@ -36,6 +43,18 @@ export default class ApiClient {
       email,
       password,
       type,
+    })
+    return res.data
+  }
+
+  // POST /teachers
+  async registerTeacher(name: string, gender: number, birthDate: Date, birthPlace: string) {
+    const endpoint: string = `/teachers`
+    let res: AxiosResponse<Teacher> = await this.client.post(endpoint, {
+      name,
+      gender,
+      birthDate,
+      birthPlace,
     })
     return res.data
   }
@@ -161,4 +180,17 @@ export default class ApiClient {
       return
     }
   }
+
+  // 国名取得API https://restcountries.eu/
+  async fetchCountries() {
+    const endpoint: string = `https://restcountries.eu/rest/v2/all`
+    const res = await axios.get(endpoint)
+    const countries: Country[] = res.data.map((d: any) => ({ ja: d.translations.ja, en: d.name }))
+    return countries
+  }
+}
+
+export type Country = {
+  ja: string
+  en: string
 }

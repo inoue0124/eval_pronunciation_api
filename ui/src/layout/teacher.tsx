@@ -13,6 +13,9 @@ import LibraryMusicIcon from '@material-ui/icons/LibraryMusic'
 import ViewListIcon from '@material-ui/icons/ViewList'
 import PeopleAltIcon from '@material-ui/icons/PeopleAlt'
 import { useRouter } from 'next/router'
+import { IconButton } from '@material-ui/core'
+import ExitToAppIcon from '@material-ui/icons/ExitToApp'
+import ApiClient from '../api'
 
 const drawerWidth = 240
 
@@ -22,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+  },
+  title: {
+    flexGrow: 1,
   },
   drawer: {
     width: drawerWidth,
@@ -41,17 +47,25 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const SideMenu: React.FC = ({ children }) => {
+  const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
+  const handleLogout = async () => {
+    await api.logout()
+    router.push('/teacher/login')
+  }
 
   return (
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6" noWrap>
+          <Typography variant="h6" noWrap className={classes.title}>
             学習者音声評価Web
           </Typography>
+          <IconButton color="inherit" aria-label="open drawer" edge="end" onClick={handleLogout}>
+            <ExitToAppIcon />
+          </IconButton>
         </Toolbar>
       </AppBar>
       <Drawer
