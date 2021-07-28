@@ -20,6 +20,7 @@ import Paper from '@material-ui/core/Paper'
 import ApiClient from '../../../api'
 import { Learner } from '../../../types/Learner'
 import { SearchRequest } from '../../../types/SearchRequest'
+import { getCookie } from '../../../util/cookie'
 
 export const LearnerListTable: React.FC = () => {
   const api = new ApiClient()
@@ -32,13 +33,14 @@ export const LearnerListTable: React.FC = () => {
   const [isAsc, setIsAsc] = useState<boolean>(false)
   useEffect(() => {
     ;(async function () {
+      const user = JSON.parse(getCookie().logged_user)
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchLearnersByTeacherID(18, searchRequest)
+      const res = await api.searchLearnersByTeacherID(user.id, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)

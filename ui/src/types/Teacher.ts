@@ -1,8 +1,8 @@
 export interface Teacher {
   user_id: number
   name: string
-  gender: number
+  gender: string
   birth_date: string
-  birth_place: number
+  birth_place: string
   created_at: string
 }

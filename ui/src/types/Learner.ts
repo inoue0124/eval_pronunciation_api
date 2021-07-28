@@ -4,9 +4,9 @@ export interface Learner {
   user_id: number
   teacher_id: number
   name: string
-  gender: number
+  gender: string
   birth_date: string
-  birth_place: number
+  birth_place: string
   year_of_learning: number
   created_at: string
   speeches: LearnerSpeech[]

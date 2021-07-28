@@ -8,6 +8,7 @@ import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
 import { TeacherSpeechListTable } from '../speech/TeacherSpeechListTable'
+import { getCookie } from '../../../util/cookie'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,6 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export const AddUnitModal: React.FC = () => {
   const api = new ApiClient()
+  const user = JSON.parse(getCookie().logged_user)
   const classes = useStyles()
   const [open, setOpen] = useState<boolean>(false)
   const [file, setFile] = useState<File | null>(null)
@@ -85,7 +87,7 @@ export const AddUnitModal: React.FC = () => {
             <Typography variant="subtitle2" gutterBottom>
               2.音声を選択して下さい。
             </Typography>
-            <TeacherSpeechListTable teacherId={18} />
+            <TeacherSpeechListTable teacherId={user.id} />
             <div className="text-center">
               <Button
                 className="mr-2"

@@ -9,6 +9,7 @@ import ApiClient from '../../../api'
 import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState } from 'recoil'
 import { unitNameState } from '../../../states/addUnit/unitNameState'
+import { getCookie } from '../../../util/cookie'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -20,16 +21,21 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const RegisterUnit: React.FC = () => {
   const api = new ApiClient()
+  const user = JSON.parse(getCookie().logged_user)
   const classes = useStyles()
   const router = useRouter()
   const [selectedSpeechIds, setSelectedSpeechIds] = useRecoilState(selectedSpeechIdsState)
   const [name, setName] = useRecoilState(unitNameState)
   const [isValid, setIsValid] = useState<boolean>(false)
   const handleRegister = async (_: React.MouseEvent<HTMLButtonElement>) => {
-    await api.registerUnit(name, selectedSpeechIds)
+    const unit = await api.registerUnit(name, selectedSpeechIds)
+    if (unit === undefined) {
+      alert('エラーが発生しました。')
+      return
+    }
+    router.push(`/teacher/unit/${unit.id}`)
     setSelectedSpeechIds([])
     setName('')
-    router.back()
   }
   const handleClose = (_: React.MouseEvent<HTMLButtonElement>) => {
     router.back()
@@ -85,7 +91,7 @@ const RegisterUnit: React.FC = () => {
             <AddSpeechModal />
           </Grid>
         </Grid>
-        <TeacherSpeechListTable teacherId={18} />
+        <TeacherSpeechListTable teacherId={user.id} />
       </div>
     </SideMenu>
   )

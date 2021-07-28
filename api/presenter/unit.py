@@ -1,9 +1,11 @@
+from api.domain.entity.user import User
 from api.presenter.request import get_current_uid
 from typing import Optional
 from fastapi import Depends
 from pydantic import BaseModel
 from api.domain.repository.repository import Repository
 from api.domain.entity.unit import Unit
+from api.domain.entity.learner import Learner
 from api.factory import RepositoryFactory
 from api.util.errors import AuthError, DbError
 
@@ -82,9 +84,17 @@ async def get_by_id(unit_id: int,
     except Exception as e:
         raise e
 
-    # 自分のteacher_id以外だったらエラー
-    if unit.teacher_id != current_uid:
-        raise AuthError
+    # 教師ユーザの場合自分のユニットかどうか、学習者ユーザの場合は自分の教師のユニットかどうかチェック
+    user: User = repository.User().get_by_id(user_id=current_uid)
+    if user.type == 1:
+        if unit.teacher_id != current_uid:
+            raise AuthError
+    if user.type == 2:
+        learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
+        print(f'================={learner.teacher_id}==========={unit.teacher_id}')
+        if unit.teacher_id != learner.teacher_id:
+            raise AuthError
+
 
     return unit
 

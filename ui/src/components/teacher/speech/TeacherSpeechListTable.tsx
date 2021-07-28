@@ -49,7 +49,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
 
   // 教師音声リストが渡された場合はAPIを叩きに行かない
   const fetchData = async () => {
-    if (speeches == undefined) {
+    if (speeches === undefined) {
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
@@ -115,7 +115,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
               教師音声一覧
             </Typography>
           </Box>
-          {speeches == undefined && (
+          {speeches === undefined && (
             <TextField
               style={{ width: 400 }}
               id="outlined-basic"
@@ -137,9 +137,11 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
-                <Checkbox onChange={handleCheckAll} disabled={speeches != undefined} />
-              </TableCell>
+              {speeches === undefined && (
+                <TableCell>
+                  <Checkbox onChange={handleCheckAll} disabled={speeches != undefined} />
+                </TableCell>
+              )}
               <TableCell sortDirection={isAsc ? 'asc' : 'desc'}>
                 <TableSortLabel
                   active={true}
@@ -160,15 +162,16 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
           <TableBody>
             {data.map((d) => (
               <TableRow key={d.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selected.includes(d.id)}
-                    onChange={(event) => {
-                      handleCheck(event, d.id)
-                    }}
-                    disabled={speeches != undefined}
-                  />
-                </TableCell>
+                {speeches === undefined && (
+                  <TableCell>
+                    <Checkbox
+                      checked={selected.includes(d.id)}
+                      onChange={(event) => {
+                        handleCheck(event, d.id)
+                      }}
+                    />
+                  </TableCell>
+                )}
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>

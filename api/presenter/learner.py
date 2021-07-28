@@ -12,10 +12,10 @@ from api.util.errors import AuthError, DbError
 class RegisterLearnerRequest(BaseModel):
     teacher_id: int
     name: str
-    gender: int
+    gender: str
     birth_date: date
-    birth_place: int
-    year_of_learning: int
+    birth_place: str
+    year_of_learning: float
 
 
 async def register(registerLearnerRequest: RegisterLearnerRequest,

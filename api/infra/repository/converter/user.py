@@ -3,16 +3,16 @@ from api.domain.entity.user import User
 
 
 class UserConverter:
-    def convert(self, userTable: UserTable) -> User:
-        return User(id=userTable.id,
-                    email=userTable.email,
-                    password=userTable.password,
-                    type=userTable.type,
-                    created_at=userTable.created_at)
+    def convert(self, user_table: UserTable) -> User:
+        return User(id=user_table.id,
+                    email=user_table.email,
+                    password=user_table.password,
+                    type=user_table.type,
+                    created_at=user_table.created_at)
 
-    def convert_from_list(self, userTables: list[UserTable]) -> list[User]:
+    def convert_from_list(self, user_tables: list[UserTable]) -> list[User]:
         users = []
-        for userTable in userTables:
-            users.append(self.convert(userTable=userTable))
+        for user_table in user_tables:
+            users.append(self.convert(user_table=user_table))
 
         return users
