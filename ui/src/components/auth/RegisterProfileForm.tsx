@@ -36,6 +36,8 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
+  const unitId = Number(router.query.unit)
+  const teacherId = Number(router.query.ti)
   const years = [...Array(30)].map((_, i) => i / 2)
   const [countries, setCountries] = useState<Country[]>([])
   const [name, setName] = useState<string>()
@@ -96,7 +98,7 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
     }
     try {
       const learner = await api.registerLearner(
-        18, // TODO: teacher IDの取り回し考える
+        teacherId,
         name,
         gender,
         birthDate,
@@ -107,7 +109,7 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
-      router.push('/learner/unit')
+      router.push(`/learner/unit/${unitId}?ti=${teacherId}`)
     } catch (e) {
       alert(e)
     }
@@ -117,7 +119,7 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
     <Container component="main">
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
-          プロフィール登録
+          {isTeacher ? '教師' : '学習者'}プロフィール登録
         </Typography>
         <form className={classes.form}>
           <TextField

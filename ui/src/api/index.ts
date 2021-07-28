@@ -7,7 +7,7 @@ import { Teacher } from '../types/Teacher'
 import { TeacherSpeech } from '../types/TeacherSpeech'
 import { Unit } from '../types/Unit'
 import { User } from '../types/User'
-import { getCookie } from '../util/cookie'
+import { getCookie, deleteCookie } from '../util/cookie'
 
 export default class ApiClient {
   client: AxiosInstance = axios.create({
@@ -23,7 +23,7 @@ export default class ApiClient {
   // POST /session
   async login(email: string, password: string) {
     const endpoint: string = `/session`
-    let res: AxiosResponse<User> = await this.client.post(endpoint, {
+    const res: AxiosResponse<User> = await this.client.post(endpoint, {
       email,
       password,
     })
@@ -34,12 +34,13 @@ export default class ApiClient {
   async logout() {
     const endpoint: string = `/session`
     await this.client.delete(endpoint)
+    deleteCookie('logged_user')
   }
 
   // POST /users
   async register(email: string, password: string, type: number) {
     const endpoint: string = `/users`
-    let res: AxiosResponse<User> = await this.client.post(endpoint, {
+    const res: AxiosResponse<User> = await this.client.post(endpoint, {
       email,
       password,
       type,
@@ -50,7 +51,7 @@ export default class ApiClient {
   // POST /teachers
   async registerTeacher(name: string, gender: number, birthDate: string, birthPlace: string) {
     const endpoint: string = `/teachers`
-    let res: AxiosResponse<Teacher> = await this.client.post(endpoint, {
+    const res: AxiosResponse<Teacher> = await this.client.post(endpoint, {
       name,
       gender,
       birth_date: birthDate,
@@ -113,14 +114,8 @@ export default class ApiClient {
   // GET /units/{unit_id}
   async getUnitById(unitId: number) {
     const endpoint: string = `/units/${unitId}`
-    let res: AxiosResponse<Unit>
-    try {
-      res = await this.client.get(endpoint)
-      return res.data
-    } catch (e) {
-      alert(e)
-      return
-    }
+    const res: AxiosResponse<Unit> = await this.client.get(endpoint)
+    return res.data
   }
 
   // GET /teachers/${teacher_id}/units
@@ -148,7 +143,7 @@ export default class ApiClient {
     yearOfLearning: number,
   ) {
     const endpoint: string = `/learners`
-    let res: AxiosResponse<Learner> = await this.client.post(endpoint, {
+    const res: AxiosResponse<Learner> = await this.client.post(endpoint, {
       teacher_id: teacherId,
       name,
       gender,

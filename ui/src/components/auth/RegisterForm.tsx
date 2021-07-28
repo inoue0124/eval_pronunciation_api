@@ -49,6 +49,8 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
+  const unitId = Number(router.query.unit)
+  const teacherId = Number(router.query.ti)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const type = isTeacher ? 1 : 2
@@ -61,7 +63,11 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
-      router.push(isTeacher ? '/teacher/register-profile' : '/learner/register-profile')
+      router.push(
+        isTeacher
+          ? '/teacher/register-profile'
+          : `/learner/register-profile?unit=${unitId}&ti=${teacherId}`,
+      )
     } catch (e) {
       alert(e)
     }
@@ -71,7 +77,7 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
     <Container component="main">
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
-          新規登録
+          {isTeacher ? '教師' : '学習者'}新規登録
         </Typography>
         <form className={classes.form}>
           <TextField
@@ -117,7 +123,12 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
-              <Link href={isTeacher ? '/teacher/login' : '/learner/login'} variant="body2">
+              <Link
+                href={
+                  isTeacher ? '/teacher/login' : `/learner/login?unit=${unitId}&ti=${teacherId}`
+                }
+                variant="body2"
+              >
                 ログインはこちら
               </Link>
             </Grid>

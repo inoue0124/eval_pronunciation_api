@@ -43,13 +43,15 @@ const UnitDetail: NextPage = ({ user }) => {
   useEffect(() => {
     if (router.isReady) {
       ;(async function () {
-        const unit = await api.getUnitById(unitId)
-        if (unit != undefined) {
+        try {
+          const unit = await api.getUnitById(unitId)
           setUnit(unit)
+        } catch (e) {
+          alert(`予期せぬエラーが発生しました。:${e}`)
         }
       })()
     }
-    setDistributeUrl(`http://localhost:3000/unit/${unitId}`)
+    setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user.id}`)
   }, [router.query])
 
   const handleCopyUrl = () => {

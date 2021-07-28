@@ -16,6 +16,7 @@ import { useRouter } from 'next/router'
 import { IconButton } from '@material-ui/core'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import ApiClient from '../api'
+import { deleteCookie } from '../util/cookie'
 
 const drawerWidth = 240
 
