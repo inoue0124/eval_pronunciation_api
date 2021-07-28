@@ -1,5 +1,6 @@
 from api.util.jwt import create_access_token
 from api.domain.entity.user import User
+from api.infra.repository.converter.user import UserConverter
 from .db.user import UserTable
 
 
@@ -28,3 +29,11 @@ class UserRepository:
         token = create_access_token(data={"sub": str(user.id)})
 
         return user, token
+
+    def get_by_id(self, user_id: int) -> User:
+        # ユーザIDからテーブルモデルを取得
+        user_table = self.db.query(UserTable).filter(
+            UserTable.id == user_id).first()
+
+        # ドメインモデルに変換
+        return UserConverter().convert(user_table=user_table)

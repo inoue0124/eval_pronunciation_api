@@ -13,7 +13,7 @@ class SessionRepository():
         # emailからユーザを取得
         userTable = self.db.query(UserTable).filter(
             UserTable.email == loginRequest.email).first()
-        user = UserConverter().convert(userTable=userTable)
+        user = UserConverter().convert(user_table=userTable)
 
         # パスワードが正しいかチェック
         if not user.check_password(loginRequest.password):
