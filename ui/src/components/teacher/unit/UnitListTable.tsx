@@ -1,6 +1,6 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { Link } from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import SearchIcon from '@material-ui/icons/Search'
@@ -110,7 +110,7 @@ export const UnitListTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={`unit_${d.id}`} onClick={(event) => handleClickRow(d.id)} hover={true}>
+              <TableRow key={`unit_${d.id}`} onClick={() => handleClickRow(d.id)} hover={true}>
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
@@ -135,8 +135,8 @@ export const UnitListTable: React.FC = () => {
                 rowsPerPageOptions={[10, 30, 50]}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </TableRow>
           </TableFooter>

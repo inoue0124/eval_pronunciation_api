@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react'
 import ApiClient from '../../../api'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
@@ -43,15 +44,11 @@ export const AddUnitModal: React.FC = () => {
   const handleClose = () => {
     setOpen(false)
   }
-  const onSelectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) setFile(event.target.files[0])
-  }
-  const onChangeText = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(event.target.value)
-  }
   const handleRegister = async () => {
-    await api.registerTeacherSpeech(text, file!)
-    setOpen(false)
+    if (file !== null) {
+      await api.registerTeacherSpeech(text, file)
+      setOpen(false)
+    }
   }
 
   return (

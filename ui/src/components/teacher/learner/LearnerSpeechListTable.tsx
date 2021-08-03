@@ -1,6 +1,6 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react'
 import Box from '@material-ui/core/Box'
-import Checkbox from '@material-ui/core/Checkbox'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import SearchIcon from '@material-ui/icons/Search'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -149,8 +149,8 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId, speeches })
                 rowsPerPageOptions={[10, 30, 50]}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </TableRow>
           </TableFooter>

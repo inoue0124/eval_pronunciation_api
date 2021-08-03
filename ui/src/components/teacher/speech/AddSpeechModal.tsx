@@ -55,9 +55,13 @@ export const AddSpeechModal: React.FC = () => {
     setText(event.target.value)
   }
   const handleRegister = async () => {
-    const res = await api.registerTeacherSpeech(text, file!)
-    setAddedSpeech(res!)
-    setOpen(false)
+    if (file !== null) {
+      const res = await api.registerTeacherSpeech(text, file)
+      if (res !== undefined) {
+        setAddedSpeech(res)
+        setOpen(false)
+      }
+    }
   }
 
   return (

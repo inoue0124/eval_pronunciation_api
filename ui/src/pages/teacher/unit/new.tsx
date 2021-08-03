@@ -1,15 +1,16 @@
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
 import { Button, Typography, TextField, makeStyles, Theme, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { SideMenu } from '../../../layout/teacher'
-import React, { useState, useEffect } from 'react'
 import { AddSpeechModal } from '../../../components/teacher/speech/AddSpeechModal'
 import ApiClient from '../../../api'
 import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState } from 'recoil'
 import { unitNameState } from '../../../states/addUnit/unitNameState'
 import { getCookie } from '../../../util/cookie'
+import { User } from '../../../types/User'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -21,13 +22,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const RegisterUnit: React.FC = () => {
   const api = new ApiClient()
-  const user = JSON.parse(getCookie().logged_user)
+  const [user, setUser] = useState<User>()
+  useEffect(() => {
+    setUser(JSON.parse(getCookie().logged_user))
+  }, [])
   const classes = useStyles()
   const router = useRouter()
   const [selectedSpeechIds, setSelectedSpeechIds] = useRecoilState(selectedSpeechIdsState)
   const [name, setName] = useRecoilState(unitNameState)
   const [isValid, setIsValid] = useState<boolean>(false)
-  const handleRegister = async (_: React.MouseEvent<HTMLButtonElement>) => {
+  const handleRegister = async () => {
     const unit = await api.registerUnit(name, selectedSpeechIds)
     if (unit === undefined) {
       alert('エラーが発生しました。')
@@ -37,7 +41,7 @@ const RegisterUnit: React.FC = () => {
     setSelectedSpeechIds([])
     setName('')
   }
-  const handleClose = (_: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClose = () => {
     router.back()
   }
   useEffect(() => {
@@ -91,7 +95,7 @@ const RegisterUnit: React.FC = () => {
             <AddSpeechModal />
           </Grid>
         </Grid>
-        <TeacherSpeechListTable teacherId={user.id} />
+        <TeacherSpeechListTable teacherId={user ? user.id : 0} />
       </div>
     </SideMenu>
   )

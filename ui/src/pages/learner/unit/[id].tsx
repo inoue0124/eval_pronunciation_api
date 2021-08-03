@@ -1,10 +1,17 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { Card, CardContent, createStyles, makeStyles, Theme, Typography } from '@material-ui/core'
 import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
 import { getCookie } from '../../../util/cookie'
 import { NextPage } from 'next'
+import { User } from '../../../types/User'
+const WaveDisplay = dynamic<any>(
+  () => import('../../../components/WaveDisplay').then((module) => module.WaveDisplay),
+  { ssr: false },
+)
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -15,7 +22,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-const UnitDetail: NextPage = ({ user }) => {
+const UnitDetail: NextPage = ({}, { user }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
@@ -52,6 +59,9 @@ const UnitDetail: NextPage = ({ user }) => {
               作成日時：{new Date(unit.created_at).toLocaleString()}
             </Typography>
           </CardContent>
+          <WaveDisplay
+            url={'https://eval-speech.s3.ap-northeast-1.amazonaws.com/shadowing_2.MP3'}
+          />
         </Card>
       )}
     </>
@@ -61,7 +71,7 @@ const UnitDetail: NextPage = ({ user }) => {
 UnitDetail.getInitialProps = (ctx) => {
   const logged_user = getCookie(ctx).logged_user
   if (!logged_user) return {}
-  const user = JSON.parse(logged_user)
+  const user: User = JSON.parse(logged_user)
   return { user: user }
 }
 

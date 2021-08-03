@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { SideMenu } from '../../../layout/teacher'
@@ -22,6 +23,7 @@ import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
 import { getCookie } from '../../../util/cookie'
 import { NextPage } from 'next'
+import { User } from '../../../types/User'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-const UnitDetail: NextPage = ({ user }) => {
+const UnitDetail: NextPage = ({}, { user }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
@@ -106,7 +108,7 @@ const UnitDetail: NextPage = ({ user }) => {
 }
 
 UnitDetail.getInitialProps = (ctx) => {
-  const user = JSON.parse(getCookie(ctx).logged_user)
+  const user: User = JSON.parse(getCookie(ctx).logged_user)
   return { user: user }
 }
 
