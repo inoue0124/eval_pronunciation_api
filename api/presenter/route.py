@@ -1,4 +1,4 @@
-from api.presenter.response import SearchResponse
+from api.presenter.response import SearchResponse, SessionResponse
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.domain.entity.unit import Unit
 from api.domain.entity.teacher_speech import TeacherSpeech
@@ -17,20 +17,14 @@ def add_routes(app: FastAPI) -> None:
     app.add_api_route("/session",
                       session.login,
                       methods=["POST"],
-                      response_model=User,
-                      tags=["session"])
-
-    app.add_api_route("/session",
-                      session.logout,
-                      methods=["DELETE"],
-                      response_model=User,
+                      response_model=SessionResponse,
                       tags=["session"])
 
     # user
     app.add_api_route("/users",
                       user.register,
                       methods=["POST"],
-                      response_model=User,
+                      response_model=SessionResponse,
                       responses=error_response([DbError]),
                       tags=["users"])
 

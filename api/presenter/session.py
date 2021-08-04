@@ -15,19 +15,4 @@ async def login(loginRequest: LoginRequest,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    # cookieにjwtを付与
-    response.set_cookie(key=TOKEN_COOKIE_NAME,
-                        value=token,
-                        max_age=604800,
-                        samesite="none",
-                        secure=True)
-    return user
-
-
-async def logout(response: Response):
-    response.set_cookie(key=TOKEN_COOKIE_NAME,
-                        value="",
-                        max_age=0,
-                        samesite="none",
-                        secure=True)
-    return None
+    return {"user": user, "token": token}
