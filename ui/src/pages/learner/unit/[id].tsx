@@ -22,14 +22,16 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-const UnitDetail: NextPage = ({}, { user }) => {
+const UnitDetail: NextPage = () => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
   const unitId = Number(router.query.id)
   const teacherId = Number(router.query.ti)
+  const [user, setUser] = useState<User>()
   const [unit, setUnit] = useState<Unit>()
   useEffect(() => {
+    setUser(JSON.parse(getCookie().logged_user))
     if (router.isReady) {
       // 未ログインの場合はログインページへ遷移
       if (!user) {
@@ -66,13 +68,6 @@ const UnitDetail: NextPage = ({}, { user }) => {
       )}
     </>
   )
-}
-
-UnitDetail.getInitialProps = (ctx) => {
-  const logged_user = getCookie(ctx).logged_user
-  if (!logged_user) return {}
-  const user: User = JSON.parse(logged_user)
-  return { user: user }
 }
 
 export default UnitDetail

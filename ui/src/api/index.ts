@@ -3,6 +3,7 @@ import { Learner } from '../types/Learner'
 import { LearnerSpeech } from '../types/LearnerSpeech'
 import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
+import { SessionResponse } from '../types/SessionResponse'
 import { Teacher } from '../types/Teacher'
 import { TeacherSpeech } from '../types/TeacherSpeech'
 import { Unit } from '../types/Unit'
@@ -23,7 +24,7 @@ export default class ApiClient {
   // POST /session
   async login(email: string, password: string) {
     const endpoint: string = `/session`
-    const res: AxiosResponse<User> = await this.client.post(endpoint, {
+    const res: AxiosResponse<SessionResponse> = await this.client.post(endpoint, {
       email,
       password,
     })
@@ -32,15 +33,14 @@ export default class ApiClient {
 
   // DELETE /session
   async logout() {
-    const endpoint: string = `/session`
-    await this.client.delete(endpoint)
+    deleteCookie('EVAL_SPEECH_SESSION')
     deleteCookie('logged_user')
   }
 
   // POST /users
   async register(email: string, password: string, type: number) {
     const endpoint: string = `/users`
-    const res: AxiosResponse<User> = await this.client.post(endpoint, {
+    const res: AxiosResponse<SessionResponse> = await this.client.post(endpoint, {
       email,
       password,
       type,

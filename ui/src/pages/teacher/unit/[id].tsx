@@ -34,15 +34,17 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-const UnitDetail: NextPage = ({}, { user }) => {
+const UnitDetail: NextPage = () => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
   const unitId = Number(router.query.id)
+  const [user, setUser] = useState<User>()
   const [unit, setUnit] = useState<Unit>()
   const [distributeUrl, setDistributeUrl] = useState<string>('')
   const [isCopied, setIsCopied] = useState<boolean>(false)
   useEffect(() => {
+    setUser(JSON.parse(getCookie().logged_user))
     if (router.isReady) {
       ;(async function () {
         try {
@@ -52,8 +54,8 @@ const UnitDetail: NextPage = ({}, { user }) => {
           alert(`予期せぬエラーが発生しました。:${e}`)
         }
       })()
+      setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user?.id}`)
     }
-    setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user.id}`)
   }, [router.query])
 
   const handleCopyUrl = () => {
@@ -100,16 +102,11 @@ const UnitDetail: NextPage = ({}, { user }) => {
         </Card>
       )}
 
-      {router.isReady && unit && (
+      {router.isReady && unit && user && (
         <TeacherSpeechListTable teacherId={user.id} speeches={unit.teacher_speeches} />
       )}
     </SideMenu>
   )
-}
-
-UnitDetail.getInitialProps = (ctx) => {
-  const user: User = JSON.parse(getCookie(ctx).logged_user)
-  return { user: user }
 }
 
 export default UnitDetail
