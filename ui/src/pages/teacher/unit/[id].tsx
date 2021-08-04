@@ -45,6 +45,9 @@ const UnitDetail: NextPage = () => {
   const [isCopied, setIsCopied] = useState<boolean>(false)
   useEffect(() => {
     setUser(JSON.parse(getCookie().logged_user))
+  }, [])
+
+  useEffect(() => {
     if (router.isReady) {
       ;(async function () {
         try {
@@ -54,9 +57,13 @@ const UnitDetail: NextPage = () => {
           alert(`予期せぬエラーが発生しました。:${e}`)
         }
       })()
-      setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user?.id}`)
     }
   }, [router.query])
+
+  useEffect(() => {
+    if (unitId === undefined || user === undefined) return
+    setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user.id}`)
+  }, [unitId, user])
 
   const handleCopyUrl = () => {
     setIsCopied(true)

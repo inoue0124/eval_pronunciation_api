@@ -95,7 +95,7 @@ const RegisterUnit: React.FC = () => {
             <AddSpeechModal />
           </Grid>
         </Grid>
-        <TeacherSpeechListTable teacherId={user ? user.id : 0} />
+        {user && <TeacherSpeechListTable teacherId={user.id} />}
       </div>
     </SideMenu>
   )

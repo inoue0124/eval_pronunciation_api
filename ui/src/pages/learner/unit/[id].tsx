@@ -31,13 +31,14 @@ const UnitDetail: NextPage = () => {
   const [user, setUser] = useState<User>()
   const [unit, setUnit] = useState<Unit>()
   useEffect(() => {
-    setUser(JSON.parse(getCookie().logged_user))
     if (router.isReady) {
+      const logged_user = getCookie().logged_user
       // 未ログインの場合はログインページへ遷移
-      if (!user) {
+      if (!logged_user) {
         router.push(`/learner/login?unit=${unitId}&ti=${teacherId}`)
         return
       }
+      setUser(JSON.parse(logged_user))
       ;(async function () {
         try {
           const unit = await api.getUnitById(unitId)

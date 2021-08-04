@@ -16,7 +16,7 @@ const SpeechList: React.FC = () => {
       <div className="mb-1" style={{ textAlign: 'right' }}>
         <AddSpeechModal />
       </div>
-      <TeacherSpeechListTable teacherId={user ? user.id : 0} />
+      {user && <TeacherSpeechListTable teacherId={user.id} />}
     </SideMenu>
   )
 }
