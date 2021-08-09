@@ -18,7 +18,7 @@ import {
 } from '@material-ui/core'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import DoneIcon from '@material-ui/icons/Done'
-import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
+import { TeacherSpeechListTable } from '../../../components/speech/TeacherSpeechListTable'
 import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
 import { getCookie } from '../../../util/cookie'

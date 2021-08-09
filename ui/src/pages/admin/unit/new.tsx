@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
-import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
+import { TeacherSpeechListTable } from '../../../components/speech/TeacherSpeechListTable'
 import { Button, Typography, TextField, makeStyles, Theme, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { SideMenu } from '../../../layout/admin'
-import { AddSpeechModal } from '../../../components/teacher/speech/AddSpeechModal'
+import { AddSpeechModal } from '../../../components/speech/AddSpeechModal'
 import ApiClient from '../../../api'
 import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState } from 'recoil'
@@ -50,7 +50,7 @@ const RegisterUnit: React.FC = () => {
 
   return (
     <SideMenu>
-      <Grid container direction="row" justify="space-between">
+      <Grid container direction="row" justifyContent="space-between">
         <Grid item>
           <Typography variant="h5" gutterBottom>
             新規課題登録

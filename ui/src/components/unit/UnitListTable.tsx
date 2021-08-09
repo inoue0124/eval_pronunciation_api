@@ -18,10 +18,10 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import ApiClient from '../../../api'
-import { SearchRequest } from '../../../types/SearchRequest'
-import { Unit } from '../../../types/Unit'
-import { getCookie } from '../../../util/cookie'
+import ApiClient from '../../api'
+import { SearchRequest } from '../../types/SearchRequest'
+import { Unit } from '../../types/Unit'
+import { getCookie } from '../../util/cookie'
 
 type Props = {
   isAdmin: boolean
@@ -71,7 +71,7 @@ export const UnitListTable: React.FC<Props> = ({ isAdmin }) => {
   return (
     <Paper>
       <Toolbar>
-        <Grid container direction="row" justify="space-between" alignItems="center">
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Box mr={2}>
             <Typography variant="h6" id="tableTitle" component="div">
               課題一覧

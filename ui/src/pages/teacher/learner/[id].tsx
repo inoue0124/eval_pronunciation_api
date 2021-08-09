@@ -12,7 +12,7 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core'
-import { LearnerSpeechListTable } from '../../../components/teacher/learner/LearnerSpeechListTable'
+import { LearnerSpeechListTable } from '../../../components/learner/LearnerSpeechListTable'
 import { Learner } from '../../../types/Learner'
 import ApiClient from '../../../api'
 

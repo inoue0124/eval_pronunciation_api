@@ -18,19 +18,14 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import ApiClient from '../../../api'
-import { Learner } from '../../../types/Learner'
-import { SearchRequest } from '../../../types/SearchRequest'
-import { getCookie } from '../../../util/cookie'
+import ApiClient from '../../api'
+import { Teacher } from '../../types/Teacher'
+import { SearchRequest } from '../../types/SearchRequest'
 
-type Props = {
-  isAdmin: boolean
-}
-
-export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
+export const TeacherListTable: React.FC = () => {
   const api = new ApiClient()
   const router = useRouter()
-  const [data, setData] = useState<Learner[]>([])
+  const [data, setData] = useState<Teacher[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [count, setCount] = useState<number>(0)
@@ -38,16 +33,13 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
   const [isAsc, setIsAsc] = useState<boolean>(false)
   useEffect(() => {
     ;(async function () {
-      const user = JSON.parse(getCookie().logged_user)
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = isAdmin
-        ? await api.searchLearners(searchRequest)
-        : await api.searchLearnersByTeacherID(user.id, searchRequest)
+      const res = await api.searchTeachers(searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -57,8 +49,8 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
   }
-  const handleClickRow = (learner_id: number) => {
-    router.push(isAdmin ? `/admin/learner/${learner_id}` : `/teacher/learner/${learner_id}`)
+  const handleClickRow = (teacher_id: number) => {
+    router.push(`/admin/teacher/${teacher_id}`)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -71,10 +63,10 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
   return (
     <Paper>
       <Toolbar>
-        <Grid container direction="row" justify="space-between" alignItems="center">
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Box mr={2}>
             <Typography variant="h6" id="tableTitle" component="div">
-              学習者一覧
+              教師一覧
             </Typography>
           </Box>
           <TextField
@@ -105,30 +97,27 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
                     setIsAsc(!isAsc)
                   }}
                 >
-                  学習者ID
+                  教師ID
                 </TableSortLabel>
               </TableCell>
-              {isAdmin && <TableCell>教師ID</TableCell>}
               <TableCell>名前</TableCell>
               <TableCell>性別</TableCell>
               <TableCell>年齢</TableCell>
               <TableCell>出身地</TableCell>
-              <TableCell>学習年数</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
+            {data}
             {data.map((d) => (
               <TableRow key={d.user_id} onClick={() => handleClickRow(d.user_id)} hover={true}>
                 <TableCell component="th" scope="row">
                   {d.user_id}
                 </TableCell>
-                {isAdmin && <TableCell>{d.teacher_id}</TableCell>}
                 <TableCell>{d.name}</TableCell>
                 <TableCell>{d.gender}</TableCell>
                 <TableCell>{d.birth_date}</TableCell>
                 <TableCell>{d.birth_place}</TableCell>
-                <TableCell>{d.year_of_learning}</TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}

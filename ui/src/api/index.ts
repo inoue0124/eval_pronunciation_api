@@ -50,6 +50,21 @@ export default class ApiClient {
     return res.data
   }
 
+  // GET /teachers
+  async searchTeachers(searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers`
+    let res: AxiosResponse<SearchResponse<Teacher>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
   // POST /teachers
   async registerTeacher(name: string, gender: number, birthDate: string, birthPlace: string) {
     const endpoint: string = `/teachers`

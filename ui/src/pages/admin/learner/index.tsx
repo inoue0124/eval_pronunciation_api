@@ -1,4 +1,4 @@
-import { LearnerListTable } from '../../../components/teacher/learner/LearnerListTable'
+import { LearnerListTable } from '../../../components/learner/LearnerListTable'
 import { SideMenu } from '../../../layout/admin'
 
 const LearnerList: React.FC = () => {

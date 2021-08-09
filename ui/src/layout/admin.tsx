@@ -80,6 +80,14 @@ export const SideMenu: React.FC = ({ children }) => {
           <List>
             <ListItem
               button
+              selected={router.pathname.includes('/admin/teacher')}
+              onClick={() => router.push('/admin/teacher')}
+            >
+              <ListItemIcon>{<PeopleAltIcon />}</ListItemIcon>
+              <ListItemText primary="教師管理" />
+            </ListItem>
+            <ListItem
+              button
               selected={router.pathname.includes('/admin/speech')}
               onClick={() => router.push('/admin/speech')}
             >

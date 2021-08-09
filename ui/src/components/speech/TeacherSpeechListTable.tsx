@@ -18,12 +18,12 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import ApiClient from '../../../api'
-import { TeacherSpeech } from '../../../types/TeacherSpeech'
-import { SearchRequest } from '../../../types/SearchRequest'
-import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
+import ApiClient from '../../api'
+import { TeacherSpeech } from '../../types/TeacherSpeech'
+import { SearchRequest } from '../../types/SearchRequest'
+import { selectedSpeechIdsState } from '../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { addedSpeechState } from '../../../states/addTeacherSpeech/addedSpeechState'
+import { addedSpeechState } from '../../states/addTeacherSpeech/addedSpeechState'
 
 type Props = {
   isAdmin: boolean
@@ -113,7 +113,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, sp
   return (
     <Paper>
       <Toolbar>
-        <Grid container direction="row" justify="space-between" alignItems="center">
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Box mr={2}>
             <Typography variant="h6" id="tableTitle" component="div">
               教師音声一覧
