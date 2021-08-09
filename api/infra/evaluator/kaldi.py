@@ -8,9 +8,8 @@ import numpy as np
 
 
 class Kaldi:
-    def __init__(self, utterance_id: str, speaker_id: int):
+    def __init__(self, utterance_id: str):
         self.utterance_id = utterance_id
-        self.speaker_id = speaker_id
         self.data_dir = f"/tmp/{utterance_id}/data"
         self.feats_dir = f"/tmp/{utterance_id}/feats"
         self.model_dir = "/api/infra/evaluator/model"
@@ -55,11 +54,11 @@ class Kaldi:
 
         # utt2spk
         with open(f"{self.data_dir}/utt2spk", 'w', encoding='UTF-8') as f:
-            f.write(f"{self.utterance_id} {self.speaker_id}\n")
+            f.write(f"{self.utterance_id} speaker\n")
 
         # spk2utt
         with open(f"{self.data_dir}/spk2utt", 'w', encoding='UTF-8') as f:
-            f.write(f"{self.speaker_id} {self.utterance_id}\n")
+            f.write(f"speaker {self.utterance_id}\n")
 
     def prepare_feats(self) -> Optional[Exception]:
         # mfcc
@@ -171,7 +170,6 @@ class Kaldi:
                         total += s
                         seq.append(s)
                         cnt += 1
-
                     return seq, total / cnt
 
     def compute_dtw(self, ref_utterance_id: str) -> float:

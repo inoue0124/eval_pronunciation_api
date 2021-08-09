@@ -1,10 +1,10 @@
-import os, shutil
+import os, shutil, ffmpeg
 from api.util.config import TMP_DOWNLOAD_DIR
 from pydantic.main import BaseModel
 from typing import Optional
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.domain.entity.learner import Learner
-from api.util.errors import AuthError, DbError
+from api.util.errors import AuthError, DbError, KaldiError
 from api.presenter.request import get_current_uid
 from api.domain.repository.repository import Repository
 from fastapi.datastructures import UploadFile
@@ -17,19 +17,51 @@ from api.factory import EvaluatorFactory, RepositoryFactory
 from concurrent import futures
 from fastapi.responses import StreamingResponse
 from api.util.config import TMP_DOWNLOAD_DIR
-
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 class DownloadLearnerSpeechRequest(BaseModel):
     learner_speech_ids: Optional[list[int]]
 
 
-async def get_gop(evaluator: Evaluator = Depends(EvaluatorFactory.create)):
-    gop: Gop = evaluator.compute_gop()
+async def get_gop(evaluator: Evaluator = Depends(EvaluatorFactory.create),
+                  text: str = Form(...),
+                  speech: UploadFile = File(...)):
+
+    suffix = Path(speech.filename).suffix
+    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        shutil.copyfileobj(speech.file, tmp)
+        stream = ffmpeg.input(tmp.name)
+        stream = ffmpeg.output(stream, tmp.name+'.mp3')
+        ffmpeg.run(stream)
+
+    try:
+        gop: Gop = evaluator.compute_gop(text=text, speech_path=tmp.name+'.mp3')
+    except Exception as e:
+        raise KaldiError(detail=str(e))
+
     return gop
 
 
-async def get_dtw(evaluator: Evaluator = Depends(EvaluatorFactory.create)):
-    dtw: Dtw = evaluator.compute_dtw()
+async def get_dtw(evaluator: Evaluator = Depends(EvaluatorFactory.create),
+                  ref_speech: UploadFile = File(...),
+                  speech: UploadFile = File(...)):
+
+    ref_suffix = Path(ref_speech.filename).suffix
+    with NamedTemporaryFile(delete=False, suffix=ref_suffix) as ref_tmp:
+        shutil.copyfileobj(ref_speech.file, ref_tmp)
+        stream = ffmpeg.input(ref_tmp.name)
+        stream = ffmpeg.output(stream, ref_tmp.name+'.mp3')
+        ffmpeg.run(stream)
+
+    suffix = Path(speech.filename).suffix
+    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        shutil.copyfileobj(speech.file, tmp)
+        stream = ffmpeg.input(tmp.name)
+        stream = ffmpeg.output(stream, tmp.name+'.mp3')
+        ffmpeg.run(stream)
+
+    dtw: Dtw = evaluator.compute_dtw(ref_speech_path=ref_tmp.name+'.mp3', speech_path=tmp.name+'.mp3')
     return dtw
 
 

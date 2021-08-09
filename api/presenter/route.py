@@ -174,12 +174,12 @@ def add_routes(app: FastAPI) -> None:
     # score
     app.add_api_route("/scores/gop",
                       learner_speech.get_gop,
-                      methods=["GET"],
+                      methods=["POST"],
                       response_model=Gop,
                       tags=["scores"])
 
     app.add_api_route("/scores/dtw",
                       learner_speech.get_dtw,
-                      methods=["GET"],
+                      methods=["POST"],
                       response_model=Dtw,
                       tags=["scores"])
