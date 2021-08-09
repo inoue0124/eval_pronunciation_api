@@ -47,6 +47,9 @@ type Props = {
   url: string
   fn_ref: any
   onFinishPlaying?: () => void
+  isShowScore: boolean
+  gop: string
+  dtw: string
 }
 export const WaveDisplay: React.FC<Props> = ({
   isDisableToolbar,
@@ -54,6 +57,9 @@ export const WaveDisplay: React.FC<Props> = ({
   url,
   fn_ref,
   onFinishPlaying,
+  isShowScore,
+  gop,
+  dtw,
 }) => {
   const classes = useStyles()
   const wavesurfer = useRef<WaveSurfer | null>(null)
@@ -278,6 +284,19 @@ export const WaveDisplay: React.FC<Props> = ({
       >
         <StopIcon />
       </IconButton>
+      {isShowScore && (
+        <div>
+          <Typography
+            color="textPrimary"
+            variant="body1"
+            display="inline"
+            align="right"
+            style={{ marginRight: 10 }}
+          >
+            GOP: {gop ? gop : '計算中'} DTW: {dtw ? dtw : '計算中'}
+          </Typography>
+        </div>
+      )}
       <div ref={waveformRef} className={classes.waveForm} />
 
       <div className={classes.pitchWrapper}>

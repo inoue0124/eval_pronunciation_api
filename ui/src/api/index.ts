@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { Dtw } from '../types/Dtw'
+import { Gop } from '../types/Gop'
 import { Learner } from '../types/Learner'
 import { LearnerSpeech } from '../types/LearnerSpeech'
 import { SearchRequest } from '../types/SearchRequest'
@@ -217,6 +219,36 @@ export default class ApiClient {
       alert(e)
       return
     }
+  }
+
+  // POST /scores/gop
+  async calculateGop(text: string, speech: Blob) {
+    const endpoint: string = `/scores/gop`
+    const params = new FormData()
+    params.append('text', text)
+    params.append('speech', speech)
+    let res: AxiosResponse<Gop>
+    res = await this.client.post(endpoint, params, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
+    return res.data
+  }
+
+  // POST /scores/dtw
+  async calculateDtw(refSpeech: Blob, speech: Blob) {
+    const endpoint: string = `/scores/dtw`
+    const params = new FormData()
+    params.append('ref_speech', refSpeech)
+    params.append('speech', speech)
+    let res: AxiosResponse<Dtw>
+    res = await this.client.post(endpoint, params, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
+    return res.data
   }
 
   // 国名取得API https://restcountries.eu/

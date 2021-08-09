@@ -1,4 +1,5 @@
 /* eslint-disable */
+import axios from 'axios'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { useReactMediaRecorder } from 'react-media-recorder'
 import dynamic from 'next/dynamic'
@@ -66,12 +67,16 @@ const UnitDetail: NextPage = () => {
   const [isShowText, setIsShowText] = useState<boolean>(false)
   const [speechIndex, setSpeechIndex] = useState<number>(0)
   const [audioBlob, setAudioBlob] = useState<Blob>()
+  const [gop, setGop] = useState<string>()
+  const [dtw, setDtw] = useState<string>()
   const teacherWavRef = useRef<any>(null)
   const learnerWavRef = useRef<any>(null)
   const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
     audio: true,
     onStop: (_: string, blob: Blob) => {
       setAudioBlob(blob)
+      calculateGop(blob)
+      calculateDtw(blob)
     },
   })
   const prevMediaBlobUrl = usePrevious(mediaBlobUrl)
@@ -132,6 +137,8 @@ const UnitDetail: NextPage = () => {
       return
     }
     setIsRecorded(false)
+    setGop(undefined)
+    setDtw(undefined)
     setSpeechIndex(speechIndex + 1)
   }
 
@@ -143,10 +150,37 @@ const UnitDetail: NextPage = () => {
           label="あなたの音声"
           fn_ref={learnerWavRef}
           url={mediaBlobUrl}
+          isShowScore={true}
+          gop={gop}
+          dtw={dtw}
         />
       </Card>
     )
-  }, [mediaBlobUrl])
+  }, [mediaBlobUrl, gop, dtw])
+
+  const calculateGop = (blob: Blob) => {
+    api
+      .calculateGop(unit!.teacher_speeches[speechIndex].text, blob)
+      .then((gop) => setGop((Math.round(gop.frame_based_mean * 100) / 100).toString())) // 少数第２位で表示するための計算
+      .catch(() => setGop('エラー'))
+  }
+
+  const calculateDtw = (blob: Blob) => {
+    axios
+      .get(unit!.teacher_speeches[speechIndex].object_key, {
+        responseType: 'blob',
+        headers: {
+          'Content-Type': 'audio/mpeg',
+        },
+      })
+      .then((response: any) => {
+        api
+          .calculateDtw(new Blob([response.data]), blob)
+          .then((dtw) => setDtw((Math.round(dtw.frame_based_mean * 100) / 100).toString())) // 少数第２位で表示するための計算
+          .catch(() => setDtw('エラー'))
+      })
+      .catch(() => setDtw('エラー'))
+  }
 
   return (
     <>
@@ -244,6 +278,9 @@ const UnitDetail: NextPage = () => {
                 label="あなたの音声"
                 fn_ref={learnerWavRef}
                 url={mediaBlobUrl}
+                isShowScore={true}
+                gop={gop}
+                dtw={dtw}
               />
             </Card>
           )}
