@@ -62,9 +62,9 @@ export default class ApiClient {
     return res.data
   }
 
-  // GET /teachers/${teacher_id}/teacher-speeches
-  async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
-    const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
+  // GET /teacher-speeches
+  async searchTeacherSpeeches(searchRequest: SearchRequest) {
+    const endpoint: string = `/teacher-speeches`
     let res: AxiosResponse<SearchResponse<TeacherSpeech>>
     try {
       res = await this.client.get(endpoint, {
@@ -89,6 +89,36 @@ export default class ApiClient {
         headers: {
           'content-type': 'multipart/form-data',
         },
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /teachers/${teacher_id}/teacher-speeches
+  async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
+    let res: AxiosResponse<SearchResponse<TeacherSpeech>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /units
+  async searchUnits(searchRequest: SearchRequest) {
+    const endpoint: string = `/units`
+    let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
       })
       return res.data
     } catch (e) {
@@ -124,6 +154,21 @@ export default class ApiClient {
   async searchUnitsByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/teachers/${teacher_id}/units`
     let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /learners
+  async searchLearners(searchRequest: SearchRequest) {
+    const endpoint: string = `/learners`
+    let res: AxiosResponse<SearchResponse<Learner>>
     try {
       res = await this.client.get(endpoint, {
         params: searchRequest,
@@ -173,6 +218,21 @@ export default class ApiClient {
   async searchLearnersByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/teachers/${teacher_id}/learners`
     let res: AxiosResponse<SearchResponse<Learner>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /learner-speeches
+  async searchLearnerSpeeches(searchRequest: SearchRequest) {
+    const endpoint: string = `/learner-speeches`
+    let res: AxiosResponse<SearchResponse<LearnerSpeech>>
     try {
       res = await this.client.get(endpoint, {
         params: searchRequest,

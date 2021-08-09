@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
 import { Button, Typography, TextField, makeStyles, Theme, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
-import { SideMenu } from '../../../layout/teacher'
+import { SideMenu } from '../../../layout/admin'
 import { AddSpeechModal } from '../../../components/teacher/speech/AddSpeechModal'
 import ApiClient from '../../../api'
 import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
@@ -95,7 +95,7 @@ const RegisterUnit: React.FC = () => {
             <AddSpeechModal />
           </Grid>
         </Grid>
-        {user && <TeacherSpeechListTable isAdmin={false} teacherId={user.id} />}
+        {user && <TeacherSpeechListTable isAdmin={true} teacherId={user.id} />}
       </div>
     </SideMenu>
   )

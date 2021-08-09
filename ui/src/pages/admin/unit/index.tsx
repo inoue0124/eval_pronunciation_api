@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { UnitListTable } from '../../../components/teacher/unit/UnitListTable'
 import AddIcon from '@material-ui/icons/Add'
 import { Button } from '@material-ui/core'
-import { SideMenu } from '../../../layout/teacher'
+import { SideMenu } from '../../../layout/admin'
 
 const UnitList: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const UnitList: React.FC = () => {
           </Button>
         </Link>
       </div>
-      <UnitListTable isAdmin={false} />
+      <UnitListTable isAdmin={true} />
     </SideMenu>
   )
 }

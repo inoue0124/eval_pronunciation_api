@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { SideMenu } from '../../../layout/teacher'
+import { SideMenu } from '../../../layout/admin'
 import { useRouter } from 'next/router'
 import {
   Breadcrumbs,
@@ -111,7 +111,7 @@ const UnitDetail: NextPage = () => {
 
       {router.isReady && unit && user && (
         <TeacherSpeechListTable
-          isAdmin={false}
+          isAdmin={true}
           teacherId={user.id}
           speeches={unit.teacher_speeches}
         />

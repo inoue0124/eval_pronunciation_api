@@ -23,7 +23,11 @@ import { SearchRequest } from '../../../types/SearchRequest'
 import { Unit } from '../../../types/Unit'
 import { getCookie } from '../../../util/cookie'
 
-export const UnitListTable: React.FC = () => {
+type Props = {
+  isAdmin: boolean
+}
+
+export const UnitListTable: React.FC<Props> = ({ isAdmin }) => {
   const api = new ApiClient()
   const router = useRouter()
   const [data, setData] = useState<Unit[]>([])
@@ -41,7 +45,9 @@ export const UnitListTable: React.FC = () => {
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchUnitsByTeacherID(user.id, searchRequest)
+      const res = isAdmin
+        ? await api.searchUnits(searchRequest)
+        : await api.searchUnitsByTeacherID(user.id, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -52,7 +58,7 @@ export const UnitListTable: React.FC = () => {
     setSearchQuery(event.target.value)
   }
   const handleClickRow = (learner_id: number) => {
-    router.push(`/teacher/unit/${learner_id}`)
+    router.push(isAdmin ? `/admin/unit/${learner_id}` : `/teacher/unit/${learner_id}`)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -102,7 +108,7 @@ export const UnitListTable: React.FC = () => {
                   課題ID
                 </TableSortLabel>
               </TableCell>
-              <TableCell>教師ID</TableCell>
+              {isAdmin && <TableCell>教師ID</TableCell>}
               <TableCell>課題名</TableCell>
               <TableCell>音声ID一覧</TableCell>
               <TableCell>作成日時</TableCell>
@@ -114,7 +120,7 @@ export const UnitListTable: React.FC = () => {
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
-                <TableCell>{d.teacher_id}</TableCell>
+                {isAdmin && <TableCell>{d.teacher_id}</TableCell>}
                 <TableCell>{d.name}</TableCell>
                 <TableCell>
                   {d.teacher_speeches.map((ts) => (

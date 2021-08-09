@@ -23,7 +23,11 @@ import { Learner } from '../../../types/Learner'
 import { SearchRequest } from '../../../types/SearchRequest'
 import { getCookie } from '../../../util/cookie'
 
-export const LearnerListTable: React.FC = () => {
+type Props = {
+  isAdmin: boolean
+}
+
+export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
   const api = new ApiClient()
   const router = useRouter()
   const [data, setData] = useState<Learner[]>([])
@@ -41,7 +45,9 @@ export const LearnerListTable: React.FC = () => {
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchLearnersByTeacherID(user.id, searchRequest)
+      const res = isAdmin
+        ? await api.searchLearners(searchRequest)
+        : await api.searchLearnersByTeacherID(user.id, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -52,7 +58,7 @@ export const LearnerListTable: React.FC = () => {
     setSearchQuery(event.target.value)
   }
   const handleClickRow = (learner_id: number) => {
-    router.push(`/teacher/learner/${learner_id}`)
+    router.push(isAdmin ? `/admin/learner/${learner_id}` : `/teacher/learner/${learner_id}`)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -102,7 +108,7 @@ export const LearnerListTable: React.FC = () => {
                   学習者ID
                 </TableSortLabel>
               </TableCell>
-              <TableCell>教師ID</TableCell>
+              {isAdmin && <TableCell>教師ID</TableCell>}
               <TableCell>名前</TableCell>
               <TableCell>性別</TableCell>
               <TableCell>年齢</TableCell>
@@ -117,7 +123,7 @@ export const LearnerListTable: React.FC = () => {
                 <TableCell component="th" scope="row">
                   {d.user_id}
                 </TableCell>
-                <TableCell>{d.teacher_id}</TableCell>
+                {isAdmin && <TableCell>{d.teacher_id}</TableCell>}
                 <TableCell>{d.name}</TableCell>
                 <TableCell>{d.gender}</TableCell>
                 <TableCell>{d.birth_date}</TableCell>

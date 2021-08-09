@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
 import { AddSpeechModal } from '../../../components/teacher/speech/AddSpeechModal'
-import { SideMenu } from '../../../layout/teacher'
+import { SideMenu } from '../../../layout/admin'
 import { getCookie } from '../../../util/cookie'
 import { User } from '../../../types/User'
 
@@ -16,7 +16,7 @@ const SpeechList: React.FC = () => {
       <div className="mb-1" style={{ textAlign: 'right' }}>
         <AddSpeechModal />
       </div>
-      {user && <TeacherSpeechListTable isAdmin={false} teacherId={user.id} />}
+      {user && <TeacherSpeechListTable isAdmin={true} teacherId={user.id} />}
     </SideMenu>
   )
 }

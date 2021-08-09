@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react'
-import { SideMenu } from '../../../layout/teacher'
+import { SideMenu } from '../../../layout/admin'
 import { useRouter } from 'next/router'
 import {
   Breadcrumbs,
@@ -69,7 +69,7 @@ const LearnerDetail: React.FC = () => {
       )}
 
       {router.isReady && learner && (
-        <LearnerSpeechListTable isAdmin={false} learnerId={learnerId} speeches={learner.speeches} />
+        <LearnerSpeechListTable isAdmin={true} learnerId={learnerId} speeches={learner.speeches} />
       )}
     </SideMenu>
   )

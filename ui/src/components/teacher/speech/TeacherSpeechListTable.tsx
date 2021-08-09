@@ -26,11 +26,12 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import { addedSpeechState } from '../../../states/addTeacherSpeech/addedSpeechState'
 
 type Props = {
+  isAdmin: boolean
   teacherId: number
   speeches?: TeacherSpeech[]
 }
 
-export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches }) => {
+export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, speeches }) => {
   const api = new ApiClient()
   const [data, setData] = useState<TeacherSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -57,7 +58,9 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchTeacherSpeechesByTeacherID(teacherId, searchRequest)
+      const res = isAdmin
+        ? await api.searchTeacherSpeeches(searchRequest)
+        : await api.searchTeacherSpeechesByTeacherID(teacherId, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -154,7 +157,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
                   音声ID
                 </TableSortLabel>
               </TableCell>
-              <TableCell>教師ID</TableCell>
+              {isAdmin && <TableCell>教師ID</TableCell>}
               <TableCell>テキスト</TableCell>
               <TableCell>ファイル名</TableCell>
               <TableCell>作成日時</TableCell>
@@ -176,7 +179,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
-                <TableCell>{d.teacher_id}</TableCell>
+                {isAdmin && <TableCell>{d.teacher_id}</TableCell>}
                 <TableCell>{d.text}</TableCell>
                 <TableCell>{d.object_key}</TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>

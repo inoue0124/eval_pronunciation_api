@@ -23,11 +23,12 @@ import { LearnerSpeech } from '../../../types/LearnerSpeech'
 import { Link } from '@material-ui/core'
 
 type Props = {
+  isAdmin: boolean
   learnerId: number
   speeches?: LearnerSpeech[]
 }
 
-export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId, speeches }) => {
+export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, speeches }) => {
   const api = new ApiClient()
   const [data, setData] = useState<LearnerSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -45,7 +46,9 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ learnerId, speeches })
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchLearnerSpeechesByLearnerID(learnerId, searchRequest)
+      const res = isAdmin
+        ? await api.searchLearnerSpeeches(searchRequest)
+        : await api.searchLearnerSpeechesByLearnerID(learnerId, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
