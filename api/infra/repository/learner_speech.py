@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.sql.expression import asc, desc
-from api.util.config import S3_BUCKET_NAME
+from api.util.config import BUCKET_ENDOPOINT, S3_BUCKET_NAME
 from api.domain.entity.learner_speech import LearnerSpeech
 from api.infra.repository.db.learner_speech import LearnerSpeechTable
 from fastapi import UploadFile
@@ -42,10 +42,10 @@ class LearnerSpeechRepository:
             speech.file,
             S3_BUCKET_NAME,
             obj_key,
-            ExtraArgs={'ContentType': speech.content_type})
+            ExtraArgs={'ContentType': speech.content_type,'ACL':'public-read'})
         # アップロードに成功したらobj_keyを設定
-        learner_speech.object_key = obj_key
-        learner_speech_table.object_key = obj_key
+        learner_speech.object_key = BUCKET_ENDOPOINT + obj_key
+        learner_speech_table.object_key = BUCKET_ENDOPOINT + obj_key
 
         # テーブルをアップデート
         try:

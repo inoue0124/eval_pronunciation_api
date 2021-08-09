@@ -11,5 +11,6 @@ AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY')
 AWS_SECRET_KEY = os.getenv('AWS_SECRET_KEY')
 AWS_REGION = os.getenv('AWS_REGION')
 S3_BUCKET_NAME = 'eval-speech'
+BUCKET_ENDOPOINT = f'https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/'
 TMP_DOWNLOAD_DIR = '/tmp/download'
 TOKEN_COOKIE_NAME = 'EVAL_SPEECH_SESSION'
