@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Box from '@material-ui/core/Box'
@@ -112,7 +113,7 @@ export const LearnerListTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={d.user_id} onClick={(event) => handleClickRow(d.user_id)} hover={true}>
+              <TableRow key={d.user_id} onClick={() => handleClickRow(d.user_id)} hover={true}>
                 <TableCell component="th" scope="row">
                   {d.user_id}
                 </TableCell>
@@ -133,8 +134,8 @@ export const LearnerListTable: React.FC = () => {
                 rowsPerPageOptions={[10, 30, 50]}
                 rowsPerPage={rowsPerPage}
                 page={page}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </TableRow>
           </TableFooter>

@@ -1,8 +1,11 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import { Dtw } from '../types/Dtw'
+import { Gop } from '../types/Gop'
 import { Learner } from '../types/Learner'
 import { LearnerSpeech } from '../types/LearnerSpeech'
 import { SearchRequest } from '../types/SearchRequest'
 import { SearchResponse } from '../types/SearchResponse'
+import { SessionResponse } from '../types/SessionResponse'
 import { Teacher } from '../types/Teacher'
 import { TeacherSpeech } from '../types/TeacherSpeech'
 import { Unit } from '../types/Unit'
@@ -23,7 +26,7 @@ export default class ApiClient {
   // POST /session
   async login(email: string, password: string) {
     const endpoint: string = `/session`
-    const res: AxiosResponse<User> = await this.client.post(endpoint, {
+    const res: AxiosResponse<SessionResponse> = await this.client.post(endpoint, {
       email,
       password,
     })
@@ -32,15 +35,14 @@ export default class ApiClient {
 
   // DELETE /session
   async logout() {
-    const endpoint: string = `/session`
-    await this.client.delete(endpoint)
+    deleteCookie('EVAL_SPEECH_SESSION')
     deleteCookie('logged_user')
   }
 
   // POST /users
   async register(email: string, password: string, type: number) {
     const endpoint: string = `/users`
-    const res: AxiosResponse<User> = await this.client.post(endpoint, {
+    const res: AxiosResponse<SessionResponse> = await this.client.post(endpoint, {
       email,
       password,
       type,
@@ -182,6 +184,28 @@ export default class ApiClient {
     }
   }
 
+  // POST /teacher-speeches
+  async registerLearnerSpeech(unitId: number, teacherSpeechId: number, type: number, speech: Blob) {
+    const endpoint: string = `/learner-speeches`
+    const params = new FormData()
+    params.append('unit_id', unitId.toString())
+    params.append('teacher_speech_id', teacherSpeechId.toString())
+    params.append('type', type.toString())
+    params.append('speech', speech)
+    let res: AxiosResponse<LearnerSpeech>
+    try {
+      res = await this.client.post(endpoint, params, {
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
   // GET /learners/${learner_id}/learner-speeches
   async searchLearnerSpeechesByLearnerID(learner_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/learners/${learner_id}/learner-speeches`
@@ -195,6 +219,36 @@ export default class ApiClient {
       alert(e)
       return
     }
+  }
+
+  // POST /scores/gop
+  async calculateGop(text: string, speech: Blob) {
+    const endpoint: string = `/scores/gop`
+    const params = new FormData()
+    params.append('text', text)
+    params.append('speech', speech)
+    let res: AxiosResponse<Gop>
+    res = await this.client.post(endpoint, params, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
+    return res.data
+  }
+
+  // POST /scores/dtw
+  async calculateDtw(refSpeech: Blob, speech: Blob) {
+    const endpoint: string = `/scores/dtw`
+    const params = new FormData()
+    params.append('ref_speech', refSpeech)
+    params.append('speech', speech)
+    let res: AxiosResponse<Dtw>
+    res = await this.client.post(endpoint, params, {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    })
+    return res.data
   }
 
   // 国名取得API https://restcountries.eu/

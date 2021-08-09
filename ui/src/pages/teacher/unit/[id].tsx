@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { SideMenu } from '../../../layout/teacher'
@@ -22,6 +23,7 @@ import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
 import { getCookie } from '../../../util/cookie'
 import { NextPage } from 'next'
+import { User } from '../../../types/User'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,14 +34,19 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 )
 
-const UnitDetail: NextPage = ({ user }) => {
+const UnitDetail: NextPage = () => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
   const unitId = Number(router.query.id)
+  const [user, setUser] = useState<User>()
   const [unit, setUnit] = useState<Unit>()
   const [distributeUrl, setDistributeUrl] = useState<string>('')
   const [isCopied, setIsCopied] = useState<boolean>(false)
+  useEffect(() => {
+    setUser(JSON.parse(getCookie().logged_user))
+  }, [])
+
   useEffect(() => {
     if (router.isReady) {
       ;(async function () {
@@ -51,8 +58,12 @@ const UnitDetail: NextPage = ({ user }) => {
         }
       })()
     }
-    setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user.id}`)
   }, [router.query])
+
+  useEffect(() => {
+    if (unitId === undefined || user === undefined) return
+    setDistributeUrl(`http://localhost:3000/learner/unit/${unitId}?ti=${user.id}`)
+  }, [unitId, user])
 
   const handleCopyUrl = () => {
     setIsCopied(true)
@@ -98,16 +109,11 @@ const UnitDetail: NextPage = ({ user }) => {
         </Card>
       )}
 
-      {router.isReady && unit && (
+      {router.isReady && unit && user && (
         <TeacherSpeechListTable teacherId={user.id} speeches={unit.teacher_speeches} />
       )}
     </SideMenu>
   )
-}
-
-UnitDetail.getInitialProps = (ctx) => {
-  const user = JSON.parse(getCookie(ctx).logged_user)
-  return { user: user }
 }
 
 export default UnitDetail

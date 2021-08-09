@@ -91,10 +91,8 @@ async def get_by_id(unit_id: int,
             raise AuthError
     if user.type == 2:
         learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
-        print(f'================={learner.teacher_id}==========={unit.teacher_id}')
         if unit.teacher_id != learner.teacher_id:
             raise AuthError
-
 
     return unit
 

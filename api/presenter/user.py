@@ -27,11 +27,5 @@ async def register(registerUserRequest: RegisterUserRequest,
     except Exception as e:
         raise DbError(detail=str(e))
 
-    # cookieにjwtを付与
-    response.set_cookie(key=TOKEN_COOKIE_NAME,
-                        value=token,
-                        max_age=604800,
-                        samesite='none',
-                        secure=True)
 
-    return user
+    return {"user": user, "token": token}

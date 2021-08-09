@@ -58,8 +58,12 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
   const handleRegister = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()
     try {
-      const user = await api.register(email, password, type)
-      setCookie(undefined, 'logged_user', JSON.stringify(user), {
+      const res = await api.register(email, password, type)
+      setCookie(undefined, 'logged_user', JSON.stringify(res.user), {
+        path: '/',
+        maxAge: 30 * 24 * 60 * 60,
+      })
+      setCookie(undefined, 'EVAL_SPEECH_SESSION', res.token, {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
