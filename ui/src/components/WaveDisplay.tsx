@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     pitchWrapper: {
       position: 'relative',
+      minHeight: '150px',
     },
   }),
 )
@@ -280,15 +281,16 @@ export const WaveDisplay: React.FC<Props> = ({
       <div ref={waveformRef} className={classes.waveForm} />
 
       <div className={classes.pitchWrapper}>
-        {isCalculatingPitch && (
+        {isCalculatingPitch ? (
           <div className={classes.indicatorWrapper}>
             <CircularProgress />
             <Typography variant="caption" display="block" gutterBottom>
               ピッチ計算中
             </Typography>
           </div>
+        ) : (
+          PitchGraph
         )}
-        {PitchGraph}
       </div>
     </div>
   )

@@ -60,13 +60,19 @@ const UnitDetail: NextPage = () => {
   const [user, setUser] = useState<User>()
   const [unit, setUnit] = useState<Unit>()
   const [isRepeating, setIsRepeating] = useState<boolean>(true)
+  const [isPlaying, setIsPlaying] = useState<boolean>(false)
   const [isRecording, setIsRecording] = useState<boolean>(false)
+  const [isRecorded, setIsRecorded] = useState<boolean>(false)
   const [isShowText, setIsShowText] = useState<boolean>(false)
   const [speechIndex, setSpeechIndex] = useState<number>(0)
+  const [audioBlob, setAudioBlob] = useState<Blob>()
   const teacherWavRef = useRef<any>(null)
   const learnerWavRef = useRef<any>(null)
   const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
     audio: true,
+    onStop: (_: string, blob: Blob) => {
+      setAudioBlob(blob)
+    },
   })
   const prevMediaBlobUrl = usePrevious(mediaBlobUrl)
 
@@ -93,8 +99,9 @@ const UnitDetail: NextPage = () => {
 
   const onClickStartRepeating = () => {
     setIsRepeating(true)
-    setIsRecording(true)
+    setIsRecorded(false)
     teacherWavRef.current!.play()
+    setIsPlaying(true)
   }
   const onClickStartShadowing = () => {
     setIsRepeating(false)
@@ -103,14 +110,28 @@ const UnitDetail: NextPage = () => {
     teacherWavRef.current!.play()
   }
   const onClickStopRecording = () => {
-    stopRecording()
-    setIsRecording(false)
+    if (isPlaying) setIsPlaying(false)
+    if (isRecording) {
+      stopRecording()
+      setIsRecording(false)
+      setIsRecorded(true)
+    }
     teacherWavRef.current!.stop()
   }
   const onClickShowText = () => {
     setIsShowText(!isShowText)
   }
-  const onClickNext = () => {
+  const onClickNext = async () => {
+    // 音声アップロード
+    if (unit !== undefined && audioBlob !== undefined) {
+      await api.registerLearnerSpeech(unit.id, unit.teacher_id, isRepeating ? 1 : 2, audioBlob)
+    }
+    // 最後の課題の場合は終了画面へ
+    if (speechIndex + 1 === unit?.teacher_speeches.length) {
+      router.push(`/learner/finish`)
+      return
+    }
+    setIsRecorded(false)
     setSpeechIndex(speechIndex + 1)
   }
 
@@ -118,7 +139,7 @@ const UnitDetail: NextPage = () => {
     return (
       <Card className={classes.card}>
         <WaveDisplay
-          isDisabled={isRecording}
+          isDisableToolbar={isRecording || isPlaying}
           label="あなたの音声"
           fn_ref={learnerWavRef}
           url={mediaBlobUrl}
@@ -143,7 +164,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickStartRepeating}
               disableElevation
-              disabled={isRecording}
+              disabled={isRecording || isPlaying}
             >
               リピーティング開始
             </Button>
@@ -153,7 +174,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickStartShadowing}
               disableElevation
-              disabled={isRecording}
+              disabled={isRecording || isPlaying}
             >
               シャドーイング開始
             </Button>
@@ -163,7 +184,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickStopRecording}
               disableElevation
-              disabled={!isRecording}
+              disabled={!(isRecording || isPlaying)}
             >
               録音停止
             </Button>
@@ -182,7 +203,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickNext}
               disableElevation
-              disabled={isRecording}
+              disabled={isRecording || !isRecorded}
             >
               次の課題へ
             </Button>
@@ -196,20 +217,41 @@ const UnitDetail: NextPage = () => {
           )}
           <Card className={classes.card}>
             <WaveDisplay
-              isDisabled={isRecording}
+              isDisableToolbar={isRecording || isPlaying}
               label="先生の音声"
               fn_ref={teacherWavRef}
-              url={'https://eval-speech.s3.ap-northeast-1.amazonaws.com/shadowing_2.MP3'}
-              onFinishPlaying={isRepeating ? startRecording : stopRecording}
+              url={unit.teacher_speeches[speechIndex].object_key}
+              onFinishPlaying={
+                isRepeating
+                  ? () => {
+                      setIsPlaying(false)
+                      startRecording()
+                      setIsRecording(true)
+                    }
+                  : () => {
+                      stopRecording()
+                      setIsRecording(false)
+                      setIsRecorded(true)
+                    }
+              }
             />
           </Card>
 
-          {mediaBlobUrl && mediaBlobUrl !== prevMediaBlobUrl && !isRecording && (
+          {mediaBlobUrl && mediaBlobUrl !== prevMediaBlobUrl && !isRecording && isRecorded && (
             <Card className={classes.card}>
-              <WaveDisplay label="あなたの音声" fn_ref={learnerWavRef} url={mediaBlobUrl} />
+              <WaveDisplay
+                isDisableToolbar={isRecording || isPlaying}
+                label="あなたの音声"
+                fn_ref={learnerWavRef}
+                url={mediaBlobUrl}
+              />
             </Card>
           )}
-          {mediaBlobUrl && mediaBlobUrl === prevMediaBlobUrl && !isRecording && LearnerWav}
+          {mediaBlobUrl &&
+            mediaBlobUrl === prevMediaBlobUrl &&
+            !isRecording &&
+            isRecorded &&
+            LearnerWav}
           {isRecording && (
             <Card className={classes.recordingIndicatorWrapper}>
               <MicIcon style={{ fontSize: 40 }} />

@@ -182,6 +182,28 @@ export default class ApiClient {
     }
   }
 
+  // POST /teacher-speeches
+  async registerLearnerSpeech(unitId: number, teacherSpeechId: number, type: number, speech: Blob) {
+    const endpoint: string = `/learner-speeches`
+    const params = new FormData()
+    params.append('unit_id', unitId.toString())
+    params.append('teacher_speech_id', teacherSpeechId.toString())
+    params.append('type', type.toString())
+    params.append('speech', speech)
+    let res: AxiosResponse<LearnerSpeech>
+    try {
+      res = await this.client.post(endpoint, params, {
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
   // GET /learners/${learner_id}/learner-speeches
   async searchLearnerSpeechesByLearnerID(learner_id: number, searchRequest: SearchRequest) {
     const endpoint: string = `/learners/${learner_id}/learner-speeches`
