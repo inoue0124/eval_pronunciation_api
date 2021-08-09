@@ -42,11 +42,11 @@ async def search(page: int,
                  repository: Repository = Depends(RepositoryFactory.create),
                  _=Depends(get_current_uid)):
     try:
-        teachers = repository.Teacher().search(page=page,
+        teachers, count = repository.Teacher().search(page=page,
                                                limit=limit,
                                                search_query=search_query,
                                                is_asc=is_asc)
     except Exception as e:
         raise DbError(detail=str(e))
 
-    return teachers
+    return {"data": teachers, "count": count}

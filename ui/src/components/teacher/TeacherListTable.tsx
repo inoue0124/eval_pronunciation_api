@@ -108,7 +108,6 @@ export const TeacherListTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data}
             {data.map((d) => (
               <TableRow key={d.user_id} onClick={() => handleClickRow(d.user_id)} hover={true}>
                 <TableCell component="th" scope="row">

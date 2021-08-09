@@ -46,6 +46,7 @@ class TeacherRepository:
             query = query.order_by(desc(TeacherTable.created_at))
 
         teacherTables = query.offset(offset).limit(limit).offset(offset).all()
+        count = query.count()
 
         return TeacherConverter().convert_from_list(
-            teacherTables=teacherTables)
+            teacherTables=teacherTables), count
