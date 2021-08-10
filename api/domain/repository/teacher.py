@@ -13,3 +13,6 @@ class TeacherRepository(Protocol):
     def search(self, page: int, limit: int, search_query: Optional[str],
                is_asc: Optional[bool]) -> list[Teacher]:
         ...
+
+    def get_by_id(self, teacher_id: int) -> Teacher:
+        ...

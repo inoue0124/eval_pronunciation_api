@@ -50,3 +50,11 @@ class TeacherRepository:
 
         return TeacherConverter().convert_from_list(
             teacherTables=teacherTables), count
+
+    def get_by_id(self, teacher_id: int) -> Teacher:
+        # ユニットIDからテーブルモデルを取得
+        teacher_table = self.db.query(TeacherTable).filter(
+            TeacherTable.user_id == teacher_id).first()
+
+        # ドメインモデルに変換
+        return TeacherConverter().convert(teacherTable=teacher_table)

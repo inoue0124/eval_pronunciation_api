@@ -41,9 +41,9 @@ async def search(page: int,
                  _=Depends(get_current_uid)):
     try:
         units, count = repository.Unit().search(page=page,
-                                                     limit=limit,
-                                                     search_query=search_query,
-                                                     is_asc=is_asc)
+                                                limit=limit,
+                                                search_query=search_query,
+                                                is_asc=is_asc)
     except Exception as e:
         raise DbError(detail=str(e))
 
@@ -107,7 +107,8 @@ async def search_by_teacher_id(teacher_id: int,
                                current_uid=Depends(get_current_uid)):
 
     # 自分のteacher_id以外だったらエラー
-    if teacher_id != current_uid:
+    user: User = repository.User().get_by_id(user_id=current_uid)
+    if teacher_id != current_uid and user.type != 0:
         raise AuthError
 
     try:
