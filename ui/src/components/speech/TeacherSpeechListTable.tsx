@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from 'react'
+import Link from '@material-ui/core/Link'
 import Box from '@material-ui/core/Box'
 import Checkbox from '@material-ui/core/Checkbox'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -159,7 +160,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, sp
               </TableCell>
               {isAdmin && <TableCell>教師ID</TableCell>}
               <TableCell>テキスト</TableCell>
-              <TableCell>ファイル名</TableCell>
+              <TableCell>ファイル</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
@@ -179,9 +180,17 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, sp
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
-                {isAdmin && <TableCell>{d.teacher_id}</TableCell>}
+                {isAdmin && (
+                  <TableCell>
+                    <Link href={`/admin/teacher/${d.teacher_id}`}>{d.teacher_id}</Link>
+                  </TableCell>
+                )}
                 <TableCell>{d.text}</TableCell>
-                <TableCell>{d.object_key}</TableCell>
+                <TableCell>
+                  <Link href={d.object_key} target="_blank">
+                    {d.object_key.split('/').pop()}
+                  </Link>
+                </TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}

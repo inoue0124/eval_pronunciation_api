@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from 'react'
+import Link from '@material-ui/core/Link'
 import { useRouter } from 'next/router'
 import Box from '@material-ui/core/Box'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -126,7 +127,11 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin, teacherId }) => {
                 <TableCell component="th" scope="row">
                   {d.user_id}
                 </TableCell>
-                {isAdmin && <TableCell>{d.teacher_id}</TableCell>}
+                {isAdmin && (
+                  <TableCell>
+                    <Link href={`/admin/teacher/${d.teacher_id}`}>{d.teacher_id}</Link>
+                  </TableCell>
+                )}
                 <TableCell>{d.name}</TableCell>
                 <TableCell>{d.gender}</TableCell>
                 <TableCell>{d.birth_date}</TableCell>

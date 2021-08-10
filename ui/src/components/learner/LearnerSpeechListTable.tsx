@@ -117,11 +117,9 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
               <TableCell>課題ID</TableCell>
               <TableCell>教師音声ID</TableCell>
               <TableCell>録音タイプ</TableCell>
-              <TableCell>ファイルキー</TableCell>
+              <TableCell>ファイル</TableCell>
               <TableCell>GOPスコア</TableCell>
-              <TableCell>GOPファイルキー</TableCell>
               <TableCell>DTWスコア</TableCell>
-              <TableCell>DTWファイルキー</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
@@ -131,7 +129,17 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
-                <TableCell>{d.learner_id}</TableCell>
+                <TableCell>
+                  <Link
+                    href={
+                      isAdmin
+                        ? `/admin/learner/${d.learner_id}`
+                        : `/teacher/learner/${d.learner_id}`
+                    }
+                  >
+                    {d.learner_id}
+                  </Link>
+                </TableCell>
                 <TableCell>
                   <Link href={isAdmin ? `/admin/unit/${d.unit_id}` : `/teacher/unit/${d.unit_id}`}>
                     {d.unit_id}
@@ -139,11 +147,13 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
                 </TableCell>
                 <TableCell>{d.teacher_speech_id}</TableCell>
                 <TableCell>{d.type}</TableCell>
-                <TableCell>{d.object_key}</TableCell>
+                <TableCell>
+                  <Link href={d.object_key} target="_blank">
+                    {d.object_key.split('/').pop()}
+                  </Link>
+                </TableCell>
                 <TableCell>{d.gop_average}</TableCell>
-                <TableCell>{d.gop_file_key}</TableCell>
                 <TableCell>{d.dtw_average}</TableCell>
-                <TableCell>{d.dtw_file_key}</TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
