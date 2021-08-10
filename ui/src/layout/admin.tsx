@@ -80,7 +80,10 @@ export const SideMenu: React.FC = ({ children }) => {
           <List>
             <ListItem
               button
-              selected={router.pathname.includes('/admin/teacher')}
+              selected={
+                router.pathname.includes('/admin/teacher') &&
+                router.pathname !== '/admin/teacher-speech'
+              }
               onClick={() => router.push('/admin/teacher')}
             >
               <ListItemIcon>{<PeopleAltIcon />}</ListItemIcon>
@@ -88,8 +91,8 @@ export const SideMenu: React.FC = ({ children }) => {
             </ListItem>
             <ListItem
               button
-              selected={router.pathname.includes('/admin/speech')}
-              onClick={() => router.push('/admin/speech')}
+              selected={router.pathname.includes('/admin/teacher-speech')}
+              onClick={() => router.push('/admin/teacher-speech')}
             >
               <ListItemIcon>{<LibraryMusicIcon />}</ListItemIcon>
               <ListItemText primary="教師音声管理" />
@@ -104,11 +107,22 @@ export const SideMenu: React.FC = ({ children }) => {
             </ListItem>
             <ListItem
               button
-              selected={router.pathname.includes('/admin/learner')}
+              selected={
+                router.pathname.includes('/admin/learner') &&
+                router.pathname !== '/admin/learner-speech'
+              }
               onClick={() => router.push('/admin/learner')}
             >
               <ListItemIcon>{<PeopleAltIcon />}</ListItemIcon>
               <ListItemText primary="学習者管理" />
+            </ListItem>
+            <ListItem
+              button
+              selected={router.pathname.includes('/admin/learner-speech')}
+              onClick={() => router.push('/admin/learner-speech')}
+            >
+              <ListItemIcon>{<LibraryMusicIcon />}</ListItemIcon>
+              <ListItemText primary="学習者音声管理" />
             </ListItem>
           </List>
         </div>

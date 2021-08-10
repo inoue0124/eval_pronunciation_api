@@ -24,7 +24,7 @@ import { Link } from '@material-ui/core'
 
 type Props = {
   isAdmin: boolean
-  learnerId: number
+  learnerId?: number
   speeches?: LearnerSpeech[]
 }
 
@@ -40,6 +40,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
   // 学習者音声リストが渡された場合はAPIを叩きに行かない
   const fetchData = async () => {
     if (speeches === undefined) {
+      if (!isAdmin && learnerId === undefined) return
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
@@ -48,7 +49,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
       }
       const res = isAdmin
         ? await api.searchLearnerSpeeches(searchRequest)
-        : await api.searchLearnerSpeechesByLearnerID(learnerId, searchRequest)
+        : await api.searchLearnerSpeechesByLearnerID(learnerId!, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -132,7 +133,9 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
                 </TableCell>
                 <TableCell>{d.learner_id}</TableCell>
                 <TableCell>
-                  <Link href={`/teacher/unit/${d.unit_id}`}>{d.unit_id}</Link>
+                  <Link href={isAdmin ? `/admin/unit/${d.unit_id}` : `/teacher/unit/${d.unit_id}`}>
+                    {d.unit_id}
+                  </Link>
                 </TableCell>
                 <TableCell>{d.teacher_speech_id}</TableCell>
                 <TableCell>{d.type}</TableCell>

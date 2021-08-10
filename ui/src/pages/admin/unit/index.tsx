@@ -7,13 +7,6 @@ import { SideMenu } from '../../../layout/admin'
 const UnitList: React.FC = () => {
   return (
     <SideMenu>
-      <div className="mb-1" style={{ textAlign: 'right' }}>
-        <Link href="unit/new">
-          <Button variant="contained" color="primary" startIcon={<AddIcon />} disableElevation>
-            新規追加
-          </Button>
-        </Link>
-      </div>
       <UnitListTable isAdmin={true} />
     </SideMenu>
   )

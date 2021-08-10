@@ -53,7 +53,7 @@ const TeacherDetail: React.FC = () => {
   return (
     <SideMenu>
       <Breadcrumbs aria-label="breadcrumb">
-        <Link color="inherit" href="/teacher/learner">
+        <Link color="inherit" href={'/admin/teacher'}>
           教師一覧
         </Link>
         <Typography color="textPrimary">教師ID:{teacherId}</Typography>

@@ -73,7 +73,7 @@ const UnitDetail: NextPage = () => {
   return (
     <SideMenu>
       <Breadcrumbs aria-label="breadcrumb">
-        <Link color="inherit" href="/teacher/unit">
+        <Link color="inherit" href="/admin/unit">
           課題一覧
         </Link>
         <Typography color="textPrimary">課題ID:{unitId}</Typography>
