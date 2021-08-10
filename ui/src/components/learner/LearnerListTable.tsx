@@ -25,9 +25,10 @@ import { getCookie } from '../../util/cookie'
 
 type Props = {
   isAdmin: boolean
+  teacherId?: number
 }
 
-export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
+export const LearnerListTable: React.FC<Props> = ({ isAdmin, teacherId }) => {
   const api = new ApiClient()
   const router = useRouter()
   const [data, setData] = useState<Learner[]>([])
@@ -46,7 +47,9 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin }) => {
         is_asc: isAsc,
       }
       const res = isAdmin
-        ? await api.searchLearners(searchRequest)
+        ? teacherId
+          ? await api.searchLearnersByTeacherID(teacherId, searchRequest)
+          : await api.searchLearners(searchRequest)
         : await api.searchLearnersByTeacherID(user.id, searchRequest)
       if (res != undefined) {
         setData(res.data)
