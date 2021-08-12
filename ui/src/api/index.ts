@@ -272,14 +272,23 @@ export default class ApiClient {
     }
   }
 
-  // POST /teacher-speeches
-  async registerLearnerSpeech(unitId: number, teacherSpeechId: number, type: number, speech: Blob) {
+  // POST /learner-speeches
+  async registerLearnerSpeech(
+    unitId: number,
+    teacherSpeechId: number,
+    type: number,
+    speech: Blob,
+    gop_average: number,
+    dtw_average: number,
+  ) {
     const endpoint: string = `/learner-speeches`
     const params = new FormData()
     params.append('unit_id', unitId.toString())
     params.append('teacher_speech_id', teacherSpeechId.toString())
     params.append('type', type.toString())
     params.append('speech', speech)
+    params.append('gop_average', gop_average.toString())
+    params.append('dtw_average', dtw_average.toString())
     let res: AxiosResponse<LearnerSpeech>
     try {
       res = await this.client.post(endpoint, params, {
@@ -302,6 +311,19 @@ export default class ApiClient {
       res = await this.client.get(endpoint, {
         params: searchRequest,
       })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /learner-speeches
+  async getLearnerSpeecheById(learnerSpeechId: number) {
+    const endpoint: string = `/learner-speeches/${learnerSpeechId}`
+    let res: AxiosResponse<LearnerSpeech>
+    try {
+      res = await this.client.get(endpoint)
       return res.data
     } catch (e) {
       alert(e)

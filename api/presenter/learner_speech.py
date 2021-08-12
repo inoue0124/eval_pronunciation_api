@@ -69,6 +69,8 @@ async def register(unit_id: int = Form(...),
                    teacher_speech_id: int = Form(...),
                    type: int = Form(...),
                    speech: UploadFile = File(...),
+                   gop_average: float = Form(...),
+                   dtw_average: float = Form(...),
                    repository: Repository = Depends(RepositoryFactory.create),
                    current_uid=Depends(get_current_uid)):
 
@@ -76,7 +78,9 @@ async def register(unit_id: int = Form(...),
         learner_id=current_uid,
         unit_id=unit_id,
         teacher_speech_id=teacher_speech_id,
-        type=type)
+        type=type,
+        gop_average=gop_average,
+        dtw_average=dtw_average)
     try:
         learner_speech = repository.LearnerSpeech().create(
             learner_speech=learner_speech, speech=speech)
@@ -113,7 +117,7 @@ async def search_by_learner_id(learner_id: int,
                                    RepositoryFactory.create),
                                current_uid=Depends(get_current_uid)):
 
-    # 自分のlearner_id or teacher_id以外だったらエラー TODO:バリデーション
+    # 自分のlearner_id or teacher_id以外だったらエラー
     learner: Learner = repository.Learner().get_by_id(learner_id=learner_id)
     if learner.user_id != current_uid and learner.teacher_id != current_uid:
         raise AuthError
@@ -141,8 +145,9 @@ async def get_by_id(learner_speech_id: int,
     except Exception as e:
         raise e
 
-    # 自分のlearner_id以外だったらエラー TODO:バリデーション
-    if learner_speech.learner_id != current_uid:
+    # 自分のlearner_id以外だったらエラー
+    learner: Learner = repository.Learner().get_by_id(learner_id=learner_speech.learner_id)
+    if learner.user_id != current_uid and learner.teacher_id != current_uid:
         raise AuthError
 
     return learner_speech

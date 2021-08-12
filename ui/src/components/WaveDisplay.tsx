@@ -48,8 +48,8 @@ type Props = {
   fn_ref: any
   onFinishPlaying?: () => void
   isShowScore: boolean
-  gop: string
-  dtw: string
+  gop: number
+  dtw: number
 }
 export const WaveDisplay: React.FC<Props> = ({
   isDisableToolbar,
@@ -285,15 +285,15 @@ export const WaveDisplay: React.FC<Props> = ({
         <StopIcon />
       </IconButton>
       {isShowScore && (
-        <div>
+        <div style={{display: 'inline', width: '100%'}}>
           <Typography
             color="textPrimary"
             variant="body1"
             display="inline"
             align="right"
             style={{ marginRight: 10 }}
-          >
-            GOP: {gop ? gop : '計算中'} DTW: {dtw ? dtw : '計算中'}
+          > 
+            GOP: {gop ? (gop === 0 ? 'エラー' : gop) : '-'} DTW: {dtw ? (dtw === 0 ? 'エラー' : dtw) : '-'}
           </Typography>
         </div>
       )}

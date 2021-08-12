@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import Box from '@material-ui/core/Box'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import SearchIcon from '@material-ui/icons/Search'
@@ -30,6 +31,7 @@ type Props = {
 
 export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, speeches }) => {
   const api = new ApiClient()
+  const router = useRouter()
   const [data, setData] = useState<LearnerSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
@@ -64,6 +66,11 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
   }, [page, rowsPerPage, searchQuery, isAsc])
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
+  }
+  const handleClickRow = (speech_id: number) => {
+    router.push(
+      isAdmin ? `/admin/learner/speech/${speech_id}` : `/teacher/learner/speech/${speech_id}`,
+    )
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -125,7 +132,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={d.id}>
+              <TableRow key={d.id} onClick={() => handleClickRow(d.id)} hover={true}>
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
