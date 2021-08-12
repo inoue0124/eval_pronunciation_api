@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef } from 'react'
-import { SideMenu } from '../../../../layout/teacher'
+import { SideMenu } from '../../../../layout/admin'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { Card, createStyles, makeStyles, Theme, Typography, Breadcrumbs, Link } from '@material-ui/core'
@@ -72,17 +72,17 @@ const SpeechDetail: NextPage = () => {
       {unit && learnerSpeech && (
         <>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" href="/teacher/learner">
+            <Link color="inherit" href="/admin/learner">
               学習者一覧
             </Link>
-            <Link color="inherit" href={`/teacher/learner/${learnerSpeech.learner_id}`}>
+            <Link color="inherit" href={`/admin/learner/${learnerSpeech.learner_id}`}>
               学習者ID:{learnerSpeech.learner_id}
             </Link>
             <Typography color="textPrimary">音声ID:{speechId}</Typography>
           </Breadcrumbs>
           <Card className={classes.card}>
             <Typography color="textPrimary">課題ID：
-              <Link href={`/teacher/unit/${unit.id}`}>
+              <Link href={`/admin/unit/${unit.id}`}>
                 {unit.id}
               </Link>
             </Typography>
