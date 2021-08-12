@@ -83,7 +83,7 @@ const Home: React.FC = () => {
                       }}
                     >
                       <CardMedia className={classes.media} image="/learner.png" />
-                      <CardContent style={{ textAlign: 'center' }}>生徒ログイン</CardContent>
+                      <CardContent style={{ textAlign: 'center' }}>学生ログイン</CardContent>
                     </CardActionArea>
                   </Card>
                 </Link>

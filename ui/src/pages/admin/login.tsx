@@ -2,7 +2,7 @@ import { Grid } from '@material-ui/core'
 import { LoginForm } from '../../components/auth/LoginForm'
 import { UserType } from '../../types/UserType'
 
-const LearnerLogin: React.FC = () => {
+const AdminLogin: React.FC = () => {
   return (
     <>
       <Grid
@@ -14,11 +14,11 @@ const LearnerLogin: React.FC = () => {
         style={{ minHeight: '100vh' }}
       >
         <Grid item xs={10}>
-          <LoginForm userType={UserType.Learner} />
+          <LoginForm userType={UserType.Admin} />
         </Grid>
       </Grid>
     </>
   )
 }
 
-export default LearnerLogin
+export default AdminLogin

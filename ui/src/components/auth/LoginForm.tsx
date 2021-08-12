@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -11,6 +11,7 @@ import Container from '@material-ui/core/Container'
 import ApiClient from '../../api'
 import { setCookie } from 'nookies'
 import { useRouter } from 'next/router'
+import { UserType } from '../../types/UserType'
 
 const Copyright: React.FC = () => {
   return (
@@ -42,10 +43,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 type Props = {
-  isTeacher: boolean
+  userType: UserType
 }
 
-export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
+export const LoginForm: React.FC<Props> = ({ userType }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
@@ -53,6 +54,26 @@ export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
   const teacherId = Number(router.query.ti)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [registerPageUrl, setRegisterPageUrl] = useState<string>('')
+  const [title, setTitle] = useState<string>('')
+
+  useEffect(() => {
+    switch (userType) {
+      case UserType.Admin:
+        setTitle('管理者ログイン')
+        break
+      case UserType.Teacher:
+        setRegisterPageUrl('/teacher/register')
+        setTitle('教師ログイン')
+        break
+      case UserType.Learner:
+        setRegisterPageUrl(`/learner/register?unit=${unitId}&ti=${teacherId}`)
+        setTitle('学生ログイン')
+        break
+      default:
+        break
+    }
+  }, [])
 
   const handleLogin = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()
@@ -66,7 +87,21 @@ export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
         path: '/',
         maxAge: 30 * 24 * 60 * 60,
       })
-      router.push(isTeacher ? '/teacher/unit' : `/learner/unit/${unitId}?ti=${teacherId}`)
+      let redirectUrl = ''
+      switch (res.user.type) {
+        case UserType.Admin:
+          redirectUrl = '/admin/teacher'
+          break
+        case UserType.Teacher:
+          redirectUrl = '/teacher/unit'
+          break
+        case UserType.Learner:
+          redirectUrl = `/learner/unit/${unitId}?ti=${teacherId}`
+          break
+        default:
+          break
+      }
+      router.push(redirectUrl)
     } catch (e) {
       alert(e)
     }
@@ -76,7 +111,7 @@ export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
     <Container component="main">
       <div className={classes.paper}>
         <Typography component="h1" variant="h5">
-          {isTeacher ? '教師' : '学習者'}ログイン
+          {title}
         </Typography>
         <form className={classes.form}>
           <TextField
@@ -122,16 +157,11 @@ export const LoginForm: React.FC<Props> = ({ isTeacher }) => {
           <Grid container>
             <Grid item xs></Grid>
             <Grid item>
-              <Link
-                href={
-                  isTeacher
-                    ? '/teacher/register'
-                    : `/learner/register?unit=${unitId}&ti=${teacherId}`
-                }
-                variant="body2"
-              >
-                アカウント新規作成はこちら
-              </Link>
+              {userType !== UserType.Admin && (
+                <Link href={registerPageUrl} variant="body2">
+                  アカウント新規作成はこちら
+                </Link>
+              )}
             </Grid>
           </Grid>
         </form>

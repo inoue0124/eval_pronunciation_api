@@ -1,5 +1,6 @@
 import { Grid } from '@material-ui/core'
 import { LoginForm } from '../../components/auth/LoginForm'
+import { UserType } from '../../types/UserType'
 
 const TeacherLogin: React.FC = () => {
   return (
@@ -13,7 +14,7 @@ const TeacherLogin: React.FC = () => {
         style={{ minHeight: '100vh' }}
       >
         <Grid item xs={10}>
-          <LoginForm isTeacher={true} />
+          <LoginForm userType={UserType.Teacher} />
         </Grid>
       </Grid>
     </>

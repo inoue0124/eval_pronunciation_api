@@ -52,7 +52,7 @@ export const SideMenu: React.FC = ({ children }) => {
   const router = useRouter()
   const handleLogout = async () => {
     await api.logout()
-    router.push('/teacher/login')
+    router.push('/admin/login')
   }
 
   return (
@@ -91,19 +91,19 @@ export const SideMenu: React.FC = ({ children }) => {
             </ListItem>
             <ListItem
               button
-              selected={router.pathname.includes('/admin/teacher-speech')}
-              onClick={() => router.push('/admin/teacher-speech')}
-            >
-              <ListItemIcon>{<LibraryMusicIcon />}</ListItemIcon>
-              <ListItemText primary="教師音声管理" />
-            </ListItem>
-            <ListItem
-              button
               selected={router.pathname.includes('/admin/unit')}
               onClick={() => router.push('/admin/unit')}
             >
               <ListItemIcon>{<ViewListIcon />}</ListItemIcon>
               <ListItemText primary="課題管理" />
+            </ListItem>
+            <ListItem
+              button
+              selected={router.pathname.includes('/admin/teacher-speech')}
+              onClick={() => router.push('/admin/teacher-speech')}
+            >
+              <ListItemIcon>{<LibraryMusicIcon />}</ListItemIcon>
+              <ListItemText primary="教師音声管理" />
             </ListItem>
             <ListItem
               button
