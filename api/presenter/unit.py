@@ -108,7 +108,8 @@ async def search_by_teacher_id(teacher_id: int,
 
     # 自分のteacher_id以外だったらエラー
     user: User = repository.User().get_by_id(user_id=current_uid)
-    if teacher_id != current_uid and user.type != 0:
+    learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
+    if teacher_id != current_uid and teacher_id != learner.teacher_id and user.type != 0:
         raise AuthError
 
     try:

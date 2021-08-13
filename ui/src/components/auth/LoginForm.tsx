@@ -56,8 +56,15 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
   const [password, setPassword] = useState<string>('')
   const [registerPageUrl, setRegisterPageUrl] = useState<string>('')
   const [title, setTitle] = useState<string>('')
+  const [isShowRegister, setIsShowRegister] = useState<boolean>(true)
 
   useEffect(() => {
+    if (
+      userType === UserType.Learner &&
+      (router.query.unit === undefined || router.query.ti === undefined)
+    ) {
+      setIsShowRegister(false)
+    }
     switch (userType) {
       case UserType.Admin:
         setTitle('管理者ログイン')
@@ -96,14 +103,18 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
           redirectUrl = '/teacher/unit'
           break
         case UserType.Learner:
-          redirectUrl = `/learner/unit/${unitId}?ti=${teacherId}`
+          if (router.query.unit === undefined || router.query.ti === undefined) {
+            redirectUrl = '/learner/unit/list'
+          } else {
+            redirectUrl = `/learner/unit/${unitId}?ti=${teacherId}`
+          }
           break
         default:
           break
       }
       router.push(redirectUrl)
     } catch (e) {
-      alert(e)
+      alert('認証情報が間違っています。')
     }
   }
 
@@ -154,16 +165,20 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
           >
             ログイン
           </Button>
-          <Grid container>
-            <Grid item xs></Grid>
-            <Grid item>
-              {userType !== UserType.Admin && (
-                <Link href={registerPageUrl} variant="body2">
-                  アカウント新規作成はこちら
-                </Link>
-              )}
+          {isShowRegister ? (
+            <Grid container>
+              <Grid item xs></Grid>
+              <Grid item>
+                {userType !== UserType.Admin && (
+                  <Link href={registerPageUrl} variant="body2">
+                    アカウント新規作成はこちら
+                  </Link>
+                )}
+              </Grid>
             </Grid>
-          </Grid>
+          ) : (
+            <div>アカウントの登録には先生が発行したURLが必要です。</div>
+          )}
         </form>
       </div>
       <Box mt={8}>
