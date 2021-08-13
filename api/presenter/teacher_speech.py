@@ -1,3 +1,4 @@
+from api.domain.entity.user import User
 from concurrent import futures
 import os
 import shutil
@@ -96,8 +97,9 @@ async def download(downloadTeacherSpeechRequest: DownloadTeacherSpeechRequest,
         raise e
 
     # 一つずつ権限のチェック
+    user: User = repository.User().get_by_id(user_id=current_uid)
     for teacher_speech in teacher_speechs:
-        if teacher_speech.teacher_id != current_uid:
+        if teacher_speech.teacher_id != current_uid and user.type != 0:
             raise AuthError
 
     # 並列でアーカイブの処理をしていく
@@ -110,7 +112,7 @@ async def download(downloadTeacherSpeechRequest: DownloadTeacherSpeechRequest,
             dest_file = download_dir + '/' + teacher_speech.object_key.split(
                 '/')[-1]
             future = executor.submit(repository.File().download,
-                                     object_key=teacher_speech.object_key,
+                                     object_key='/'.join(teacher_speech.object_key.split('/')[-2:]),
                                      dest_file=dest_file)
             future_list.append(future)
 

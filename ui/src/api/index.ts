@@ -140,6 +140,19 @@ export default class ApiClient {
     }
   }
 
+  // POST /teacher-speeches/archive
+  async downloadTeacherSpeeches(speechIds: number[]) {
+    const endpoint: string = `/teacher-speeches/archive`
+    const res: AxiosResponse<ArrayBuffer> = await this.client.post(
+      endpoint,
+      {
+        teacher_speech_ids: speechIds,
+      },
+      { responseType: 'arraybuffer' },
+    )
+    return res.data
+  }
+
   // GET /units
   async searchUnits(searchRequest: SearchRequest) {
     const endpoint: string = `/units`
@@ -318,7 +331,7 @@ export default class ApiClient {
     }
   }
 
-  // GET /learner-speeches
+  // GET /learner-speeches/{learner_speech_id}
   async getLearnerSpeecheById(learnerSpeechId: number) {
     const endpoint: string = `/learner-speeches/${learnerSpeechId}`
     let res: AxiosResponse<LearnerSpeech>
@@ -329,6 +342,19 @@ export default class ApiClient {
       alert(e)
       return
     }
+  }
+
+  // POST /learner-speeches/archive
+  async downloadLearnerSpeeches(speechIds: number[]) {
+    const endpoint: string = `/learner-speeches/archive`
+    const res: AxiosResponse<ArrayBuffer> = await this.client.post(
+      endpoint,
+      {
+        learner_speech_ids: speechIds,
+      },
+      { responseType: 'arraybuffer' },
+    )
+    return res.data
   }
 
   // POST /scores/gop

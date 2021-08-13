@@ -126,9 +126,11 @@ const UnitDetail: NextPage = () => {
     setIsShowText(!isShowText)
   }
   const onClickStartScoring = () => {
-    calculateGop(audioBlob)
-    calculateDtw(audioBlob)
-    setIsCalculatingScore(true)
+    if (audioBlob !== undefined) {
+      calculateGop(audioBlob)
+      calculateDtw(audioBlob)
+      setIsCalculatingScore(true)
+    }
   }
   const onClickNext = async () => {
     // 音声アップロード

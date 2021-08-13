@@ -21,7 +21,9 @@ import Paper from '@material-ui/core/Paper'
 import ApiClient from '../../api'
 import { SearchRequest } from '../../types/SearchRequest'
 import { LearnerSpeech } from '../../types/LearnerSpeech'
-import { Link } from '@material-ui/core'
+import { Button, Checkbox, CircularProgress, Link } from '@material-ui/core'
+import { useRecoilState } from 'recoil'
+import { selectedLearnerSpeechIdsState } from '../../states/learnerSpeech/selectedLearnerSpeechIdsState'
 
 type Props = {
   isAdmin: boolean
@@ -38,6 +40,11 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
   const [count, setCount] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isAsc, setIsAsc] = useState<boolean>(false)
+  const [isDownloading, setIsDownloading] = useState<boolean>(false)
+  const [selected, setSelected] =
+    speeches != undefined
+      ? useState<number[]>(speeches.map((speech) => speech.id))
+      : useRecoilState<number[]>(selectedLearnerSpeechIdsState)
 
   // 学習者音声リストが渡された場合はAPIを叩きに行かない
   const fetchData = async () => {
@@ -64,6 +71,23 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
   useEffect(() => {
     fetchData()
   }, [page, rowsPerPage, searchQuery, isAsc])
+
+  const handleDownload = async () => {
+    setIsDownloading(true)
+    try {
+      const res = await api.downloadLearnerSpeeches(selected)
+      console.log(res!)
+      const blob = new Blob([res!])
+      const a = document.createElement('a')
+      a.href = window.URL.createObjectURL(blob)
+      a.download = 'archive.zip'
+      a.click()
+      setIsDownloading(false)
+    } catch (e) {
+      setIsDownloading(false)
+      alert(e)
+    }
+  }
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
   }
@@ -79,15 +103,51 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
+  const handleCheckAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelecteds = data.map((d) => d.id)
+      setSelected(newSelecteds)
+      return
+    }
+    setSelected([])
+  }
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, id: number) => {
+    const selectedIndex = selected.indexOf(id)
+    let newSelected: number[] = []
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id)
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1))
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1))
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      )
+    }
+    setSelected(newSelected)
+  }
 
   return (
     <Paper>
       <Toolbar>
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Box mr={2}>
-            <Typography variant="h6" id="tableTitle" component="div">
-              音声一覧
+            <Typography variant="h6" id="tableTitle" style={{ display: 'inline' }}>
+              学習者音声一覧
             </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDownload}
+              disabled={selected.length === 0 || isDownloading}
+              disableElevation
+              style={{ marginLeft: 20 }}
+            >
+              {isDownloading && <CircularProgress size={20} style={{ marginRight: 10 }} />}
+              選択音声をダウンロード
+            </Button>
           </Box>
           <TextField
             style={{ width: 400 }}
@@ -109,6 +169,11 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
         <Table>
           <TableHead>
             <TableRow>
+              {speeches === undefined && (
+                <TableCell>
+                  <Checkbox onChange={handleCheckAll} disabled={speeches != undefined} />
+                </TableCell>
+              )}
               <TableCell sortDirection={isAsc ? 'asc' : 'desc'}>
                 <TableSortLabel
                   active={true}
@@ -132,11 +197,21 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={d.id} onClick={() => handleClickRow(d.id)} hover={true}>
-                <TableCell component="th" scope="row">
+              <TableRow key={d.id} hover={true}>
+                {speeches === undefined && (
+                  <TableCell>
+                    <Checkbox
+                      checked={selected.includes(d.id)}
+                      onChange={(event) => {
+                        handleCheck(event, d.id)
+                      }}
+                    />
+                  </TableCell>
+                )}
+                <TableCell component="th" scope="row" onClick={() => handleClickRow(d.id)}>
                   {d.id}
                 </TableCell>
-                <TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>
                   <Link
                     href={
                       isAdmin
@@ -147,21 +222,23 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
                     {d.learner_id}
                   </Link>
                 </TableCell>
-                <TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>
                   <Link href={isAdmin ? `/admin/unit/${d.unit_id}` : `/teacher/unit/${d.unit_id}`}>
                     {d.unit_id}
                   </Link>
                 </TableCell>
-                <TableCell>{d.teacher_speech_id}</TableCell>
-                <TableCell>{d.type}</TableCell>
-                <TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>{d.teacher_speech_id}</TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>{d.type}</TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>
                   <Link href={d.object_key} target="_blank">
                     {d.object_key.split('/').pop()}
                   </Link>
                 </TableCell>
-                <TableCell>{d.gop_average}</TableCell>
-                <TableCell>{d.dtw_average}</TableCell>
-                <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>{d.gop_average}</TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>{d.dtw_average}</TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>
+                  {new Date(d.created_at).toLocaleString()}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -25,6 +25,7 @@ import { SearchRequest } from '../../types/SearchRequest'
 import { selectedSpeechIdsState } from '../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { addedSpeechState } from '../../states/addTeacherSpeech/addedSpeechState'
+import { Button, CircularProgress } from '@material-ui/core'
 
 type Props = {
   isAdmin: boolean
@@ -40,6 +41,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, sp
   const [count, setCount] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isAsc, setIsAsc] = useState<boolean>(false)
+  const [isDownloading, setIsDownloading] = useState<boolean>(false)
 
   // 教師音声リストが渡された場合はそれを選択済みにする。
   // そうでない場合はrecoilのステートを使う。
@@ -75,6 +77,22 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, sp
     fetchData()
   }, [page, rowsPerPage, searchQuery, isAsc, addedSpeech])
 
+  const handleDownload = async () => {
+    setIsDownloading(true)
+    try {
+      const res = await api.downloadTeacherSpeeches(selected)
+      console.log(res!)
+      const blob = new Blob([res!])
+      const a = document.createElement('a')
+      a.href = window.URL.createObjectURL(blob)
+      a.download = 'archive.zip'
+      a.click()
+      setIsDownloading(false)
+    } catch (e) {
+      setIsDownloading(false)
+      alert(e)
+    }
+  }
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
   }
@@ -115,10 +133,21 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, sp
     <Paper>
       <Toolbar>
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
-          <Box mr={2}>
-            <Typography variant="h6" id="tableTitle" component="div">
+          <Box>
+            <Typography variant="h6" id="tableTitle" style={{ display: 'inline' }}>
               教師音声一覧
             </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDownload}
+              disabled={selected.length === 0 || isDownloading}
+              disableElevation
+              style={{ marginLeft: 20 }}
+            >
+              {isDownloading && <CircularProgress size={20} style={{ marginRight: 10 }} />}
+              {speeches === undefined ? '選択音声をダウンロード' : '音声一括ダウンロード'}
+            </Button>
           </Box>
           {speeches === undefined && (
             <TextField
