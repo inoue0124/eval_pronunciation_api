@@ -69,7 +69,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
   }
   const handleClickRow = (speech_id: number) => {
     router.push(
-      isAdmin ? `/admin/learner/speech/${speech_id}` : `/teacher/learner/speech/${speech_id}`,
+      isAdmin ? `/admin/learner-speech/${speech_id}` : `/teacher/learner/speech/${speech_id}`,
     )
   }
   const handleChangePage = (_: unknown, newPage: number) => {

@@ -3,7 +3,15 @@ import React, { useState, useEffect, useRef } from 'react'
 import { SideMenu } from '../../../../layout/teacher'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
-import { Card, createStyles, makeStyles, Theme, Typography, Breadcrumbs, Link } from '@material-ui/core'
+import {
+  Card,
+  createStyles,
+  makeStyles,
+  Theme,
+  Typography,
+  Breadcrumbs,
+  Link,
+} from '@material-ui/core'
 import ApiClient from '../../../../api'
 import { Unit } from '../../../../types/Unit'
 import { NextPage } from 'next'
@@ -52,7 +60,6 @@ const SpeechDetail: NextPage = () => {
         try {
           const learnerSpeech = await api.getLearnerSpeecheById(speechId)
           const unit = await api.getUnitById(learnerSpeech!.unit_id)
-          console.log(unit)
           setLearnerSpeech(learnerSpeech)
           setTeacherSpeech(
             unit.teacher_speeches.find(
@@ -81,20 +88,22 @@ const SpeechDetail: NextPage = () => {
             <Typography color="textPrimary">音声ID:{speechId}</Typography>
           </Breadcrumbs>
           <Card className={classes.card}>
-            <Typography color="textPrimary">課題ID：
-              <Link href={`/teacher/unit/${unit.id}`}>
-                {unit.id}
-              </Link>
+            <Typography color="textPrimary">
+              課題ID：
+              <Link href={`/teacher/unit/${unit.id}`}>{unit.id}</Link>
             </Typography>
             <Typography color="textPrimary">課題名：{unit.name}</Typography>
-            <Typography color="textPrimary">教師音声ID：{teacherSpeech.id}</Typography>
+            <Typography color="textPrimary">
+              教師音声ID：{teacherSpeech && teacherSpeech.id}
+            </Typography>
             <Typography color="textPrimary">学習者ID：{learnerSpeech.learner_id}</Typography>
             <Typography color="textPrimary">
               録音日時：{new Date(learnerSpeech.created_at).toLocaleString()}
             </Typography>
-            <Typography color="textPrimary">録音タイプ：
-            {learnerSpeech.type === 1 && 'リピーティング'}
-            {learnerSpeech.type === 2 && 'シャドーイング'}
+            <Typography color="textPrimary">
+              録音タイプ：
+              {learnerSpeech.type === 1 && 'リピーティング'}
+              {learnerSpeech.type === 2 && 'シャドーイング'}
             </Typography>
           </Card>
           <Card className={classes.card}>

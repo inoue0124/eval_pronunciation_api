@@ -109,7 +109,7 @@ export const SideMenu: React.FC = ({ children }) => {
               button
               selected={
                 router.pathname.includes('/admin/learner') &&
-                router.pathname !== '/admin/learner-speech'
+                !router.pathname.includes('/admin/learner-speech')
               }
               onClick={() => router.push('/admin/learner')}
             >
