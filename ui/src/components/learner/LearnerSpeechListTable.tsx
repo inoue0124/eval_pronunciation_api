@@ -234,8 +234,12 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
                     {d.object_key.split('/').pop()}
                   </Link>
                 </TableCell>
-                <TableCell onClick={() => handleClickRow(d.id)}>{d.gop_average}</TableCell>
-                <TableCell onClick={() => handleClickRow(d.id)}>{d.dtw_average}</TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>
+                  {d.gop_average ? d.gop_average : '-'}
+                </TableCell>
+                <TableCell onClick={() => handleClickRow(d.id)}>
+                  {d.dtw_average ? d.dtw_average : '-'}
+                </TableCell>
                 <TableCell onClick={() => handleClickRow(d.id)}>
                   {new Date(d.created_at).toLocaleString()}
                 </TableCell>

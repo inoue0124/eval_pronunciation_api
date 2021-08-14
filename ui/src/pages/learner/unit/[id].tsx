@@ -12,6 +12,7 @@ import {
   Theme,
   Typography,
   LinearProgress,
+  CircularProgress,
 } from '@material-ui/core'
 import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
@@ -256,7 +257,8 @@ const UnitDetail: NextPage = () => {
               disableElevation
               disabled={isRecording || !isRecorded || isCaluculatingScore}
             >
-              スコア計算
+              {isCaluculatingScore && <CircularProgress size={20} style={{ marginRight: 10 }} />}
+              {isCaluculatingScore ? 'スコア計算中' : 'スコア計算'}
             </Button>
             <Button
               className={classes.toolbarButton}
@@ -266,7 +268,7 @@ const UnitDetail: NextPage = () => {
               disableElevation
               disabled={isRecording || !isRecorded || isCaluculatingScore}
             >
-              {isCaluculatingScore ? 'スコア計算中' : '次の課題へ'}
+              次の課題へ
             </Button>
           </Card>
           {isShowText && (

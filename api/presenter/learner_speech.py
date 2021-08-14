@@ -80,8 +80,8 @@ async def register(unit_id: int = Form(...),
         unit_id=unit_id,
         teacher_speech_id=teacher_speech_id,
         type=type,
-        gop_average=gop_average,
-        dtw_average=dtw_average)
+        gop_average=gop_average if gop_average != 0 else None,
+        dtw_average=dtw_average if dtw_average != 0 else None)
     try:
         learner_speech = repository.LearnerSpeech().create(
             learner_speech=learner_speech, speech=speech)
