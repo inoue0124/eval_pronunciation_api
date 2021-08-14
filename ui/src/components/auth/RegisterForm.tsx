@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    maxWidth: 450,
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -53,12 +53,20 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
   const teacherId = Number(router.query.ti)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(true)
+  const [isPasswordValid, setIsPasswordValid] = useState<boolean>(true)
   const type = isTeacher ? 1 : 2
 
   useEffect(() => {
     if (router.isReady) {
       ;(async function () {
-        if (!isTeacher && (router.query.unit === 'NaN' || router.query.ti === 'NaN')) {
+        if (
+          !isTeacher &&
+          (router.query.unit === 'NaN' ||
+            router.query.unit === undefined ||
+            router.query.ti === 'NaN' ||
+            router.query.ti === undefined)
+        ) {
           alert('urlが正しくありません！')
           router.push('/')
         }
@@ -66,25 +74,48 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
     }
   }, [router.query])
 
+  const validate = useCallback(() => {
+    let isValid = true
+    // メールアドレスの検証
+    const emailReg = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/
+    if (emailReg.test(email)) {
+      setIsEmailValid(true)
+    } else {
+      setIsEmailValid(false)
+      isValid = false
+    }
+    // パスワードの検証
+    const passowrdReg = /^(?=.*?[a-z])(?=.*?\d)[a-z\d]{8,15}$/i
+    if (passowrdReg.test(password)) {
+      setIsPasswordValid(true)
+    } else {
+      setIsPasswordValid(false)
+      isValid = false
+    }
+    return isValid
+  }, [email, password])
+
   const handleRegister = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()
-    try {
-      const res = await api.register(email, password, type)
-      setCookie(undefined, 'logged_user', JSON.stringify(res.user), {
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60,
-      })
-      setCookie(undefined, 'EVAL_SPEECH_SESSION', res.token, {
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60,
-      })
-      router.push(
-        isTeacher
-          ? '/teacher/register-profile'
-          : `/learner/register-profile?unit=${unitId}&ti=${teacherId}`,
-      )
-    } catch (e) {
-      alert(e)
+    if (validate()) {
+      try {
+        const res = await api.register(email, password, type)
+        setCookie(undefined, 'logged_user', JSON.stringify(res.user), {
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60,
+        })
+        setCookie(undefined, 'EVAL_SPEECH_SESSION', res.token, {
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60,
+        })
+        router.push(
+          isTeacher
+            ? '/teacher/register-profile'
+            : `/learner/register-profile?unit=${unitId}&ti=${teacherId}`,
+        )
+      } catch (e) {
+        alert(e)
+      }
     }
   }
 
@@ -96,6 +127,8 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
         </Typography>
         <form className={classes.form}>
           <TextField
+            error={!isEmailValid}
+            helperText={isEmailValid ? '' : 'メールアドレスの形式が間違っています。'}
             variant="outlined"
             margin="normal"
             required
@@ -111,6 +144,8 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
             }}
           />
           <TextField
+            error={!isPasswordValid}
+            helperText={isPasswordValid ? '' : 'パスワードは英数字8文字以上である必要があります。'}
             variant="outlined"
             margin="normal"
             required

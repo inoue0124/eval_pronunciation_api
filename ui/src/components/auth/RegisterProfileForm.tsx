@@ -8,7 +8,7 @@ import Container from '@material-ui/core/Container'
 import ApiClient, { Country } from '../../api'
 import { setCookie } from 'nookies'
 import { useRouter } from 'next/router'
-import { Select } from '@material-ui/core'
+import { FormControl, InputLabel, Select } from '@material-ui/core'
 import { MenuItem } from '@material-ui/core'
 import DateFnsUtils from '@date-io/date-fns'
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
+  },
+  formItem: {
+    marginBottom: 20,
   },
 }))
 
@@ -135,6 +138,7 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
         </Typography>
         <form className={classes.form}>
           <TextField
+            className={classes.formItem}
             variant="outlined"
             margin="normal"
             required
@@ -149,24 +153,27 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
             }}
           />
 
-          <Select
-            variant="outlined"
-            required
-            fullWidth
-            id="demo-simple-select-outlined"
-            value={gender}
-            onChange={(event) => {
-              setGender(event.target.value as number)
-            }}
-            label="性別"
-          >
-            <MenuItem value={'回答しない'}>回答しない</MenuItem>
-            <MenuItem value={'男'}>男</MenuItem>
-            <MenuItem value={'女'}>女</MenuItem>
-          </Select>
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel id="gender-label">性別</InputLabel>
+            <Select
+              className={classes.formItem}
+              required
+              labelId="gender-label"
+              value={gender}
+              onChange={(event) => {
+                setGender(event.target.value as number)
+              }}
+              label="性別"
+            >
+              <MenuItem value={'回答しない'}>回答しない</MenuItem>
+              <MenuItem value={'男'}>男</MenuItem>
+              <MenuItem value={'女'}>女</MenuItem>
+            </Select>
+          </FormControl>
 
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <KeyboardDatePicker
+              className={classes.formItem}
               disableToolbar
               fullWidth
               variant="inline"
@@ -180,42 +187,47 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
             />
           </MuiPickersUtilsProvider>
 
-          <Select
-            variant="outlined"
-            required
-            fullWidth
-            id="demo-simple-select-outlined"
-            value={birthPlace}
-            onChange={(event) => {
-              setBirthPlace(event.target.value as string)
-            }}
-            label="出身国"
-          >
-            {countries.map((country, index) => (
-              <MenuItem key={index} value={country.ja}>
-                {country.ja}({country.en})
-              </MenuItem>
-            ))}
-          </Select>
-
-          {!isTeacher && (
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel id="birthPlace-label">出身国</InputLabel>
             <Select
-              variant="outlined"
+              className={classes.formItem}
               required
               fullWidth
-              id="demo-simple-select-outlined"
-              value={yearOfLearning}
+              labelId="birthPlace-label"
+              value={birthPlace}
               onChange={(event) => {
-                setYearOfLearning(event.target.value as number)
+                setBirthPlace(event.target.value as string)
               }}
-              label="日本語学習年数"
+              label="出身国"
             >
-              {years.map((year, index) => (
-                <MenuItem key={index} value={year}>
-                  {year}年
+              {countries.map((country, index) => (
+                <MenuItem key={index} value={country.ja}>
+                  {country.ja}({country.en})
                 </MenuItem>
               ))}
             </Select>
+          </FormControl>
+
+          {!isTeacher && (
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel id="yearOfLearning-label">日本語学習年数</InputLabel>
+              <Select
+                variant="outlined"
+                required
+                labelId="yearOfLearning-label"
+                value={yearOfLearning}
+                onChange={(event) => {
+                  setYearOfLearning(event.target.value as number)
+                }}
+                label="日本語学習年数"
+              >
+                {years.map((year, index) => (
+                  <MenuItem key={index} value={year}>
+                    {year}年
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           )}
 
           <Button
