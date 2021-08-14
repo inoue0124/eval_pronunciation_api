@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect, useRef } from 'react'
-import { SideMenu } from '../../../layout/admin'
+import { SideMenu } from '../../../layout/teacher'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import {
@@ -24,8 +24,12 @@ const WaveDisplay = dynamic<any>(
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      padding: theme.spacing(2),
+    },
     card: {
-      margin: theme.spacing(2),
+      marginTop: theme.spacing(2),
+      marginBotom: theme.spacing(2),
       padding: theme.spacing(2),
     },
     cardTitle: {
@@ -60,6 +64,7 @@ const SpeechDetail: NextPage = () => {
         try {
           const learnerSpeech = await api.getLearnerSpeecheById(speechId)
           const unit = await api.getUnitById(learnerSpeech!.unit_id)
+          console.log(learnerSpeech)
           setLearnerSpeech(learnerSpeech)
           setTeacherSpeech(
             unit.teacher_speeches.find(
@@ -75,20 +80,16 @@ const SpeechDetail: NextPage = () => {
   }, [router.query])
 
   return (
-    <SideMenu>
+    <div className={classes.root}>
       {unit && learnerSpeech && (
         <>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" href="/admin/learner-speech">
-              学習者音声一覧
+            <Link color="inherit" href="/learner/speech">
+              ← 音声一覧に戻る
             </Link>
-            <Typography color="textPrimary">音声ID:{speechId}</Typography>
           </Breadcrumbs>
           <Card className={classes.card}>
-            <Typography color="textPrimary">
-              課題ID：
-              <Link href={`/admin/unit/${unit.id}`}>{unit.id}</Link>
-            </Typography>
+            <Typography color="textPrimary">課題ID：{unit.id}</Typography>
             <Typography color="textPrimary">課題名：{unit.name}</Typography>
             <Typography color="textPrimary">
               教師音声ID：{teacherSpeech && teacherSpeech.id}
@@ -152,7 +153,7 @@ const SpeechDetail: NextPage = () => {
           </Card>
         </>
       )}
-    </SideMenu>
+    </div>
   )
 }
 

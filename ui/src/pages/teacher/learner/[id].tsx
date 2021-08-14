@@ -15,6 +15,7 @@ import {
 import { LearnerSpeechListTable } from '../../../components/learner/LearnerSpeechListTable'
 import { Learner } from '../../../types/Learner'
 import ApiClient from '../../../api'
+import { UserType } from '../../../types/UserType'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,7 +80,11 @@ const LearnerDetail: React.FC = () => {
       )}
 
       {router.isReady && learner && (
-        <LearnerSpeechListTable isAdmin={false} learnerId={learnerId} speeches={learner.speeches} />
+        <LearnerSpeechListTable
+          userType={UserType.Teacher}
+          learnerId={learnerId}
+          speeches={learner.speeches}
+        />
       )}
     </SideMenu>
   )

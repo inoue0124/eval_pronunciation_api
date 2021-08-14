@@ -57,6 +57,11 @@ const UnitList: NextPage = () => {
             </Card>
           </Link>
         ))}
+        <Link href={`/learner/speech`}>
+          <Card className={classes.card} key="speech">
+            <Typography color="textPrimary">過去に録音したデータを見る</Typography>
+          </Card>
+        </Link>
       </div>
     </div>
   )
