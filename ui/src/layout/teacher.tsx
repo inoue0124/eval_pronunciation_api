@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 import AppBar from '@material-ui/core/AppBar'
@@ -16,7 +16,8 @@ import { useRouter } from 'next/router'
 import { IconButton } from '@material-ui/core'
 import ExitToAppIcon from '@material-ui/icons/ExitToApp'
 import ApiClient from '../api'
-import { deleteCookie } from '../util/cookie'
+import { validateAuth } from '../util/validateAuth'
+import { UserType } from '../types/UserType'
 
 const drawerWidth = 240
 
@@ -51,6 +52,9 @@ export const SideMenu: React.FC = ({ children }) => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
+  useEffect(() => {
+    if (!validateAuth(UserType.Teacher)) router.push('/')
+  }, [])
   const handleLogout = async () => {
     await api.logout()
     router.push('/teacher/login')
