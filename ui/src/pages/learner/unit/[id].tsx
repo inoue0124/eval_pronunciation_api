@@ -20,6 +20,8 @@ import { getCookie } from '../../../util/cookie'
 import { NextPage } from 'next'
 import { User } from '../../../types/User'
 import MicIcon from '@material-ui/icons/Mic'
+import { useRecoilValue } from 'recoil'
+import { pitchDataState } from '../../../states/graphData/pitchDataState'
 const WaveDisplay = dynamic<any>(
   () => import('../../../components/WaveDisplay').then((module) => module.WaveDisplay),
   { ssr: false },
@@ -75,6 +77,7 @@ const UnitDetail: NextPage = () => {
   const [dtw, setDtw] = useState<number>()
   const teacherWavRef = useRef<any>(null)
   const learnerWavRef = useRef<any>(null)
+  const pitchData = useRecoilValue(pitchDataState)
   const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
     audio: true,
     onStop: (_: string, blob: Blob) => {
@@ -159,6 +162,8 @@ const UnitDetail: NextPage = () => {
         audioBlob,
         gop,
         dtw,
+        JSON.stringify(gopSeq),
+        pitchData,
       )
     }
     // 最後の課題の場合は終了画面へ

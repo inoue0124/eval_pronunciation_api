@@ -16,6 +16,8 @@ import {
 } from '@material-ui/core'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import StopIcon from '@material-ui/icons/Stop'
+import { useSetRecoilState } from 'recoil'
+import { pitchDataState } from '../states/graphData/pitchDataState'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -51,6 +53,7 @@ type Props = {
   gop: number
   dtw: number
   gopSeq: number[]
+  pitchDataProp?: { data: Data[]; xmax: number }
 }
 export const WaveDisplay: React.FC<Props> = ({
   isDisableToolbar,
@@ -62,6 +65,7 @@ export const WaveDisplay: React.FC<Props> = ({
   gop,
   dtw,
   gopSeq,
+  pitchDataProp,
 }) => {
   const classes = useStyles()
   const wavesurfer = useRef<WaveSurfer | null>(null)
@@ -76,162 +80,77 @@ export const WaveDisplay: React.FC<Props> = ({
   const audioContext = new AudioContext()
   const samplingRate = audioContext.sampleRate
   const [isCalculatingPitch, setIsCalculatingPitch] = useState<boolean>(false)
+  const setPitchData = useSetRecoilState<string>(pitchDataState)
 
   // ピッチ計算
   useEffect(() => {
-    setIsCalculatingPitch(true)
-    workerRef.current = new Worker(new URL('../util/pitch.worker', import.meta.url))
-    // URLから音声データを取得しピッチを抽出
-    axios
-      .get(url, {
-        responseType: 'arraybuffer',
-        headers: {
-          'Content-Type': 'audio/mpeg',
-        },
-      })
-      .then((response) => {
-        audioContext.decodeAudioData(
-          response.data,
-          function onSuccess(buffer: any) {
-            const siglen = buffer.length
-            const fsignal = new Float32Array(siglen)
-            const srcbuf = buffer.getChannelData(0)
-            let sigmax = 0
-            for (let i = 0; i < siglen; i++) {
-              var s = srcbuf[i]
-              if (s > sigmax) sigmax = s
-              if (s < -sigmax) sigmax = -s
-            }
-            for (let i = 0; i < siglen; i++) {
-              fsignal[i] = srcbuf[i] / sigmax
-            }
-            const nfsamp = Math.floor(fsignal.length / 3)
-            const ffsignal = new Float32Array(nfsamp)
-            const filt = new Filter()
-            filt.design(filt.LOW_PASS, 4, samplingRate / 3, samplingRate / 3, samplingRate)
-            for (var i = 0; i < nfsamp; i++) {
-              filt.sample(fsignal[3 * i])
-              filt.sample(fsignal[3 * i + 1])
-              ffsignal[i] = filt.sample(fsignal[3 * i + 2])
-            }
-            setGraphData({
-              datasets: [
-                {
-                  data: [
-                    {
-                      x: -10,
-                      y: 0,
-                    },
-                    {
-                      x: 0,
-                      y: 200,
-                    },
-                    {
-                      x: 10,
-                      y: 100,
-                    },
-                    {
-                      x: 0.5,
-                      y: 150.5,
-                    },
-                  ],
-                  borderColor: 'rgb(75, 192, 192)',
-                  borderWidth: 1,
-                },
-              ],
-            })
-            setGraphOptions({
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  display: false,
-                },
-                tooltip: {
-                  enabled: false,
-                },
-              },
-              scales: {
-                x: {
-                  min: 0,
-                  max: fsignal.length / samplingRate,
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'F0 Pitch',
-                  },
-                },
-              },
-            })
-            setIsCalculatingPitch(false)
-            // workerスレッドから終了メッセージを受信した際の動作
-            workerRef.current!.onmessage = (event) => {
-              pitchData = []
-              for (i = 0; i < fsignal.length; i++) {
-                if (event.data.vs[i] > 0.3) {
-                  pitchData.push({ x: i / FXRATE, y: event.data.fx[i] })
-                }
-              }
-              let ymin = 62.5
-              let ymax = 500
-              if (pitchData.length > 0) {
-                let avgPitch = 0
-                for (i = 0; i < pitchData.length; i++) {
-                  avgPitch += pitchData[i].y
-                }
-                avgPitch /= pitchData.length
-                ymin = avgPitch / 2
-                ymax = avgPitch * 1.5
-              }
-              setGraphData({
-                datasets: [
-                  {
-                    data: pitchData,
-                    borderColor: 'rgb(75, 192, 192)',
-                    borderWidth: 1,
-                  },
-                ],
-              })
-              setGraphOptions({
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                  tooltip: {
-                    enabled: false,
-                  },
-                },
-                scales: {
-                  x: {
-                    min: 0,
-                    max: fsignal.length / samplingRate,
-                  },
-                  y: {
-                    title: {
-                      display: true,
-                      text: 'F0 Pitch',
-                    },
-                    min: Math.floor(ymin),
-                    max: Math.floor(ymax),
-                  },
-                },
-              })
-              setIsCalculatingPitch(false)
-            }
-            // workerスレッドを開始
-            // workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
+    if (pitchDataProp) {
+      setPitch(pitchDataProp.data, pitchDataProp.xmax)
+    } else {
+      setIsCalculatingPitch(true)
+      workerRef.current = new Worker(new URL('../util/pitch.worker', import.meta.url))
+      // URLから音声データを取得しピッチを抽出
+      axios
+        .get(url, {
+          responseType: 'arraybuffer',
+          headers: {
+            'Content-Type': 'audio/mpeg',
           },
-          function onFailure() {
-            console.log('decode AudioData failed')
-          },
-        )
-      })
-      .catch((error) => alert(error))
+        })
+        .then((response) => {
+          audioContext.decodeAudioData(
+            response.data,
+            function onSuccess(buffer: any) {
+              const siglen = buffer.length
+              const fsignal = new Float32Array(siglen)
+              const srcbuf = buffer.getChannelData(0)
+              let sigmax = 0
+              for (let i = 0; i < siglen; i++) {
+                var s = srcbuf[i]
+                if (s > sigmax) sigmax = s
+                if (s < -sigmax) sigmax = -s
+              }
+              for (let i = 0; i < siglen; i++) {
+                fsignal[i] = srcbuf[i] / sigmax
+              }
+              const nfsamp = Math.floor(fsignal.length / 3)
+              const ffsignal = new Float32Array(nfsamp)
+              const filt = new Filter()
+              filt.design(filt.LOW_PASS, 4, samplingRate / 3, samplingRate / 3, samplingRate)
+              for (var i = 0; i < nfsamp; i++) {
+                filt.sample(fsignal[3 * i])
+                filt.sample(fsignal[3 * i + 1])
+                ffsignal[i] = filt.sample(fsignal[3 * i + 2])
+              }
+              // workerスレッドから終了メッセージを受信した際の動作
+              workerRef.current!.onmessage = (event) => {
+                pitchData = []
+                for (i = 0; i < fsignal.length; i++) {
+                  if (event.data.vs[i] > 0.3) {
+                    pitchData.push({
+                      x: Math.round((i / FXRATE) * 100) / 100,
+                      y: Math.round(event.data.fx[i] * 100) / 100,
+                    })
+                  }
+                }
+                setPitchData(
+                  JSON.stringify({ data: pitchData, xmax: fsignal.length / samplingRate }),
+                )
+                setPitch(pitchData, fsignal.length / samplingRate)
+                setIsCalculatingPitch(false)
+              }
+              // workerスレッドを開始
+              workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
+            },
+            function onFailure() {
+              console.log('decode AudioData failed')
+            },
+          )
+        })
+        .catch((error) => alert(error))
+    }
     return () => {
-      workerRef.current!.terminate()
+      workerRef.current?.terminate()
     }
   }, [url])
 
@@ -322,6 +241,55 @@ export const WaveDisplay: React.FC<Props> = ({
       wavesurfer.current?.play()
     },
     stop: () => wavesurfer.current?.stop(),
+  }
+
+  const setPitch = (pitchData: Data[], xmax: number) => {
+    let ymin = 62.5
+    let ymax = 500
+    if (pitchData.length > 0) {
+      let avgPitch = 0
+      for (let i = 0; i < pitchData.length; i++) {
+        avgPitch += pitchData[i].y
+      }
+      avgPitch /= pitchData.length
+      ymin = avgPitch / 2
+      ymax = avgPitch * 1.5
+    }
+    setGraphData({
+      datasets: [
+        {
+          data: pitchData,
+          borderColor: 'rgb(75, 192, 192)',
+          borderWidth: 1,
+        },
+      ],
+    })
+    setGraphOptions({
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          enabled: false,
+        },
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: xmax,
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'F0 Pitch',
+          },
+          min: Math.floor(ymin),
+          max: Math.floor(ymax),
+        },
+      },
+    })
   }
 
   const PitchGraph = useMemo(() => {
