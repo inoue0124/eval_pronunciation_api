@@ -47,7 +47,7 @@ type Props = {
 }
 
 export const LoginForm: React.FC<Props> = ({ userType }) => {
-  const api = new ApiClient()
+  let api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
   const unitId = Number(router.query.unit)
@@ -118,15 +118,36 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
           path: '/',
           maxAge: 30 * 24 * 60 * 60,
         })
+        api = new ApiClient() // tokenを更新するため
         let redirectUrl = ''
         switch (res.user.type) {
           case UserType.Admin:
             redirectUrl = '/admin/teacher'
             break
           case UserType.Teacher:
+            try {
+              const teacher = await api.getTeacherById(res.user.id)
+              setCookie(undefined, 'teacher', JSON.stringify(teacher), {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+              })
+            } catch (e) {
+              redirectUrl = '/teacher/register-profile'
+              break
+            }
             redirectUrl = '/teacher/unit'
             break
           case UserType.Learner:
+            try {
+              const learner = await api.getLearnerById(res.user.id)
+              setCookie(undefined, 'learner', JSON.stringify(learner), {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+              })
+            } catch (e) {
+              redirectUrl = '/learner/register-profile'
+              break
+            }
             if (router.query.unit === undefined || router.query.ti === undefined) {
               redirectUrl = '/learner/unit/list'
             } else {

@@ -80,14 +80,8 @@ export default class ApiClient {
   // GET /teachers/{teacher_id}
   async getTeacherById(teacherId: number) {
     const endpoint: string = `/teachers/${teacherId}`
-    let res: AxiosResponse<Teacher>
-    try {
-      res = await this.client.get(endpoint)
-      return res.data
-    } catch (e) {
-      alert(e)
-      return
-    }
+    const res: AxiosResponse<Teacher> = await this.client.get(endpoint)
+    return res.data
   }
 
   // GET /teacher-speeches
@@ -245,14 +239,8 @@ export default class ApiClient {
   // GET /learners/{learner_id}
   async getLearnerById(learnerId: number) {
     const endpoint: string = `/learners/${learnerId}`
-    let res: AxiosResponse<Learner>
-    try {
-      res = await this.client.get(endpoint)
-      return res.data
-    } catch (e) {
-      alert(e)
-      return
-    }
+    const res: AxiosResponse<Learner> = await this.client.get(endpoint)
+    return res.data
   }
 
   // GET /teachers/${teacher_id}/learners

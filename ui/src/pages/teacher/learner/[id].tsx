@@ -34,9 +34,13 @@ const LearnerDetail: React.FC = () => {
   useEffect(() => {
     if (router.isReady) {
       ;(async function () {
-        const learner = await api.getLearnerById(learnerId)
-        if (learner != undefined) {
-          setLearner(learner)
+        try {
+          const learner = await api.getLearnerById(learnerId)
+          if (learner != undefined) {
+            setLearner(learner)
+          }
+        } catch (e) {
+          alert(e)
         }
       })()
     }
