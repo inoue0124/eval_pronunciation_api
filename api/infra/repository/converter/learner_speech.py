@@ -13,9 +13,9 @@ class LearnerSpeechConverter:
             type=learner_speech_table.type,
             object_key=learner_speech_table.object_key,
             gop_average=learner_speech_table.gop_average,
-            gop_file_key=learner_speech_table.gop_file_key,
             dtw_average=learner_speech_table.dtw_average,
-            dtw_file_key=learner_speech_table.dtw_file_key,
+            gop_seq=learner_speech_table.gop_seq,
+            pitch_seq=learner_speech_table.pitch_seq,
             created_at=learner_speech_table.created_at)
 
     def convert_from_list(

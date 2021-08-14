@@ -83,6 +83,8 @@ async def register(unit_id: int = Form(...),
                    speech: UploadFile = File(...),
                    gop_average: float = Form(...),
                    dtw_average: float = Form(...),
+                   gop_seq: str = Form(...),
+                   pitch_seq: str = Form(...),
                    repository: Repository = Depends(RepositoryFactory.create),
                    current_uid=Depends(get_current_uid)):
 
@@ -102,7 +104,9 @@ async def register(unit_id: int = Form(...),
         teacher_speech_id=teacher_speech_id,
         type=type,
         gop_average=gop_average if gop_average != 0 else None,
-        dtw_average=dtw_average if dtw_average != 0 else None)
+        dtw_average=dtw_average if dtw_average != 0 else None,
+        gop_seq=gop_seq,
+        pitch_seq=pitch_seq)
 
     try:
         learner_speech = repository.LearnerSpeech().create(

@@ -25,6 +25,8 @@ class LearnerSpeechRepository:
         learner_speech_table.type = learner_speech.type
         learner_speech_table.gop_average = learner_speech.gop_average
         learner_speech_table.dtw_average = learner_speech.dtw_average
+        learner_speech_table.gop_seq = learner_speech.gop_seq
+        learner_speech_table.pitch_seq = learner_speech.pitch_seq
 
         # idを得るためにテーブルモデルを一旦保存
         self.db.add(learner_speech_table)

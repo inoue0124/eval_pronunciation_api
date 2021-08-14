@@ -11,7 +11,7 @@ class LearnerSpeech(BaseModel):
     type: int
     object_key: Optional[str]
     gop_average: Optional[float]
-    gop_file_key: Optional[str]
     dtw_average: Optional[float]
-    dtw_file_key: Optional[str]
+    gop_seq: Optional[str]
+    pitch_seq: Optional[str]
     created_at: Optional[datetime]
