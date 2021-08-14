@@ -18,7 +18,7 @@ import {
 } from '@material-ui/core'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import DoneIcon from '@material-ui/icons/Done'
-import { TeacherSpeechListTable } from '../../../components/teacher/speech/TeacherSpeechListTable'
+import { TeacherSpeechListTable } from '../../../components/speech/TeacherSpeechListTable'
 import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
 import { getCookie } from '../../../util/cookie'
@@ -110,7 +110,11 @@ const UnitDetail: NextPage = () => {
       )}
 
       {router.isReady && unit && user && (
-        <TeacherSpeechListTable teacherId={user.id} speeches={unit.teacher_speeches} />
+        <TeacherSpeechListTable
+          isAdmin={false}
+          teacherId={user.id}
+          speeches={unit.teacher_speeches}
+        />
       )}
     </SideMenu>
   )

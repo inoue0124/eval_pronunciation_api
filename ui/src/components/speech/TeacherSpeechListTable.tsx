@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from 'react'
+import Link from '@material-ui/core/Link'
 import Box from '@material-ui/core/Box'
 import Checkbox from '@material-ui/core/Checkbox'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -18,19 +19,21 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import ApiClient from '../../../api'
-import { TeacherSpeech } from '../../../types/TeacherSpeech'
-import { SearchRequest } from '../../../types/SearchRequest'
-import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
+import ApiClient from '../../api'
+import { TeacherSpeech } from '../../types/TeacherSpeech'
+import { SearchRequest } from '../../types/SearchRequest'
+import { selectedSpeechIdsState } from '../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { addedSpeechState } from '../../../states/addTeacherSpeech/addedSpeechState'
+import { addedSpeechState } from '../../states/addTeacherSpeech/addedSpeechState'
+import { Button, CircularProgress } from '@material-ui/core'
 
 type Props = {
+  isAdmin: boolean
   teacherId: number
   speeches?: TeacherSpeech[]
 }
 
-export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches }) => {
+export const TeacherSpeechListTable: React.FC<Props> = ({ isAdmin, teacherId, speeches }) => {
   const api = new ApiClient()
   const [data, setData] = useState<TeacherSpeech[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
@@ -38,6 +41,7 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
   const [count, setCount] = useState<number>(0)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isAsc, setIsAsc] = useState<boolean>(false)
+  const [isDownloading, setIsDownloading] = useState<boolean>(false)
 
   // 教師音声リストが渡された場合はそれを選択済みにする。
   // そうでない場合はrecoilのステートを使う。
@@ -57,7 +61,9 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchTeacherSpeechesByTeacherID(teacherId, searchRequest)
+      const res = isAdmin
+        ? await api.searchTeacherSpeeches(searchRequest)
+        : await api.searchTeacherSpeechesByTeacherID(teacherId, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -71,6 +77,22 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
     fetchData()
   }, [page, rowsPerPage, searchQuery, isAsc, addedSpeech])
 
+  const handleDownload = async () => {
+    setIsDownloading(true)
+    try {
+      const res = await api.downloadTeacherSpeeches(selected)
+      console.log(res!)
+      const blob = new Blob([res!])
+      const a = document.createElement('a')
+      a.href = window.URL.createObjectURL(blob)
+      a.download = 'archive.zip'
+      a.click()
+      setIsDownloading(false)
+    } catch (e) {
+      setIsDownloading(false)
+      alert(e)
+    }
+  }
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value)
   }
@@ -110,11 +132,22 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
   return (
     <Paper>
       <Toolbar>
-        <Grid container direction="row" justify="space-between" alignItems="center">
-          <Box mr={2}>
-            <Typography variant="h6" id="tableTitle" component="div">
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h6" id="tableTitle" style={{ display: 'inline' }}>
               教師音声一覧
             </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDownload}
+              disabled={selected.length === 0 || isDownloading}
+              disableElevation
+              style={{ marginLeft: 20 }}
+            >
+              {isDownloading && <CircularProgress size={20} style={{ marginRight: 10 }} />}
+              {speeches === undefined ? '選択音声をダウンロード' : '音声一括ダウンロード'}
+            </Button>
           </Box>
           {speeches === undefined && (
             <TextField
@@ -154,9 +187,9 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
                   音声ID
                 </TableSortLabel>
               </TableCell>
-              <TableCell>教師ID</TableCell>
+              {isAdmin && <TableCell>教師ID</TableCell>}
               <TableCell>テキスト</TableCell>
-              <TableCell>ファイル名</TableCell>
+              <TableCell>ファイル</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
@@ -176,9 +209,17 @@ export const TeacherSpeechListTable: React.FC<Props> = ({ teacherId, speeches })
                 <TableCell component="th" scope="row">
                   {d.id}
                 </TableCell>
-                <TableCell>{d.teacher_id}</TableCell>
+                {isAdmin && (
+                  <TableCell>
+                    <Link href={`/admin/teacher/${d.teacher_id}`}>{d.teacher_id}</Link>
+                  </TableCell>
+                )}
                 <TableCell>{d.text}</TableCell>
-                <TableCell>{d.object_key}</TableCell>
+                <TableCell>
+                  <Link href={d.object_key} target="_blank">
+                    {d.object_key.split('/').pop()}
+                  </Link>
+                </TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}

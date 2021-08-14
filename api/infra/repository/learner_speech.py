@@ -23,6 +23,8 @@ class LearnerSpeechRepository:
         learner_speech_table.unit_id = learner_speech.unit_id
         learner_speech_table.teacher_speech_id = learner_speech.teacher_speech_id
         learner_speech_table.type = learner_speech.type
+        learner_speech_table.gop_average = learner_speech.gop_average
+        learner_speech_table.dtw_average = learner_speech.dtw_average
 
         # idを得るためにテーブルモデルを一旦保存
         self.db.add(learner_speech_table)

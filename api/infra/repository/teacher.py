@@ -46,6 +46,15 @@ class TeacherRepository:
             query = query.order_by(desc(TeacherTable.created_at))
 
         teacherTables = query.offset(offset).limit(limit).offset(offset).all()
+        count = query.count()
 
         return TeacherConverter().convert_from_list(
-            teacherTables=teacherTables)
+            teacherTables=teacherTables), count
+
+    def get_by_id(self, teacher_id: int) -> Teacher:
+        # ユニットIDからテーブルモデルを取得
+        teacher_table = self.db.query(TeacherTable).filter(
+            TeacherTable.user_id == teacher_id).first()
+
+        # ドメインモデルに変換
+        return TeacherConverter().convert(teacherTable=teacher_table)

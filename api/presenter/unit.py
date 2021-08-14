@@ -1,3 +1,4 @@
+from api.util.config import USER_TYPE_LEARNER, USER_TYPE_TEACHER
 from api.domain.entity.user import User
 from api.presenter.request import get_current_uid
 from typing import Optional
@@ -41,9 +42,9 @@ async def search(page: int,
                  _=Depends(get_current_uid)):
     try:
         units, count = repository.Unit().search(page=page,
-                                                     limit=limit,
-                                                     search_query=search_query,
-                                                     is_asc=is_asc)
+                                                limit=limit,
+                                                search_query=search_query,
+                                                is_asc=is_asc)
     except Exception as e:
         raise DbError(detail=str(e))
 
@@ -86,10 +87,10 @@ async def get_by_id(unit_id: int,
 
     # 教師ユーザの場合自分のユニットかどうか、学習者ユーザの場合は自分の教師のユニットかどうかチェック
     user: User = repository.User().get_by_id(user_id=current_uid)
-    if user.type == 1:
+    if user.type == USER_TYPE_TEACHER:
         if unit.teacher_id != current_uid:
             raise AuthError
-    if user.type == 2:
+    if user.type == USER_TYPE_LEARNER:
         learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
         if unit.teacher_id != learner.teacher_id:
             raise AuthError
@@ -107,8 +108,14 @@ async def search_by_teacher_id(teacher_id: int,
                                current_uid=Depends(get_current_uid)):
 
     # 自分のteacher_id以外だったらエラー
-    if teacher_id != current_uid:
-        raise AuthError
+    user: User = repository.User().get_by_id(user_id=current_uid)
+    if user.type == USER_TYPE_TEACHER:
+        if teacher_id != current_uid:
+          raise AuthError
+    if user.type == USER_TYPE_LEARNER:
+        learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
+        if teacher_id != learner.teacher_id:
+            raise AuthError
 
     try:
         units, count = repository.Unit().search(page=page,

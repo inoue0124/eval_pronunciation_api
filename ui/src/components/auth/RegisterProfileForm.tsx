@@ -48,6 +48,17 @@ export const RegisterProfileForm: React.FC<Props> = ({ isTeacher }) => {
   const [yearOfLearning, setYearOfLearning] = useState<number>()
 
   useEffect(() => {
+    if (router.isReady) {
+      ;(async function () {
+        if (!isTeacher && (router.query.unit === 'NaN' || router.query.ti === 'NaN')) {
+          alert('urlが正しくありません！')
+          router.push('/')
+        }
+      })()
+    }
+  }, [router.query])
+
+  useEffect(() => {
     ;(async function () {
       const res = await api.fetchCountries()
       setCountries(res)

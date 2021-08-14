@@ -12,7 +12,7 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core'
-import { LearnerSpeechListTable } from '../../../components/teacher/learner/LearnerSpeechListTable'
+import { LearnerSpeechListTable } from '../../../components/learner/LearnerSpeechListTable'
 import { Learner } from '../../../types/Learner'
 import ApiClient from '../../../api'
 
@@ -62,6 +62,12 @@ const LearnerDetail: React.FC = () => {
             <Typography color="textPrimary">出身地：{learner.birth_place}</Typography>
             <Typography color="textPrimary">学習年数：{learner.year_of_learning}</Typography>
             <Typography color="textPrimary">
+              GOP平均：{learner.gop_average ? Math.round(learner.gop_average * 100) / 100 : '-'}
+            </Typography>
+            <Typography color="textPrimary">
+              DTW平均：{learner.dtw_average ? Math.round(learner.dtw_average * 100) / 100 : '-'}
+            </Typography>
+            <Typography color="textPrimary">
               作成日時：{new Date(learner.created_at).toLocaleString()}
             </Typography>
           </CardContent>
@@ -69,7 +75,7 @@ const LearnerDetail: React.FC = () => {
       )}
 
       {router.isReady && learner && (
-        <LearnerSpeechListTable learnerId={learnerId} speeches={learner.speeches} />
+        <LearnerSpeechListTable isAdmin={false} learnerId={learnerId} speeches={learner.speeches} />
       )}
     </SideMenu>
   )

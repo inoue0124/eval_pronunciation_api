@@ -1,5 +1,6 @@
 import { Grid } from '@material-ui/core'
 import { LoginForm } from '../../components/auth/LoginForm'
+import { UserType } from '../../types/UserType'
 
 const LearnerLogin: React.FC = () => {
   return (
@@ -9,11 +10,11 @@ const LearnerLogin: React.FC = () => {
         spacing={0}
         direction="column"
         alignItems="center"
-        justify="center"
+        justifyContent="center"
         style={{ minHeight: '100vh' }}
       >
         <Grid item xs={10}>
-          <LoginForm isTeacher={false} />
+          <LoginForm userType={UserType.Learner} />
         </Grid>
       </Grid>
     </>

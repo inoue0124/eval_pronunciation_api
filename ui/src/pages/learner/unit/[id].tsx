@@ -12,6 +12,7 @@ import {
   Theme,
   Typography,
   LinearProgress,
+  CircularProgress,
 } from '@material-ui/core'
 import ApiClient from '../../../api'
 import { Unit } from '../../../types/Unit'
@@ -65,18 +66,17 @@ const UnitDetail: NextPage = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [isRecorded, setIsRecorded] = useState<boolean>(false)
   const [isShowText, setIsShowText] = useState<boolean>(false)
+  const [isCaluculatingScore, setIsCalculatingScore] = useState<boolean>(false)
   const [speechIndex, setSpeechIndex] = useState<number>(0)
   const [audioBlob, setAudioBlob] = useState<Blob>()
-  const [gop, setGop] = useState<string>()
-  const [dtw, setDtw] = useState<string>()
+  const [gop, setGop] = useState<number>()
+  const [dtw, setDtw] = useState<number>()
   const teacherWavRef = useRef<any>(null)
   const learnerWavRef = useRef<any>(null)
   const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
     audio: true,
     onStop: (_: string, blob: Blob) => {
       setAudioBlob(blob)
-      calculateGop(blob)
-      calculateDtw(blob)
     },
   })
   const prevMediaBlobUrl = usePrevious(mediaBlobUrl)
@@ -126,10 +126,24 @@ const UnitDetail: NextPage = () => {
   const onClickShowText = () => {
     setIsShowText(!isShowText)
   }
+  const onClickStartScoring = () => {
+    if (audioBlob !== undefined) {
+      calculateGop(audioBlob)
+      calculateDtw(audioBlob)
+      setIsCalculatingScore(true)
+    }
+  }
   const onClickNext = async () => {
     // 音声アップロード
-    if (unit !== undefined && audioBlob !== undefined) {
-      await api.registerLearnerSpeech(unit.id, unit.teacher_id, isRepeating ? 1 : 2, audioBlob)
+    if (unit !== undefined && audioBlob !== undefined && gop !== undefined && dtw !== undefined) {
+      await api.registerLearnerSpeech(
+        unit.id,
+        unit.teacher_speeches[speechIndex].id,
+        isRepeating ? 1 : 2,
+        audioBlob,
+        gop,
+        dtw,
+      )
     }
     // 最後の課題の場合は終了画面へ
     if (speechIndex + 1 === unit?.teacher_speeches.length) {
@@ -161,8 +175,8 @@ const UnitDetail: NextPage = () => {
   const calculateGop = (blob: Blob) => {
     api
       .calculateGop(unit!.teacher_speeches[speechIndex].text, blob)
-      .then((gop) => setGop((Math.round(gop.frame_based_mean * 100) / 100).toString())) // 少数第２位で表示するための計算
-      .catch(() => setGop('エラー'))
+      .then((gop) => setGop(Math.round(gop.frame_based_mean * 100) / 100)) // 少数第２位で表示するための計算
+      .catch(() => setGop(0))
   }
 
   const calculateDtw = (blob: Blob) => {
@@ -176,10 +190,13 @@ const UnitDetail: NextPage = () => {
       .then((response: any) => {
         api
           .calculateDtw(new Blob([response.data]), blob)
-          .then((dtw) => setDtw((Math.round(dtw.frame_based_mean * 100) / 100).toString())) // 少数第２位で表示するための計算
-          .catch(() => setDtw('エラー'))
+          .then((dtw) => {
+            setDtw(Math.round(dtw.frame_based_mean * 100) / 100) // 少数第２位で表示するための計算
+            setIsCalculatingScore(false)
+          })
+          .catch(() => setDtw(0))
       })
-      .catch(() => setDtw('エラー'))
+      .catch(() => setDtw(0))
   }
 
   return (
@@ -198,7 +215,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickStartRepeating}
               disableElevation
-              disabled={isRecording || isPlaying}
+              disabled={isRecording || isPlaying || isCaluculatingScore}
             >
               リピーティング開始
             </Button>
@@ -208,7 +225,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickStartShadowing}
               disableElevation
-              disabled={isRecording || isPlaying}
+              disabled={isRecording || isPlaying || isCaluculatingScore}
             >
               シャドーイング開始
             </Button>
@@ -228,6 +245,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickShowText}
               disableElevation
+              disabled={isRecording}
             >
               テキスト表示
             </Button>
@@ -235,9 +253,20 @@ const UnitDetail: NextPage = () => {
               className={classes.toolbarButton}
               variant="contained"
               color="primary"
+              onClick={onClickStartScoring}
+              disableElevation
+              disabled={isRecording || !isRecorded || isCaluculatingScore}
+            >
+              {isCaluculatingScore && <CircularProgress size={20} style={{ marginRight: 10 }} />}
+              {isCaluculatingScore ? 'スコア計算中' : 'スコア計算'}
+            </Button>
+            <Button
+              className={classes.toolbarButton}
+              variant="contained"
+              color="primary"
               onClick={onClickNext}
               disableElevation
-              disabled={isRecording || !isRecorded}
+              disabled={isRecording || !isRecorded || isCaluculatingScore}
             >
               次の課題へ
             </Button>
@@ -261,6 +290,8 @@ const UnitDetail: NextPage = () => {
                       setIsPlaying(false)
                       startRecording()
                       setIsRecording(true)
+                      setGop(undefined)
+                      setDtw(undefined)
                     }
                   : () => {
                       stopRecording()

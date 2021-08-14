@@ -50,6 +50,21 @@ export default class ApiClient {
     return res.data
   }
 
+  // GET /teachers
+  async searchTeachers(searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers`
+    let res: AxiosResponse<SearchResponse<Teacher>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
   // POST /teachers
   async registerTeacher(name: string, gender: number, birthDate: string, birthPlace: string) {
     const endpoint: string = `/teachers`
@@ -62,9 +77,22 @@ export default class ApiClient {
     return res.data
   }
 
-  // GET /teachers/${teacher_id}/teacher-speeches
-  async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
-    const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
+  // GET /teachers/{teacher_id}
+  async getTeacherById(teacherId: number) {
+    const endpoint: string = `/teachers/${teacherId}`
+    let res: AxiosResponse<Teacher>
+    try {
+      res = await this.client.get(endpoint)
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /teacher-speeches
+  async searchTeacherSpeeches(searchRequest: SearchRequest) {
+    const endpoint: string = `/teacher-speeches`
     let res: AxiosResponse<SearchResponse<TeacherSpeech>>
     try {
       res = await this.client.get(endpoint, {
@@ -97,6 +125,49 @@ export default class ApiClient {
     }
   }
 
+  // GET /teachers/${teacher_id}/teacher-speeches
+  async searchTeacherSpeechesByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacher_id}/teacher-speeches`
+    let res: AxiosResponse<SearchResponse<TeacherSpeech>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // POST /teacher-speeches/archive
+  async downloadTeacherSpeeches(speechIds: number[]) {
+    const endpoint: string = `/teacher-speeches/archive`
+    const res: AxiosResponse<ArrayBuffer> = await this.client.post(
+      endpoint,
+      {
+        teacher_speech_ids: speechIds,
+      },
+      { responseType: 'arraybuffer' },
+    )
+    return res.data
+  }
+
+  // GET /units
+  async searchUnits(searchRequest: SearchRequest) {
+    const endpoint: string = `/units`
+    let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
   // POST /units
   async registerUnit(name: string, speechIds: number[]) {
     const endpoint: string = `/units`
@@ -121,9 +192,24 @@ export default class ApiClient {
   }
 
   // GET /teachers/${teacher_id}/units
-  async searchUnitsByTeacherID(teacher_id: number, searchRequest: SearchRequest) {
-    const endpoint: string = `/teachers/${teacher_id}/units`
+  async searchUnitsByTeacherID(teacherId: number, searchRequest: SearchRequest) {
+    const endpoint: string = `/teachers/${teacherId}/units`
     let res: AxiosResponse<SearchResponse<Unit>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // GET /learners
+  async searchLearners(searchRequest: SearchRequest) {
+    const endpoint: string = `/learners`
+    let res: AxiosResponse<SearchResponse<Learner>>
     try {
       res = await this.client.get(endpoint, {
         params: searchRequest,
@@ -184,14 +270,38 @@ export default class ApiClient {
     }
   }
 
-  // POST /teacher-speeches
-  async registerLearnerSpeech(unitId: number, teacherSpeechId: number, type: number, speech: Blob) {
+  // GET /learner-speeches
+  async searchLearnerSpeeches(searchRequest: SearchRequest) {
+    const endpoint: string = `/learner-speeches`
+    let res: AxiosResponse<SearchResponse<LearnerSpeech>>
+    try {
+      res = await this.client.get(endpoint, {
+        params: searchRequest,
+      })
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // POST /learner-speeches
+  async registerLearnerSpeech(
+    unitId: number,
+    teacherSpeechId: number,
+    type: number,
+    speech: Blob,
+    gop_average: number,
+    dtw_average: number,
+  ) {
     const endpoint: string = `/learner-speeches`
     const params = new FormData()
     params.append('unit_id', unitId.toString())
     params.append('teacher_speech_id', teacherSpeechId.toString())
     params.append('type', type.toString())
     params.append('speech', speech)
+    params.append('gop_average', gop_average.toString())
+    params.append('dtw_average', dtw_average.toString())
     let res: AxiosResponse<LearnerSpeech>
     try {
       res = await this.client.post(endpoint, params, {
@@ -219,6 +329,32 @@ export default class ApiClient {
       alert(e)
       return
     }
+  }
+
+  // GET /learner-speeches/{learner_speech_id}
+  async getLearnerSpeecheById(learnerSpeechId: number) {
+    const endpoint: string = `/learner-speeches/${learnerSpeechId}`
+    let res: AxiosResponse<LearnerSpeech>
+    try {
+      res = await this.client.get(endpoint)
+      return res.data
+    } catch (e) {
+      alert(e)
+      return
+    }
+  }
+
+  // POST /learner-speeches/archive
+  async downloadLearnerSpeeches(speechIds: number[]) {
+    const endpoint: string = `/learner-speeches/archive`
+    const res: AxiosResponse<ArrayBuffer> = await this.client.post(
+      endpoint,
+      {
+        learner_speech_ids: speechIds,
+      },
+      { responseType: 'arraybuffer' },
+    )
+    return res.data
   }
 
   // POST /scores/gop

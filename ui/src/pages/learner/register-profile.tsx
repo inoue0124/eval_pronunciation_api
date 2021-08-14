@@ -9,7 +9,7 @@ const LearnerRegisterProfile: React.FC = () => {
         spacing={0}
         direction="column"
         alignItems="center"
-        justify="center"
+        justifyContent="center"
         style={{ minHeight: '100vh' }}
       >
         <Grid item sm={8} md={6} lg={4}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -54,6 +54,17 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const type = isTeacher ? 1 : 2
+
+  useEffect(() => {
+    if (router.isReady) {
+      ;(async function () {
+        if (!isTeacher && (router.query.unit === 'NaN' || router.query.ti === 'NaN')) {
+          alert('urlが正しくありません！')
+          router.push('/')
+        }
+      })()
+    }
+  }, [router.query])
 
   const handleRegister = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()

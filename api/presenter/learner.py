@@ -1,3 +1,5 @@
+from api.util.config import USER_TYPE_ADMIN
+from api.domain.entity.user import User
 from api.presenter.request import get_current_uid
 from datetime import date
 from typing import Optional
@@ -65,7 +67,8 @@ async def search_by_teacher_id(teacher_id: int,
                                current_uid=Depends(get_current_uid)):
 
     # 自分のteacher_id以外だったらエラー
-    if teacher_id != current_uid:
+    user: User = repository.User().get_by_id(user_id=current_uid)
+    if teacher_id != current_uid and user.type != USER_TYPE_ADMIN:
         raise AuthError
 
     try:
@@ -91,7 +94,8 @@ async def get_by_id(learner_id: int,
         raise e
 
     # 自分のteacher_idかuser_id以外だったらエラー
-    if learner.teacher_id != current_uid and learner.user_id != current_uid:
+    user: User = repository.User().get_by_id(user_id=current_uid)
+    if learner.teacher_id != current_uid and learner.user_id != current_uid and user.type != USER_TYPE_ADMIN:
         raise AuthError
 
     return learner

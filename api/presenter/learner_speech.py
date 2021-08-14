@@ -1,5 +1,6 @@
+from api.domain.entity.user import User
 import os, shutil, ffmpeg
-from api.util.config import TMP_DOWNLOAD_DIR
+from api.util.config import TMP_DOWNLOAD_DIR, USER_TYPE_ADMIN
 from pydantic.main import BaseModel
 from typing import Optional
 from api.domain.entity.learner_speech import LearnerSpeech
@@ -69,6 +70,8 @@ async def register(unit_id: int = Form(...),
                    teacher_speech_id: int = Form(...),
                    type: int = Form(...),
                    speech: UploadFile = File(...),
+                   gop_average: float = Form(...),
+                   dtw_average: float = Form(...),
                    repository: Repository = Depends(RepositoryFactory.create),
                    current_uid=Depends(get_current_uid)):
 
@@ -76,7 +79,9 @@ async def register(unit_id: int = Form(...),
         learner_id=current_uid,
         unit_id=unit_id,
         teacher_speech_id=teacher_speech_id,
-        type=type)
+        type=type,
+        gop_average=gop_average if gop_average != 0 else None,
+        dtw_average=dtw_average if dtw_average != 0 else None)
     try:
         learner_speech = repository.LearnerSpeech().create(
             learner_speech=learner_speech, speech=speech)
@@ -113,7 +118,7 @@ async def search_by_learner_id(learner_id: int,
                                    RepositoryFactory.create),
                                current_uid=Depends(get_current_uid)):
 
-    # 自分のlearner_id or teacher_id以外だったらエラー TODO:バリデーション
+    # 自分のlearner_id or teacher_id以外だったらエラー
     learner: Learner = repository.Learner().get_by_id(learner_id=learner_id)
     if learner.user_id != current_uid and learner.teacher_id != current_uid:
         raise AuthError
@@ -141,8 +146,9 @@ async def get_by_id(learner_speech_id: int,
     except Exception as e:
         raise e
 
-    # 自分のlearner_id以外だったらエラー TODO:バリデーション
-    if learner_speech.learner_id != current_uid:
+    # 自分のlearner_id以外だったらエラー
+    learner: Learner = repository.Learner().get_by_id(learner_id=learner_speech.learner_id)
+    if learner.user_id != current_uid and learner.teacher_id != current_uid:
         raise AuthError
 
     return learner_speech
@@ -164,8 +170,9 @@ async def download(downloadLearnerSpeechRequest: DownloadLearnerSpeechRequest,
         raise e
 
     # 一つずつ権限のチェック
+    user: User = repository.User().get_by_id(user_id=current_uid)
     for learner_speech in learner_speechs:
-        if learner_speech.learner_id != current_uid:
+        if learner_speech.learner_id != current_uid and user.type != USER_TYPE_ADMIN:
             raise AuthError
 
     # 並列でアーカイブの処理をしていく
@@ -178,7 +185,7 @@ async def download(downloadLearnerSpeechRequest: DownloadLearnerSpeechRequest,
             dest_file = download_dir + '/' + learner_speech.object_key.split(
                 '/')[-1]
             future = executor.submit(repository.File().download,
-                                     object_key=learner_speech.object_key,
+                                     object_key='/'.join(learner_speech.object_key.split('/')[-2:]),
                                      dest_file=dest_file)
             future_list.append(future)
 

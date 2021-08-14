@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from 'react'
+import Link from '@material-ui/core/Link'
 import { useRouter } from 'next/router'
 import Box from '@material-ui/core/Box'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -18,15 +19,20 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePagination from '@material-ui/core/TablePagination'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import ApiClient from '../../../api'
-import { Learner } from '../../../types/Learner'
-import { SearchRequest } from '../../../types/SearchRequest'
-import { getCookie } from '../../../util/cookie'
+import ApiClient from '../../api'
+import { SearchRequest } from '../../types/SearchRequest'
+import { Unit } from '../../types/Unit'
+import { getCookie } from '../../util/cookie'
 
-export const LearnerListTable: React.FC = () => {
+type Props = {
+  isAdmin: boolean
+  teacherId?: number
+}
+
+export const UnitListTable: React.FC<Props> = ({ isAdmin, teacherId }) => {
   const api = new ApiClient()
   const router = useRouter()
-  const [data, setData] = useState<Learner[]>([])
+  const [data, setData] = useState<Unit[]>([])
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
   const [count, setCount] = useState<number>(0)
@@ -41,7 +47,11 @@ export const LearnerListTable: React.FC = () => {
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = await api.searchLearnersByTeacherID(user.id, searchRequest)
+      const res = isAdmin
+        ? teacherId
+          ? await api.searchUnitsByTeacherID(teacherId, searchRequest)
+          : await api.searchUnits(searchRequest)
+        : await api.searchUnitsByTeacherID(user.id, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -52,7 +62,7 @@ export const LearnerListTable: React.FC = () => {
     setSearchQuery(event.target.value)
   }
   const handleClickRow = (learner_id: number) => {
-    router.push(`/teacher/learner/${learner_id}`)
+    router.push(isAdmin ? `/admin/unit/${learner_id}` : `/teacher/unit/${learner_id}`)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -65,10 +75,10 @@ export const LearnerListTable: React.FC = () => {
   return (
     <Paper>
       <Toolbar>
-        <Grid container direction="row" justify="space-between" alignItems="center">
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Box mr={2}>
             <Typography variant="h6" id="tableTitle" component="div">
-              学習者一覧
+              課題一覧
             </Typography>
           </Box>
           <TextField
@@ -99,30 +109,35 @@ export const LearnerListTable: React.FC = () => {
                     setIsAsc(!isAsc)
                   }}
                 >
-                  学習者ID
+                  課題ID
                 </TableSortLabel>
               </TableCell>
-              <TableCell>教師ID</TableCell>
-              <TableCell>名前</TableCell>
-              <TableCell>性別</TableCell>
-              <TableCell>年齢</TableCell>
-              <TableCell>出身地</TableCell>
-              <TableCell>学習年数</TableCell>
+              {isAdmin && <TableCell>教師ID</TableCell>}
+              <TableCell>課題名</TableCell>
+              <TableCell>音声ID一覧</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((d) => (
-              <TableRow key={d.user_id} onClick={() => handleClickRow(d.user_id)} hover={true}>
+              <TableRow key={`unit_${d.id}`} onClick={() => handleClickRow(d.id)} hover={true}>
                 <TableCell component="th" scope="row">
-                  {d.user_id}
+                  {d.id}
                 </TableCell>
-                <TableCell>{d.teacher_id}</TableCell>
+                {isAdmin && (
+                  <TableCell>
+                    <Link href={`/admin/teacher/${d.teacher_id}`}>{d.teacher_id}</Link>
+                  </TableCell>
+                )}
                 <TableCell>{d.name}</TableCell>
-                <TableCell>{d.gender}</TableCell>
-                <TableCell>{d.birth_date}</TableCell>
-                <TableCell>{d.birth_place}</TableCell>
-                <TableCell>{d.year_of_learning}</TableCell>
+                <TableCell>
+                  {d.teacher_speeches.map((ts) => (
+                    <>
+                      {ts.id}
+                      <span> </span>
+                    </>
+                  ))}
+                </TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
