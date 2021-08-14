@@ -1,3 +1,4 @@
+from api.util.config import USER_TYPE_ADMIN
 from api.domain.entity.user import User
 from api.domain.entity.unit import Unit
 from datetime import date
@@ -64,7 +65,7 @@ async def get_by_id(teacher_id: int,
 
     # 自分のteacher_idかuser_id以外だったらエラー
     user: User = repository.User().get_by_id(user_id=current_uid)
-    if teacher.user_id != current_uid and user.type != 0:
+    if teacher.user_id != current_uid and user.type != USER_TYPE_ADMIN:
         raise AuthError
 
     return teacher

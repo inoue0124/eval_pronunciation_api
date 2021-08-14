@@ -1,6 +1,6 @@
 from api.domain.entity.user import User
 import os, shutil, ffmpeg
-from api.util.config import TMP_DOWNLOAD_DIR
+from api.util.config import TMP_DOWNLOAD_DIR, USER_TYPE_ADMIN
 from pydantic.main import BaseModel
 from typing import Optional
 from api.domain.entity.learner_speech import LearnerSpeech
@@ -172,7 +172,7 @@ async def download(downloadLearnerSpeechRequest: DownloadLearnerSpeechRequest,
     # 一つずつ権限のチェック
     user: User = repository.User().get_by_id(user_id=current_uid)
     for learner_speech in learner_speechs:
-        if learner_speech.learner_id != current_uid and user.type != 0:
+        if learner_speech.learner_id != current_uid and user.type != USER_TYPE_ADMIN:
             raise AuthError
 
     # 並列でアーカイブの処理をしていく

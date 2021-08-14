@@ -1,3 +1,4 @@
+from api.util.config import USER_TYPE_LEARNER, USER_TYPE_TEACHER
 from api.domain.entity.user import User
 from api.presenter.request import get_current_uid
 from typing import Optional
@@ -86,10 +87,10 @@ async def get_by_id(unit_id: int,
 
     # 教師ユーザの場合自分のユニットかどうか、学習者ユーザの場合は自分の教師のユニットかどうかチェック
     user: User = repository.User().get_by_id(user_id=current_uid)
-    if user.type == 1:
+    if user.type == USER_TYPE_TEACHER:
         if unit.teacher_id != current_uid:
             raise AuthError
-    if user.type == 2:
+    if user.type == USER_TYPE_LEARNER:
         learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
         if unit.teacher_id != learner.teacher_id:
             raise AuthError
@@ -108,9 +109,13 @@ async def search_by_teacher_id(teacher_id: int,
 
     # 自分のteacher_id以外だったらエラー
     user: User = repository.User().get_by_id(user_id=current_uid)
-    learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
-    if teacher_id != current_uid and teacher_id != learner.teacher_id and user.type != 0:
-        raise AuthError
+    if user.type == USER_TYPE_TEACHER:
+        if teacher_id != current_uid:
+          raise AuthError
+    if user.type == USER_TYPE_LEARNER:
+        learner: Learner = repository.Learner().get_by_id(learner_id=current_uid)
+        if teacher_id != learner.teacher_id:
+            raise AuthError
 
     try:
         units, count = repository.Unit().search(page=page,

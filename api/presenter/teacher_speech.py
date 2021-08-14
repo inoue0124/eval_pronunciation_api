@@ -4,7 +4,7 @@ import os
 import shutil
 
 from starlette.responses import StreamingResponse
-from api.util.config import TMP_DOWNLOAD_DIR
+from api.util.config import TMP_DOWNLOAD_DIR, USER_TYPE_ADMIN
 from typing import Optional
 
 from pydantic.main import BaseModel
@@ -99,7 +99,7 @@ async def download(downloadTeacherSpeechRequest: DownloadTeacherSpeechRequest,
     # 一つずつ権限のチェック
     user: User = repository.User().get_by_id(user_id=current_uid)
     for teacher_speech in teacher_speechs:
-        if teacher_speech.teacher_id != current_uid and user.type != 0:
+        if teacher_speech.teacher_id != current_uid and user.type != USER_TYPE_ADMIN:
             raise AuthError
 
     # 並列でアーカイブの処理をしていく
