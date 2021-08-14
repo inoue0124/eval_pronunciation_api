@@ -24,14 +24,15 @@ import { LearnerSpeech } from '../../types/LearnerSpeech'
 import { Button, Checkbox, CircularProgress, Link } from '@material-ui/core'
 import { useRecoilState } from 'recoil'
 import { selectedLearnerSpeechIdsState } from '../../states/learnerSpeech/selectedLearnerSpeechIdsState'
+import { UserType } from '../../types/UserType'
 
 type Props = {
-  isAdmin: boolean
+  userType: UserType
   learnerId?: number
   speeches?: LearnerSpeech[]
 }
 
-export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, speeches }) => {
+export const LearnerSpeechListTable: React.FC<Props> = ({ userType, learnerId, speeches }) => {
   const api = new ApiClient()
   const router = useRouter()
   const [data, setData] = useState<LearnerSpeech[]>([])
@@ -49,16 +50,17 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
   // 学習者音声リストが渡された場合はAPIを叩きに行かない
   const fetchData = async () => {
     if (speeches === undefined) {
-      if (!isAdmin && learnerId === undefined) return
+      if (userType !== UserType.Admin && learnerId === undefined) return
       const searchRequest: SearchRequest = {
         page: page + 1,
         limit: rowsPerPage,
         search_query: searchQuery,
         is_asc: isAsc,
       }
-      const res = isAdmin
-        ? await api.searchLearnerSpeeches(searchRequest)
-        : await api.searchLearnerSpeechesByLearnerID(learnerId!, searchRequest)
+      const res =
+        userType === UserType.Admin
+          ? await api.searchLearnerSpeeches(searchRequest)
+          : await api.searchLearnerSpeechesByLearnerID(learnerId!, searchRequest)
       if (res != undefined) {
         setData(res.data)
         setCount(res.count)
@@ -92,9 +94,19 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
     setSearchQuery(event.target.value)
   }
   const handleClickRow = (speech_id: number) => {
-    router.push(
-      isAdmin ? `/admin/learner-speech/${speech_id}` : `/teacher/learner/speech/${speech_id}`,
-    )
+    let redirectUrl
+    switch (userType) {
+      case UserType.Admin:
+        redirectUrl = `/admin/learner-speech/${speech_id}`
+        break
+      case UserType.Teacher:
+        redirectUrl = `/teacher/learner/speech/${speech_id}`
+        break
+      case UserType.Learner:
+        redirectUrl = `/learner/speech/${speech_id}`
+        break
+    }
+    router.push(redirectUrl)
   }
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage)
@@ -146,7 +158,7 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
               style={{ marginLeft: 20 }}
             >
               {isDownloading && <CircularProgress size={20} style={{ marginRight: 10 }} />}
-              選択音声をダウンロード
+              {speeches === undefined ? '選択音声をダウンロード' : '音声一括ダウンロード'}
             </Button>
           </Box>
           {speeches === undefined && (
@@ -214,20 +226,34 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
                   {d.id}
                 </TableCell>
                 <TableCell onClick={() => handleClickRow(d.id)}>
-                  <Link
-                    href={
-                      isAdmin
-                        ? `/admin/learner/${d.learner_id}`
-                        : `/teacher/learner/${d.learner_id}`
-                    }
-                  >
-                    {d.learner_id}
-                  </Link>
+                  {userType === UserType.Learner ? (
+                    d.learner_id
+                  ) : (
+                    <Link
+                      href={
+                        userType === UserType.Admin
+                          ? `/admin/learner/${d.learner_id}`
+                          : `/teacher/learner/${d.learner_id}`
+                      }
+                    >
+                      {d.learner_id}
+                    </Link>
+                  )}
                 </TableCell>
                 <TableCell onClick={() => handleClickRow(d.id)}>
-                  <Link href={isAdmin ? `/admin/unit/${d.unit_id}` : `/teacher/unit/${d.unit_id}`}>
-                    {d.unit_id}
-                  </Link>
+                  {userType === UserType.Learner ? (
+                    d.unit_id
+                  ) : (
+                    <Link
+                      href={
+                        userType === UserType.Admin
+                          ? `/admin/unit/${d.unit_id}`
+                          : `/teacher/unit/${d.unit_id}`
+                      }
+                    >
+                      {d.unit_id}
+                    </Link>
+                  )}
                 </TableCell>
                 <TableCell onClick={() => handleClickRow(d.id)}>{d.teacher_speech_id}</TableCell>
                 <TableCell onClick={() => handleClickRow(d.id)}>{d.type}</TableCell>

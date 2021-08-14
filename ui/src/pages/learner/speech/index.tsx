@@ -1,6 +1,5 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react'
-import { SideMenu } from '../../../layout/admin'
 import { useRouter } from 'next/router'
 import {
   Breadcrumbs,
@@ -15,10 +14,14 @@ import {
 import { LearnerSpeechListTable } from '../../../components/learner/LearnerSpeechListTable'
 import { Learner } from '../../../types/Learner'
 import ApiClient from '../../../api'
+import { getCookie } from '../../../util/cookie'
 import { UserType } from '../../../types/UserType'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    root: {
+      padding: theme.spacing(2),
+    },
     card: {
       marginTop: theme.spacing(1),
       marginBottom: theme.spacing(2),
@@ -30,13 +33,18 @@ const LearnerDetail: React.FC = () => {
   const api = new ApiClient()
   const classes = useStyles()
   const router = useRouter()
-  const learnerId = Number(router.query.id)
   const [learner, setLearner] = useState<Learner>()
   useEffect(() => {
     if (router.isReady) {
+      const logged_user = getCookie().logged_user
+      // 未ログインの場合はログインページへ遷移
+      if (!logged_user) {
+        router.push(`/learner/login`)
+        return
+      }
       ;(async function () {
         try {
-          const learner = await api.getLearnerById(learnerId)
+          const learner = await api.getLearnerById(JSON.parse(logged_user).id)
           if (learner != undefined) {
             setLearner(learner)
           }
@@ -48,14 +56,12 @@ const LearnerDetail: React.FC = () => {
   }, [setLearner, router.query])
 
   return (
-    <SideMenu>
+    <div className={classes.root}>
       <Breadcrumbs aria-label="breadcrumb">
-        <Link color="inherit" href="/admin/learner">
-          学習者一覧
+        <Link color="inherit" href="/learner/unit/list">
+          ← 課題一覧へ戻る
         </Link>
-        <Typography color="textPrimary">学習者ID:{learnerId}</Typography>
       </Breadcrumbs>
-
       {learner && (
         <Card className={classes.card}>
           <CardContent>
@@ -67,6 +73,12 @@ const LearnerDetail: React.FC = () => {
             <Typography color="textPrimary">出身地：{learner.birth_place}</Typography>
             <Typography color="textPrimary">学習年数：{learner.year_of_learning}</Typography>
             <Typography color="textPrimary">
+              GOP平均：{learner.gop_average ? Math.round(learner.gop_average * 100) / 100 : '-'}
+            </Typography>
+            <Typography color="textPrimary">
+              DTW平均：{learner.dtw_average ? Math.round(learner.dtw_average * 100) / 100 : '-'}
+            </Typography>
+            <Typography color="textPrimary">
               作成日時：{new Date(learner.created_at).toLocaleString()}
             </Typography>
           </CardContent>
@@ -75,12 +87,12 @@ const LearnerDetail: React.FC = () => {
 
       {router.isReady && learner && (
         <LearnerSpeechListTable
-          userType={UserType.Admin}
-          learnerId={learnerId}
+          userType={UserType.Learner}
+          learnerId={learner.user_id}
           speeches={learner.speeches}
         />
       )}
-    </SideMenu>
+    </div>
   )
 }
 
