@@ -123,6 +123,7 @@ const SpeechDetail: NextPage = () => {
                 onFinishPlaying={() => {
                   setIsPlaying(false)
                 }}
+                pitchDataProp={JSON.parse(teacherSpeech.pitch_seq)}
               />
             </Card>
           )}
@@ -136,6 +137,8 @@ const SpeechDetail: NextPage = () => {
               isShowScore={true}
               gop={learnerSpeech.gop_average}
               dtw={learnerSpeech.dtw_average}
+              gopSeq={JSON.parse(learnerSpeech.gop_seq)}
+              pitchDataProp={JSON.parse(learnerSpeech.pitch_seq)}
             />
           </Card>
         </>

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { TeacherSpeechListTable } from '../../../components/speech/TeacherSpeechListTable'
-import { AddSpeechModal } from '../../../components/speech/AddSpeechModal'
+import dynamic from 'next/dynamic'
+const AddSpeechModal = dynamic<any>(
+  () =>
+    import('../../../components/speech/AddSpeechModal').then((modules) => modules.AddSpeechModal),
+  { ssr: false },
+)
 import { SideMenu } from '../../../layout/teacher'
 import { getCookie } from '../../../util/cookie'
 import { User } from '../../../types/User'

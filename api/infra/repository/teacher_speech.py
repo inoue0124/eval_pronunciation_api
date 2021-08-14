@@ -21,6 +21,7 @@ class TeacherSpeechRepository:
         teacher_speech_table = TeacherSpeechTable()
         teacher_speech_table.teacher_id = teacher_speech.teacher_id
         teacher_speech_table.text = teacher_speech.text
+        teacher_speech_table.pitch_seq = teacher_speech.pitch_seq
 
         # idを得るためにテーブルモデルを一旦保存
         self.db.add(teacher_speech_table)

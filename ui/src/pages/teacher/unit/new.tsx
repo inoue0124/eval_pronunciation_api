@@ -4,7 +4,12 @@ import { TeacherSpeechListTable } from '../../../components/speech/TeacherSpeech
 import { Button, Typography, TextField, makeStyles, Theme, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { SideMenu } from '../../../layout/teacher'
-import { AddSpeechModal } from '../../../components/speech/AddSpeechModal'
+import dynamic from 'next/dynamic'
+const AddSpeechModal = dynamic<any>(
+  () =>
+    import('../../../components/speech/AddSpeechModal').then((modules) => modules.AddSpeechModal),
+  { ssr: false },
+)
 import ApiClient from '../../../api'
 import { selectedSpeechIdsState } from '../../../states/addUnit/selectedSpeechIdsState'
 import { useRecoilState } from 'recoil'

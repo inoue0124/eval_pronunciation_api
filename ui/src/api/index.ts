@@ -100,11 +100,12 @@ export default class ApiClient {
   }
 
   // POST /teacher-speeches
-  async registerTeacherSpeech(text: string, speech: File) {
+  async registerTeacherSpeech(text: string, speech: File, pitch_seq: string) {
     const endpoint: string = `/teacher-speeches`
     const params = new FormData()
     params.append('text', text)
     params.append('speech', speech)
+    params.append('pitch_seq', pitch_seq)
     let res: AxiosResponse<TeacherSpeech>
     try {
       res = await this.client.post(endpoint, params, {
@@ -281,6 +282,8 @@ export default class ApiClient {
     speech: Blob,
     gop_average: number,
     dtw_average: number,
+    gop_seq: string,
+    pitch_seq: string,
   ) {
     const endpoint: string = `/learner-speeches`
     const params = new FormData()
@@ -290,6 +293,8 @@ export default class ApiClient {
     params.append('speech', speech, 'speech.webm')
     params.append('gop_average', gop_average.toString())
     params.append('dtw_average', dtw_average.toString())
+    params.append('gop_seq', gop_seq)
+    params.append('pitch_seq', pitch_seq)
     let res: AxiosResponse<LearnerSpeech>
     try {
       res = await this.client.post(endpoint, params, {

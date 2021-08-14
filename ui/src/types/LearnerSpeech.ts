@@ -6,8 +6,8 @@ export interface LearnerSpeech {
   type: number
   object_key: string
   gop_average: number
-  gop_file_key: string
   dtw_average: number
-  dtw_file_key: string
+  gop_seq: string
+  pitch_seq: string
   created_at: string
 }
