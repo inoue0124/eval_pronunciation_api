@@ -71,6 +71,7 @@ const UnitDetail: NextPage = () => {
   const [speechIndex, setSpeechIndex] = useState<number>(0)
   const [audioBlob, setAudioBlob] = useState<Blob>()
   const [gop, setGop] = useState<number>()
+  const [gopSeq, setGopSeq] = useState<number[]>()
   const [dtw, setDtw] = useState<number>()
   const teacherWavRef = useRef<any>(null)
   const learnerWavRef = useRef<any>(null)
@@ -182,15 +183,19 @@ const UnitDetail: NextPage = () => {
           isShowScore={true}
           gop={gop}
           dtw={dtw}
+          gopSeq={gopSeq}
         />
       </Card>
     )
-  }, [mediaBlobUrl, gop, dtw])
+  }, [mediaBlobUrl, gop, dtw, gopSeq])
 
   const calculateGop = (blob: Blob) => {
     api
       .calculateGop(unit!.teacher_speeches[speechIndex].text, blob)
-      .then((gop) => setGop(Math.round(gop.frame_based_mean * 100) / 100)) // 少数第２位で表示するための計算
+      .then((gop) => {
+        setGop(Math.round(gop.frame_based_mean * 100) / 100) // 少数第２位で表示するための計算
+        setGopSeq(gop.sequence)
+      })
       .catch(() => setGop(0))
   }
 
@@ -327,6 +332,7 @@ const UnitDetail: NextPage = () => {
                 isShowScore={true}
                 gop={gop}
                 dtw={dtw}
+                gopSeq={gopSeq}
               />
             </Card>
           )}

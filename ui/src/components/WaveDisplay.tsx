@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     waveForm: {
       position: 'relative',
-      marginLeft: '35px',
+      marginLeft: '55px',
       marginRight: '10px',
     },
     indicatorWrapper: {
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: theme.spacing(2),
       marginBottom: -theme.spacing(10),
     },
-    pitchWrapper: {
+    graphWrapper: {
       position: 'relative',
       minHeight: '150px',
     },
@@ -50,6 +50,7 @@ type Props = {
   isShowScore: boolean
   gop: number
   dtw: number
+  gopSeq: number[]
 }
 export const WaveDisplay: React.FC<Props> = ({
   isDisableToolbar,
@@ -60,6 +61,7 @@ export const WaveDisplay: React.FC<Props> = ({
   isShowScore,
   gop,
   dtw,
+  gopSeq,
 }) => {
   const classes = useStyles()
   const wavesurfer = useRef<WaveSurfer | null>(null)
@@ -67,6 +69,8 @@ export const WaveDisplay: React.FC<Props> = ({
   const workerRef = useRef<Worker>()
   const [graphData, setGraphData] = useState<any>(undefined)
   const [graphOptions, setGraphOptions] = useState<any>(undefined)
+  const [gopSeqGraphData, setGopSeqGraphData] = useState<any>(undefined)
+  const [gopSeqGraphOptions, setGopSeqGraphOptions] = useState<any>(undefined)
   let pitchData: Data[] = []
   const FXRATE = 200
   const audioContext = new AudioContext()
@@ -110,45 +114,57 @@ export const WaveDisplay: React.FC<Props> = ({
               filt.sample(fsignal[3 * i + 1])
               ffsignal[i] = filt.sample(fsignal[3 * i + 2])
             }
-            // setGraphData({
-            //   datasets: [
-            //     {
-            //       data: [
-            //         {
-            //           x: -10,
-            //           y: 0,
-            //         },
-            //         {
-            //           x: 0,
-            //           y: 200,
-            //         },
-            //         {
-            //           x: 10,
-            //           y: 100,
-            //         },
-            //         {
-            //           x: 0.5,
-            //           y: 150.5,
-            //         },
-            //       ],
-            //       borderColor: 'rgb(75, 192, 192)',
-            //       borderWidth: 1,
-            //     },
-            //   ],
-            // })
-            // setGraphOptions({
-            //   responsive: true,
-            //   maintainAspectRatio: false,
-            //   plugins: {
-            //     legend: {
-            //       display: false,
-            //     },
-            //     tooltip: {
-            //       enabled: false,
-            //     },
-            //   },
-            // })
-            // setIsCalculatingPitch(false)
+            setGraphData({
+              datasets: [
+                {
+                  data: [
+                    {
+                      x: -10,
+                      y: 0,
+                    },
+                    {
+                      x: 0,
+                      y: 200,
+                    },
+                    {
+                      x: 10,
+                      y: 100,
+                    },
+                    {
+                      x: 0.5,
+                      y: 150.5,
+                    },
+                  ],
+                  borderColor: 'rgb(75, 192, 192)',
+                  borderWidth: 1,
+                },
+              ],
+            })
+            setGraphOptions({
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+                tooltip: {
+                  enabled: false,
+                },
+              },
+              scales: {
+                x: {
+                  min: 0,
+                  max: fsignal.length / samplingRate,
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: 'F0 Pitch',
+                  },
+                },
+              },
+            })
+            setIsCalculatingPitch(false)
             // workerスレッドから終了メッセージを受信した際の動作
             workerRef.current!.onmessage = (event) => {
               pitchData = []
@@ -194,6 +210,10 @@ export const WaveDisplay: React.FC<Props> = ({
                     max: fsignal.length / samplingRate,
                   },
                   y: {
+                    title: {
+                      display: true,
+                      text: 'F0 Pitch',
+                    },
                     min: Math.floor(ymin),
                     max: Math.floor(ymax),
                   },
@@ -202,7 +222,7 @@ export const WaveDisplay: React.FC<Props> = ({
               setIsCalculatingPitch(false)
             }
             // workerスレッドを開始
-            workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
+            // workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
           },
           function onFailure() {
             console.log('decode AudioData failed')
@@ -214,6 +234,51 @@ export const WaveDisplay: React.FC<Props> = ({
       workerRef.current!.terminate()
     }
   }, [url])
+
+  // GOPシークエンス表示
+  useEffect(() => {
+    if (gopSeq !== undefined) {
+      const gopData: Data[] = gopSeq.map((gop, index) => ({ x: index, y: gop }))
+      setGopSeqGraphData({
+        datasets: [
+          {
+            data: gopData,
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1,
+          },
+        ],
+      })
+      setGopSeqGraphOptions({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            enabled: false,
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              display: false,
+            },
+            min: 0,
+            max: gopData.length,
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'GOP',
+            },
+            min: 0,
+            max: 1,
+          },
+        },
+      })
+    }
+  }, [gopSeq])
 
   // 音声波形表示
   useEffect(() => {
@@ -263,6 +328,10 @@ export const WaveDisplay: React.FC<Props> = ({
     return <Scatter data={graphData} options={graphOptions} height={30} />
   }, [graphData, graphOptions])
 
+  const GopSeqGraph = useMemo(() => {
+    return <Scatter data={gopSeqGraphData} options={gopSeqGraphOptions} height={30} />
+  }, [gopSeqGraphData, gopSeqGraphOptions])
+
   return (
     <div>
       <Typography color="textPrimary" variant="h6" display="inline">
@@ -299,8 +368,7 @@ export const WaveDisplay: React.FC<Props> = ({
         </div>
       )}
       <div ref={waveformRef} className={classes.waveForm} />
-
-      <div className={classes.pitchWrapper}>
+      <div className={classes.graphWrapper}>
         {isCalculatingPitch ? (
           <div className={classes.indicatorWrapper}>
             <CircularProgress />
@@ -312,6 +380,11 @@ export const WaveDisplay: React.FC<Props> = ({
           PitchGraph
         )}
       </div>
+      {gopSeq && (
+        <div className={classes.graphWrapper} style={{ marginLeft: 3 }}>
+          {GopSeqGraph}
+        </div>
+      )}
     </div>
   )
 }
