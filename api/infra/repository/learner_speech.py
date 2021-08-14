@@ -15,7 +15,7 @@ class LearnerSpeechRepository:
         self.s3_client = s3_client
 
     def create(self, learner_speech: LearnerSpeech,
-               speech: UploadFile) -> LearnerSpeech:
+               speech_path: str) -> LearnerSpeech:
 
         # テーブルモデルを作成
         learner_speech_table = LearnerSpeechTable()
@@ -39,12 +39,13 @@ class LearnerSpeechRepository:
         learner_speech.created_at = learner_speech_table.created_at
 
         # 音声ファイルアップロード
-        obj_key = f'learner_speeches/T{learner_speech.learner_id:05}_{learner_speech.id:05}_{datetime.now():%Y%m%d%H%M%S}.{speech.filename.split(".")[-1]}'
-        response = self.s3_client.upload_fileobj(
-            speech.file,
-            S3_BUCKET_NAME,
-            obj_key,
-            ExtraArgs={'ContentType': speech.content_type,'ACL':'public-read'})
+        with open(speech_path, 'rb') as speech:
+            obj_key = f'learner_speeches/T{learner_speech.learner_id:05}_{learner_speech.id:05}_{datetime.now():%Y%m%d%H%M%S}.{speech.name.split(".")[-1]}'
+            response = self.s3_client.upload_fileobj(
+                speech,
+                S3_BUCKET_NAME,
+                obj_key,
+                ExtraArgs={'ContentType': 'audio/mpeg', 'ACL':'public-read'})
         # アップロードに成功したらobj_keyを設定
         learner_speech.object_key = BUCKET_ENDOPOINT + obj_key
         learner_speech_table.object_key = BUCKET_ENDOPOINT + obj_key

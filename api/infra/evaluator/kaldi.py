@@ -10,13 +10,11 @@ import numpy as np
 class Kaldi:
     def __init__(self, utterance_id: str):
         self.utterance_id = utterance_id
-        self.data_dir = f"/tmp/{utterance_id}/data"
-        self.feats_dir = f"/tmp/{utterance_id}/feats"
+        self.data_dir = f"/{utterance_id}/data"
+        self.feats_dir = f"/{utterance_id}/feats"
         self.model_dir = "/api/infra/evaluator/model"
-        self.score_dir = f"/tmp/{utterance_id}/scores"
         os.makedirs(self.data_dir, exist_ok=True)
         os.makedirs(self.feats_dir, exist_ok=True)
-        os.makedirs(self.score_dir, exist_ok=True)
 
     def softmax(self, x) -> float:
         e_x = np.exp(x - x.max(axis=1).reshape(len(x), 1))
@@ -173,7 +171,7 @@ class Kaldi:
                     return seq, total / cnt
 
     def compute_dtw(self, ref_utterance_id: str) -> float:
-        with iobase.open(f"ark:/tmp/{ref_utterance_id}/feats/posterior.ark",
+        with iobase.open(f"ark:/{ref_utterance_id}/feats/posterior.ark",
                          'r') as ref_post_table:
             with iobase.open(f"ark:{self.feats_dir}/posterior.ark",
                              'r') as trg_post_table:
