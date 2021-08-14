@@ -8,6 +8,7 @@ class TeacherSpeechConverter:
         return TeacherSpeech(id=teacher_speech_table.id,
                              teacher_id=teacher_speech_table.teacher_id,
                              text=teacher_speech_table.text,
+                             pitch_seq=teacher_speech_table.pitch_seq,
                              object_key=teacher_speech_table.object_key,
                              created_at=teacher_speech_table.created_at)
 

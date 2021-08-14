@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ApiClient from '../../api'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
-import { Button, Tab, Tabs } from '@material-ui/core'
+import { Button, Tab, Tabs, CircularProgress } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
@@ -14,6 +14,7 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import StopIcon from '@material-ui/icons/Stop'
 import MicIcon from '@material-ui/icons/Mic'
 import { useReactMediaRecorder } from 'react-media-recorder'
+import { Filter } from '../../util/Filter'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,6 +46,13 @@ export const AddSpeechModal: React.FC = () => {
   const [isRecording, setIsRecording] = useState<boolean>(false)
   const [blobUrl, setBlobUrl] = useState<string>()
   const [tabIndex, setTabIndex] = useState<number>(0)
+  const [pitchData, setPitchData] = useState<string>()
+  const [isCalculatedPitch, setIsCalculatedPitch] = useState<boolean>(false)
+  const [isCalculatingPitch, setIsCalculatingPitch] = useState<boolean>(false)
+  const audioContext = new AudioContext()
+  const samplingRate = audioContext.sampleRate
+  const workerRef = useRef<Worker>()
+  const FXRATE = 200
   const { startRecording, stopRecording } = useReactMediaRecorder({
     audio: true,
     onStop: (blobUrl: string, blob: Blob) => {
@@ -55,8 +63,8 @@ export const AddSpeechModal: React.FC = () => {
   })
   const setAddedSpeech = useSetRecoilState<TeacherSpeech | null>(addedSpeechState)
   useEffect(() => {
-    setIsValid(file !== null && 0 < text.length && text.length <= 1000)
-  }, [file, text])
+    setIsValid(file !== null && 0 < text.length && text.length <= 1000 && isCalculatedPitch)
+  }, [file, text, isCalculatedPitch])
   const handleOpen = () => {
     setOpen(true)
   }
@@ -70,8 +78,8 @@ export const AddSpeechModal: React.FC = () => {
     setText(event.target.value)
   }
   const handleRegister = async () => {
-    if (file !== null) {
-      const res = await api.registerTeacherSpeech(text, file)
+    if (file !== null && pitchData !== undefined) {
+      const res = await api.registerTeacherSpeech(text, file, pitchData)
       if (res !== undefined) {
         setAddedSpeech(res)
         setOpen(false)
@@ -87,8 +95,61 @@ export const AddSpeechModal: React.FC = () => {
     }
   }
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    workerRef.current?.terminate()
+    setIsCalculatingPitch(false)
     setTabIndex(newValue)
   }
+  useEffect(() => {
+    if (file) {
+      file.arrayBuffer().then((data) => {
+        setIsCalculatingPitch(true)
+        workerRef.current = new Worker(new URL('../../util/pitch.worker', import.meta.url))
+        audioContext.decodeAudioData(data, function onSuccess(buffer: any) {
+          const siglen = buffer.length
+          const fsignal = new Float32Array(siglen)
+          const srcbuf = buffer.getChannelData(0)
+          let sigmax = 0
+          for (let i = 0; i < siglen; i++) {
+            var s = srcbuf[i]
+            if (s > sigmax) sigmax = s
+            if (s < -sigmax) sigmax = -s
+          }
+          for (let i = 0; i < siglen; i++) {
+            fsignal[i] = srcbuf[i] / sigmax
+          }
+          const nfsamp = Math.floor(fsignal.length / 3)
+          const ffsignal = new Float32Array(nfsamp)
+          const filt = new Filter()
+          filt.design(filt.LOW_PASS, 4, samplingRate / 3, samplingRate / 3, samplingRate)
+          for (var i = 0; i < nfsamp; i++) {
+            filt.sample(fsignal[3 * i])
+            filt.sample(fsignal[3 * i + 1])
+            ffsignal[i] = filt.sample(fsignal[3 * i + 2])
+          }
+          // workerスレッドから終了メッセージを受信した際の動作
+          workerRef.current!.onmessage = (event) => {
+            const pitchData = []
+            for (i = 0; i < fsignal.length; i++) {
+              if (event.data.vs[i] > 0.3) {
+                pitchData.push({
+                  x: Math.round((i / FXRATE) * 100) / 100,
+                  y: Math.round(event.data.fx[i] * 100) / 100,
+                })
+              }
+            }
+            setPitchData(JSON.stringify({ data: pitchData, xmax: fsignal.length / samplingRate }))
+            setIsCalculatedPitch(true)
+            setIsCalculatingPitch(false)
+          }
+          // workerスレッドを開始
+          workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
+        })
+      })
+    }
+    return () => {
+      workerRef.current?.terminate()
+    }
+  }, [file])
 
   return (
     <>
@@ -157,6 +218,12 @@ export const AddSpeechModal: React.FC = () => {
                   </Button>
                   <audio controls src={blobUrl} style={{ display: 'inline' }}></audio>
                 </div>
+              )}
+              {isCalculatingPitch && (
+                <Typography variant="subtitle2" gutterBottom align="center" color="textSecondary">
+                  音声の前処理をしています。
+                  <CircularProgress size={10} />
+                </Typography>
               )}
             </div>
             <div className={classes.marginTop}>

@@ -100,11 +100,12 @@ export default class ApiClient {
   }
 
   // POST /teacher-speeches
-  async registerTeacherSpeech(text: string, speech: File) {
+  async registerTeacherSpeech(text: string, speech: File, pitch_seq: string) {
     const endpoint: string = `/teacher-speeches`
     const params = new FormData()
     params.append('text', text)
     params.append('speech', speech)
+    params.append('pitch_seq', pitch_seq)
     let res: AxiosResponse<TeacherSpeech>
     try {
       res = await this.client.post(endpoint, params, {

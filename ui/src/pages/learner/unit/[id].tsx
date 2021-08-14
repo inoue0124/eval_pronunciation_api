@@ -324,6 +324,7 @@ const UnitDetail: NextPage = () => {
                       setIsRecorded(true)
                     }
               }
+              pitchDataProp={JSON.parse(unit.teacher_speeches[speechIndex].pitch_seq)}
             />
           </Card>
 

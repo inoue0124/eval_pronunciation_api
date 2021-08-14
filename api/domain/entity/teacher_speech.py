@@ -8,5 +8,6 @@ class TeacherSpeech(BaseModel):
     id: Optional[int]
     teacher_id: int
     text: str
+    pitch_seq: Optional[str]
     object_key: Optional[str]
     created_at: Optional[datetime]

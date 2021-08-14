@@ -123,6 +123,7 @@ const SpeechDetail: NextPage = () => {
                 onFinishPlaying={() => {
                   setIsPlaying(false)
                 }}
+                pitchDataProp={JSON.parse(teacherSpeech.pitch_seq)}
               />
             </Card>
           )}

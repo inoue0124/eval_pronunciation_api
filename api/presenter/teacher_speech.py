@@ -22,6 +22,7 @@ class DownloadTeacherSpeechRequest(BaseModel):
 
 async def register(text: str = Form(...),
                    speech: UploadFile = File(...),
+                   pitch_seq: str = Form(...),
                    repository: Repository = Depends(RepositoryFactory.create),
                    current_uid=Depends(get_current_uid)):
 
@@ -36,7 +37,8 @@ async def register(text: str = Form(...),
         ffmpeg.run(stream)
 
     teacher_speech: TeacherSpeech = TeacherSpeech(teacher_id=current_uid,
-                                                  text=text)
+                                                  text=text,
+                                                  pitch_seq=pitch_seq)
     try:
         teacher_speech = repository.TeacherSpeech().create(
             teacher_speech=teacher_speech, speech_path=mp3_path)
