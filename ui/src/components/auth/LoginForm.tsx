@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    maxWidth: 450,
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -54,6 +54,8 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
   const teacherId = Number(router.query.ti)
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(true)
+  const [isPasswordValid, setIsPasswordValid] = useState<boolean>(true)
   const [registerPageUrl, setRegisterPageUrl] = useState<string>('')
   const [title, setTitle] = useState<string>('')
   const [isShowRegister, setIsShowRegister] = useState<boolean>(true)
@@ -82,39 +84,62 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
     }
   }, [])
 
+  const validate = useCallback(() => {
+    let isValid = true
+    // メールアドレスの検証
+    const emailReg = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/
+    if (emailReg.test(email)) {
+      setIsEmailValid(true)
+    } else {
+      setIsEmailValid(false)
+      isValid = false
+    }
+    // パスワードの検証
+    const passowrdReg = /^(?=.*?[a-z])(?=.*?\d)[a-z\d]{8,15}$/i
+    if (passowrdReg.test(password)) {
+      setIsPasswordValid(true)
+    } else {
+      setIsPasswordValid(false)
+      isValid = false
+    }
+    return isValid
+  }, [email, password])
+
   const handleLogin = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault()
-    try {
-      const res = await api.login(email, password)
-      setCookie(undefined, 'logged_user', JSON.stringify(res.user), {
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60,
-      })
-      setCookie(undefined, 'EVAL_SPEECH_SESSION', res.token, {
-        path: '/',
-        maxAge: 30 * 24 * 60 * 60,
-      })
-      let redirectUrl = ''
-      switch (res.user.type) {
-        case UserType.Admin:
-          redirectUrl = '/admin/teacher'
-          break
-        case UserType.Teacher:
-          redirectUrl = '/teacher/unit'
-          break
-        case UserType.Learner:
-          if (router.query.unit === undefined || router.query.ti === undefined) {
-            redirectUrl = '/learner/unit/list'
-          } else {
-            redirectUrl = `/learner/unit/${unitId}?ti=${teacherId}`
-          }
-          break
-        default:
-          break
+    if (validate()) {
+      try {
+        const res = await api.login(email, password)
+        setCookie(undefined, 'logged_user', JSON.stringify(res.user), {
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60,
+        })
+        setCookie(undefined, 'EVAL_SPEECH_SESSION', res.token, {
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60,
+        })
+        let redirectUrl = ''
+        switch (res.user.type) {
+          case UserType.Admin:
+            redirectUrl = '/admin/teacher'
+            break
+          case UserType.Teacher:
+            redirectUrl = '/teacher/unit'
+            break
+          case UserType.Learner:
+            if (router.query.unit === undefined || router.query.ti === undefined) {
+              redirectUrl = '/learner/unit/list'
+            } else {
+              redirectUrl = `/learner/unit/${unitId}?ti=${teacherId}`
+            }
+            break
+          default:
+            break
+        }
+        router.push(redirectUrl)
+      } catch (e) {
+        alert('認証情報が間違っています。')
       }
-      router.push(redirectUrl)
-    } catch (e) {
-      alert('認証情報が間違っています。')
     }
   }
 
@@ -126,6 +151,8 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
         </Typography>
         <form className={classes.form}>
           <TextField
+            error={!isEmailValid}
+            helperText={isEmailValid ? '' : 'メールアドレスの形式が間違っています。'}
             variant="outlined"
             margin="normal"
             required
@@ -141,6 +168,8 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
             }}
           />
           <TextField
+            error={!isPasswordValid}
+            helperText={isPasswordValid ? '' : 'パスワードは英数字8文字以上である必要があります。'}
             variant="outlined"
             margin="normal"
             required
