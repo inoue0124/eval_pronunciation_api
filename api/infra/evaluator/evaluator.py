@@ -9,7 +9,7 @@ import uuid
 
 class Evaluator:
     def compute_gop(self, text: str, speech_path: str) -> Gop:
-        utterance_id: str = str(uuid.uuid4())
+        utterance_id: str = speech_path.split('.')[0]
         kaldi: Kaldi = Kaldi(utterance_id=utterance_id)
         self.compute_posterior(kaldi=kaldi,
                                text=text,
@@ -25,8 +25,8 @@ class Evaluator:
                    created_at=datetime.now())
 
     def compute_dtw(self, ref_speech_path: str, speech_path: str) -> Dtw:
-        ref_utterance_id: str = str(uuid.uuid4())
-        utterance_id: str = str(uuid.uuid4())
+        ref_utterance_id: str = ref_speech_path.split('.')[0]
+        utterance_id: str = speech_path.split('.')[0]
         # ポステリア計算までは並行処理で行う
         with futures.ThreadPoolExecutor(max_workers=2) as executor:
             future_list = []

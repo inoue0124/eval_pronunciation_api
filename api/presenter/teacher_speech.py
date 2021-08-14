@@ -1,12 +1,10 @@
+from tempfile import NamedTemporaryFile
 from api.domain.entity.user import User
 from concurrent import futures
-import os
-import shutil
-
+import os, shutil, ffmpeg
 from starlette.responses import StreamingResponse
 from api.util.config import TMP_DOWNLOAD_DIR, USER_TYPE_ADMIN
 from typing import Optional
-
 from pydantic.main import BaseModel
 from api.domain.entity.teacher_speech import TeacherSpeech
 from api.domain.repository.repository import Repository
@@ -15,6 +13,7 @@ from api.util.errors import AuthError, DbError
 from api.factory import RepositoryFactory
 from fastapi import Depends, File, UploadFile
 from fastapi.param_functions import Form
+from pathlib import Path
 
 
 class DownloadTeacherSpeechRequest(BaseModel):
@@ -26,11 +25,21 @@ async def register(text: str = Form(...),
                    repository: Repository = Depends(RepositoryFactory.create),
                    current_uid=Depends(get_current_uid)):
 
+    # mp3に変換
+    suffix = Path(speech.filename).suffix
+    with NamedTemporaryFile(delete=True, suffix=suffix) as tmp:
+        shutil.copyfileobj(speech.file, tmp)
+        os.makedirs(tmp.name.split('.')[0], exist_ok=True)
+        mp3_path = tmp.name.split('.')[0] + '/' + tmp.name.split('.')[0].split('/')[2] + '.mp3'
+        stream = ffmpeg.input(tmp.name)
+        stream = ffmpeg.output(stream, mp3_path)
+        ffmpeg.run(stream)
+
     teacher_speech: TeacherSpeech = TeacherSpeech(teacher_id=current_uid,
                                                   text=text)
     try:
         teacher_speech = repository.TeacherSpeech().create(
-            teacher_speech=teacher_speech, speech=speech)
+            teacher_speech=teacher_speech, speech_path=mp3_path)
     except Exception as e:
         raise DbError(detail=str(e))
 

@@ -29,15 +29,19 @@ async def get_gop(evaluator: Evaluator = Depends(EvaluatorFactory.create),
                   text: str = Form(...),
                   speech: UploadFile = File(...)):
 
+    # mp3に変換
     suffix = Path(speech.filename).suffix
-    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+    with NamedTemporaryFile(delete=True, suffix=suffix) as tmp:
         shutil.copyfileobj(speech.file, tmp)
+        os.makedirs(tmp.name.split('.')[0], exist_ok=True)
+        mp3_path = tmp.name.split('.')[0] + '/' + tmp.name.split('.')[0].split('/')[2] + '.mp3'
         stream = ffmpeg.input(tmp.name)
-        stream = ffmpeg.output(stream, tmp.name+'.mp3')
+        stream = ffmpeg.output(stream, mp3_path)
         ffmpeg.run(stream)
 
     try:
-        gop: Gop = evaluator.compute_gop(text=text, speech_path=tmp.name+'.mp3')
+        gop: Gop = evaluator.compute_gop(text=text, speech_path=mp3_path)
+        shutil.rmtree(tmp.name.split('.')[0])
     except Exception as e:
         raise KaldiError(detail=str(e))
 
@@ -48,21 +52,28 @@ async def get_dtw(evaluator: Evaluator = Depends(EvaluatorFactory.create),
                   ref_speech: UploadFile = File(...),
                   speech: UploadFile = File(...)):
 
+    # mp3に変換
     ref_suffix = Path(ref_speech.filename).suffix
-    with NamedTemporaryFile(delete=False, suffix=ref_suffix) as ref_tmp:
+    with NamedTemporaryFile(delete=True, suffix=ref_suffix) as ref_tmp:
         shutil.copyfileobj(ref_speech.file, ref_tmp)
+        os.makedirs(ref_tmp.name.split('.')[0], exist_ok=True)
+        ref_mp3_path = ref_tmp.name.split('.')[0] + '/' + ref_tmp.name.split('.')[0].split('/')[2] + '.mp3'
         stream = ffmpeg.input(ref_tmp.name)
-        stream = ffmpeg.output(stream, ref_tmp.name+'.mp3')
+        stream = ffmpeg.output(stream, ref_mp3_path)
         ffmpeg.run(stream)
 
     suffix = Path(speech.filename).suffix
-    with NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+    with NamedTemporaryFile(delete=True, suffix=suffix) as tmp:
         shutil.copyfileobj(speech.file, tmp)
+        os.makedirs(tmp.name.split('.')[0], exist_ok=True)
+        mp3_path = tmp.name.split('.')[0] + '/' + tmp.name.split('.')[0].split('/')[2] + '.mp3'
         stream = ffmpeg.input(tmp.name)
-        stream = ffmpeg.output(stream, tmp.name+'.mp3')
+        stream = ffmpeg.output(stream, mp3_path)
         ffmpeg.run(stream)
 
-    dtw: Dtw = evaluator.compute_dtw(ref_speech_path=ref_tmp.name+'.mp3', speech_path=tmp.name+'.mp3')
+    dtw: Dtw = evaluator.compute_dtw(ref_speech_path=ref_mp3_path, speech_path=mp3_path)
+    shutil.rmtree(tmp.name.split('.')[0])
+    shutil.rmtree(ref_tmp.name.split('.')[0])
     return dtw
 
 
@@ -75,6 +86,16 @@ async def register(unit_id: int = Form(...),
                    repository: Repository = Depends(RepositoryFactory.create),
                    current_uid=Depends(get_current_uid)):
 
+    # mp3に変換
+    suffix = Path(speech.filename).suffix
+    with NamedTemporaryFile(delete=True, suffix=suffix) as tmp:
+        shutil.copyfileobj(speech.file, tmp)
+        os.makedirs(tmp.name.split('.')[0], exist_ok=True)
+        mp3_path = tmp.name.split('.')[0] + '/' + tmp.name.split('.')[0].split('/')[2] + '.mp3'
+        stream = ffmpeg.input(tmp.name)
+        stream = ffmpeg.output(stream, mp3_path)
+        ffmpeg.run(stream)
+
     learner_speech: LearnerSpeech = LearnerSpeech(
         learner_id=current_uid,
         unit_id=unit_id,
@@ -82,9 +103,11 @@ async def register(unit_id: int = Form(...),
         type=type,
         gop_average=gop_average if gop_average != 0 else None,
         dtw_average=dtw_average if dtw_average != 0 else None)
+
     try:
         learner_speech = repository.LearnerSpeech().create(
-            learner_speech=learner_speech, speech=speech)
+            learner_speech=learner_speech, speech_path=mp3_path)
+        shutil.rmtree(tmp.name.split('.')[0])
     except Exception as e:
         raise DbError(detail=str(e))
 

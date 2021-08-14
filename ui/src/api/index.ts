@@ -299,7 +299,7 @@ export default class ApiClient {
     params.append('unit_id', unitId.toString())
     params.append('teacher_speech_id', teacherSpeechId.toString())
     params.append('type', type.toString())
-    params.append('speech', speech)
+    params.append('speech', speech, 'speech.webm')
     params.append('gop_average', gop_average.toString())
     params.append('dtw_average', dtw_average.toString())
     let res: AxiosResponse<LearnerSpeech>
@@ -362,7 +362,7 @@ export default class ApiClient {
     const endpoint: string = `/scores/gop`
     const params = new FormData()
     params.append('text', text)
-    params.append('speech', speech)
+    params.append('speech', speech, 'speech.webm')
     let res: AxiosResponse<Gop>
     res = await this.client.post(endpoint, params, {
       headers: {
@@ -376,8 +376,8 @@ export default class ApiClient {
   async calculateDtw(refSpeech: Blob, speech: Blob) {
     const endpoint: string = `/scores/dtw`
     const params = new FormData()
-    params.append('ref_speech', refSpeech)
-    params.append('speech', speech)
+    params.append('ref_speech', refSpeech, 'test.webm')
+    params.append('speech', speech, 'ref_speech.webm')
     let res: AxiosResponse<Dtw>
     res = await this.client.post(endpoint, params, {
       headers: {

@@ -67,6 +67,7 @@ const UnitDetail: NextPage = () => {
   const [isRecorded, setIsRecorded] = useState<boolean>(false)
   const [isShowText, setIsShowText] = useState<boolean>(false)
   const [isCaluculatingScore, setIsCalculatingScore] = useState<boolean>(false)
+  const [isCalculatedScore, setIsCalculatedScore] = useState<boolean>(false)
   const [speechIndex, setSpeechIndex] = useState<number>(0)
   const [audioBlob, setAudioBlob] = useState<Blob>()
   const [gop, setGop] = useState<number>()
@@ -102,6 +103,14 @@ const UnitDetail: NextPage = () => {
     }
   }, [router.query])
 
+  useEffect(() => {
+    if (gop !== undefined && dtw !== undefined) {
+      setIsCalculatedScore(true)
+    } else {
+      setIsCalculatedScore(false)
+    }
+  }, [gop, dtw])
+
   const onClickStartRepeating = () => {
     setIsRepeating(true)
     setIsRecorded(false)
@@ -109,12 +118,16 @@ const UnitDetail: NextPage = () => {
     setIsPlaying(true)
   }
   const onClickStartShadowing = () => {
+    setGop(undefined)
+    setDtw(undefined)
     setIsRepeating(false)
     startRecording()
     setIsRecording(true)
     teacherWavRef.current!.play()
   }
   const onClickStopRecording = () => {
+    setGop(undefined)
+    setDtw(undefined)
     if (isPlaying) setIsPlaying(false)
     if (isRecording) {
       stopRecording()
@@ -128,6 +141,8 @@ const UnitDetail: NextPage = () => {
   }
   const onClickStartScoring = () => {
     if (audioBlob !== undefined) {
+      setGop(undefined)
+      setDtw(undefined)
       calculateGop(audioBlob)
       calculateDtw(audioBlob)
       setIsCalculatingScore(true)
@@ -255,7 +270,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickStartScoring}
               disableElevation
-              disabled={isRecording || !isRecorded || isCaluculatingScore}
+              disabled={isRecording || !isRecorded || isCaluculatingScore || isCalculatedScore}
             >
               {isCaluculatingScore && <CircularProgress size={20} style={{ marginRight: 10 }} />}
               {isCaluculatingScore ? 'スコア計算中' : 'スコア計算'}
@@ -266,7 +281,7 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickNext}
               disableElevation
-              disabled={isRecording || !isRecorded || isCaluculatingScore}
+              disabled={isRecording || !isRecorded || !isCalculatedScore}
             >
               次の課題へ
             </Button>

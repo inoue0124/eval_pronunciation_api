@@ -285,15 +285,16 @@ export const WaveDisplay: React.FC<Props> = ({
         <StopIcon />
       </IconButton>
       {isShowScore && (
-        <div style={{display: 'inline', width: '100%'}}>
+        <div style={{ display: 'inline', width: '100%' }}>
           <Typography
             color="textPrimary"
             variant="body1"
             display="inline"
             align="right"
             style={{ marginRight: 10 }}
-          > 
-            GOP: {gop ? (gop === 0 ? 'エラー' : gop) : '-'} DTW: {dtw ? (dtw === 0 ? 'エラー' : dtw) : '-'}
+          >
+            GOP: {gop ? (gop === 0 ? 'エラー' : gop) : '-'} DTW:{' '}
+            {dtw ? (dtw === 0 ? 'エラー' : dtw) : '-'}
           </Typography>
         </div>
       )}

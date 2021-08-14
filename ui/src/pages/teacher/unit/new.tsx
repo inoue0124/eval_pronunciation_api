@@ -58,6 +58,7 @@ const RegisterUnit: React.FC = () => {
         </Grid>
         <Grid item>
           <Button
+            className="mr-2"
             variant="contained"
             color="primary"
             onClick={handleRegister}

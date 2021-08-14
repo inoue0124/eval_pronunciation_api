@@ -2,28 +2,32 @@ import { useState, useEffect } from 'react'
 import ApiClient from '../../api'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import AddIcon from '@material-ui/icons/Add'
-import { Button } from '@material-ui/core'
+import { Button, Tab, Tabs } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
-import TextareaAutosize from '@material-ui/core/TextareaAutosize'
 import Modal from '@material-ui/core/Modal'
 import Backdrop from '@material-ui/core/Backdrop'
 import Fade from '@material-ui/core/Fade'
 import { useSetRecoilState } from 'recoil'
 import { addedSpeechState } from '../../states/addTeacherSpeech/addedSpeechState'
 import { TeacherSpeech } from '../../types/TeacherSpeech'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import StopIcon from '@material-ui/icons/Stop'
+import MicIcon from '@material-ui/icons/Mic'
+import { useReactMediaRecorder } from 'react-media-recorder'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     modal: {
       display: 'flex',
       alignItems: 'center',
-      justifyContentContent: 'center',
+      justifyContent: 'center',
     },
     paper: {
       backgroundColor: theme.palette.background.paper,
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
       borderRadius: theme.spacing(1),
+      maxWidth: 500,
     },
     marginTop: {
       marginTop: theme.spacing(3),
@@ -38,6 +42,17 @@ export const AddSpeechModal: React.FC = () => {
   const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState<string>('')
   const [isValid, setIsValid] = useState<boolean>(false)
+  const [isRecording, setIsRecording] = useState<boolean>(false)
+  const [blobUrl, setBlobUrl] = useState<string>()
+  const [tabIndex, setTabIndex] = useState<number>(0)
+  const { startRecording, stopRecording } = useReactMediaRecorder({
+    audio: true,
+    onStop: (blobUrl: string, blob: Blob) => {
+      setFile(new File([blob], 'recorded.wemb', { type: 'audio/webm' }))
+      setBlobUrl(blobUrl)
+      setIsRecording(false)
+    },
+  })
   const setAddedSpeech = useSetRecoilState<TeacherSpeech | null>(addedSpeechState)
   useEffect(() => {
     setIsValid(file !== null && 0 < text.length && text.length <= 1000)
@@ -62,6 +77,17 @@ export const AddSpeechModal: React.FC = () => {
         setOpen(false)
       }
     }
+  }
+  const onClickRecordButton = () => {
+    if (isRecording) {
+      stopRecording()
+    } else {
+      startRecording()
+      setIsRecording(true)
+    }
+  }
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setTabIndex(newValue)
   }
 
   return (
@@ -92,26 +118,54 @@ export const AddSpeechModal: React.FC = () => {
             </Typography>
             <div className={classes.marginTop}>
               <Typography variant="subtitle2" gutterBottom>
-                1.音声ファイル（mp3形式）を選択してください。
+                1.音声ファイル（mp3形式）を選択するか、録音ボタンを押して録音して下さい。
               </Typography>
-              <div className="text-center">
-                <Button className="mb-4" variant="outlined" color="primary">
-                  <input
-                    type="file"
-                    className="appearance-none"
-                    onChange={onSelectFile}
-                    accept="audio/mp3"
-                  />
-                </Button>
-              </div>
+              <Tabs
+                value={tabIndex}
+                indicatorColor="primary"
+                textColor="primary"
+                onChange={handleTabChange}
+                aria-label="disabled tabs example"
+              >
+                <Tab label="ファイルを選択する" />
+                <Tab label="録音する" />
+              </Tabs>
+              {tabIndex === 0 && (
+                <div className="text-center">
+                  <Button className="mb-4 mt-4" variant="outlined" color="primary">
+                    <input
+                      type="file"
+                      className="appearance-none"
+                      onChange={onSelectFile}
+                      accept="audio/mp3"
+                    />
+                  </Button>
+                </div>
+              )}
+              {tabIndex === 1 && (
+                <div className="mt-4 text-center">
+                  <Button
+                    className="mr-4"
+                    onClick={onClickRecordButton}
+                    style={{ display: 'inline' }}
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                  >
+                    {isRecording ? <StopIcon /> : <MicIcon />}
+                    {isRecording ? '停止' : '録音'}
+                  </Button>
+                  <audio controls src={blobUrl} style={{ display: 'inline' }}></audio>
+                </div>
+              )}
             </div>
             <div className={classes.marginTop}>
               <Typography variant="subtitle2" gutterBottom>
                 2.音声の内容（スクリプト）を入力してください。
               </Typography>
-              <TextareaAutosize
+              <textarea
                 className="w-full p-2 mb-4 border-2 resize-none"
-                rowsMin={5}
+                style={{ overflow: 'auto', minHeight: 150 }}
                 placeholder="スクリプト"
                 onChange={onChangeText}
               />

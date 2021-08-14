@@ -15,7 +15,7 @@ class TeacherSpeechRepository:
         self.s3_client = s3_client
 
     def create(self, teacher_speech: TeacherSpeech,
-               speech: UploadFile) -> TeacherSpeech:
+               speech_path: str) -> TeacherSpeech:
 
         # テーブルモデルを作成
         teacher_speech_table = TeacherSpeechTable()
@@ -35,12 +35,13 @@ class TeacherSpeechRepository:
         teacher_speech.created_at = teacher_speech_table.created_at
 
         # 音声ファイルアップロード
-        obj_key = f'teacher_speeches/T{teacher_speech.teacher_id:05}_{teacher_speech.id:05}_{datetime.now():%Y%m%d%H%M%S}.{speech.filename.split(".")[-1]}'
-        response = self.s3_client.upload_fileobj(
-            speech.file,
-            S3_BUCKET_NAME,
-            obj_key,
-            ExtraArgs={'ContentType': speech.content_type, 'ACL':'public-read'})
+        with open(speech_path, 'rb') as speech:
+            obj_key = f'teacher_speeches/T{teacher_speech.teacher_id:05}_{teacher_speech.id:05}_{datetime.now():%Y%m%d%H%M%S}.{speech.name.split(".")[-1]}'
+            response = self.s3_client.upload_fileobj(
+                speech,
+                S3_BUCKET_NAME,
+                obj_key,
+                ExtraArgs={'ContentType': 'audio/mpeg', 'ACL':'public-read'})
         # アップロードに成功したらobj_keyを設定
         teacher_speech.object_key = BUCKET_ENDOPOINT + obj_key
         teacher_speech_table.object_key = BUCKET_ENDOPOINT + obj_key
