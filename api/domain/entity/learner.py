@@ -14,3 +14,5 @@ class Learner(BaseModel):
     year_of_learning: Optional[float]
     created_at: Optional[datetime]
     speeches: Optional[list[LearnerSpeech]]
+    gop_average: Optional[float]
+    dtw_average: Optional[float]

@@ -118,6 +118,8 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin, teacherId }) => {
               <TableCell>年齢</TableCell>
               <TableCell>出身地</TableCell>
               <TableCell>学習年数</TableCell>
+              <TableCell>GOP平均</TableCell>
+              <TableCell>DTW平均</TableCell>
               <TableCell>作成日時</TableCell>
             </TableRow>
           </TableHead>
@@ -137,6 +139,8 @@ export const LearnerListTable: React.FC<Props> = ({ isAdmin, teacherId }) => {
                 <TableCell>{d.birth_date}</TableCell>
                 <TableCell>{d.birth_place}</TableCell>
                 <TableCell>{d.year_of_learning}</TableCell>
+                <TableCell>{d.gop_average ? Math.round(d.gop_average * 100) / 100 : '-'}</TableCell>
+                <TableCell>{d.dtw_average ? Math.round(d.dtw_average * 100) / 100 : '-'}</TableCell>
                 <TableCell>{new Date(d.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}

@@ -62,6 +62,12 @@ const LearnerDetail: React.FC = () => {
             <Typography color="textPrimary">出身地：{learner.birth_place}</Typography>
             <Typography color="textPrimary">学習年数：{learner.year_of_learning}</Typography>
             <Typography color="textPrimary">
+              GOP平均：{learner.gop_average ? Math.round(learner.gop_average * 100) / 100 : '-'}
+            </Typography>
+            <Typography color="textPrimary">
+              DTW平均：{learner.dtw_average ? Math.round(learner.dtw_average * 100) / 100 : '-'}
+            </Typography>
+            <Typography color="textPrimary">
               作成日時：{new Date(learner.created_at).toLocaleString()}
             </Typography>
           </CardContent>
