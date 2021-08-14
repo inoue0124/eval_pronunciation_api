@@ -38,9 +38,13 @@ const TeacherDetail: React.FC = () => {
   useEffect(() => {
     if (router.isReady) {
       ;(async function () {
-        const teacher = await api.getTeacherById(teacherId)
-        if (teacher != undefined) {
-          setTeacher(teacher)
+        try {
+          const teacher = await api.getTeacherById(teacherId)
+          if (teacher != undefined) {
+            setTeacher(teacher)
+          }
+        } catch (e) {
+          alert(e)
         }
       })()
     }

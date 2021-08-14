@@ -114,7 +114,7 @@ export const RegisterForm: React.FC<Props> = ({ isTeacher }) => {
             : `/learner/register-profile?unit=${unitId}&ti=${teacherId}`,
         )
       } catch (e) {
-        alert(e)
+        alert('このメールアドレスはすでに使われています。')
       }
     }
   }
