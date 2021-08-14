@@ -174,8 +174,9 @@ async def get_by_id(learner_speech_id: int,
         raise e
 
     # 自分のlearner_id以外だったらエラー
+    user: User = repository.User().get_by_id(user_id=current_uid)
     learner: Learner = repository.Learner().get_by_id(learner_id=learner_speech.learner_id)
-    if learner.user_id != current_uid and learner.teacher_id != current_uid:
+    if learner.user_id != current_uid and learner.teacher_id != current_uid and user.type != USER_TYPE_ADMIN:
         raise AuthError
 
     return learner_speech

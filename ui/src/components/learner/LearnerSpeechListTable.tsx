@@ -149,20 +149,22 @@ export const LearnerSpeechListTable: React.FC<Props> = ({ isAdmin, learnerId, sp
               選択音声をダウンロード
             </Button>
           </Box>
-          <TextField
-            style={{ width: 400 }}
-            id="outlined-basic"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
+          {speeches === undefined && (
+            <TextField
+              style={{ width: 400 }}
+              id="outlined-basic"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+              variant="outlined"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+          )}
         </Grid>
       </Toolbar>
       <TableContainer>
