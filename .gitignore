@@ -32,3 +32,5 @@ key*
 .data
 
 .serverless*
+
+docker-compose.yml.prod

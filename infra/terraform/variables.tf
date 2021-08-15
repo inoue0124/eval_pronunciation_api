@@ -6,6 +6,6 @@ variable "prj_name" {
 
 variable "my_ip" {
   type        = string
-  default     = "131.213.199.136/32"
+  default     = "223.135.68.41/32"
   description = "IP address of Inoue home"
 }
