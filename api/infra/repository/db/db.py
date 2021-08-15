@@ -9,8 +9,8 @@ DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (
     MYSQL_HOST,
     MYSQL_DATABASE,
 )
-engine = create_engine(DATABASE, encoding="utf-8", echo=True)
+engine = create_engine(DATABASE, encoding="utf-8", echo=True, isolation_level="READ UNCOMMITTED")
 session = scoped_session(
-    sessionmaker(autocommit=False, autoflush=False, bind=engine))
+    sessionmaker(autocommit=True, autoflush=False, bind=engine))
 Base = declarative_base()
 Base.query = session.query_property()
