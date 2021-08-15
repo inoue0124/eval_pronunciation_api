@@ -11,6 +11,6 @@ DATABASE = 'mysql://%s:%s@%s/%s?charset=utf8mb4' % (
 )
 engine = create_engine(DATABASE, encoding="utf-8", echo=True, isolation_level="READ UNCOMMITTED")
 session = scoped_session(
-    sessionmaker(autocommit=True, autoflush=False, bind=engine))
+    sessionmaker(autocommit=False, autoflush=False, bind=engine))
 Base = declarative_base()
 Base.query = session.query_property()
