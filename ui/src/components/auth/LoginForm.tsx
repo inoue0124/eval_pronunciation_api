@@ -141,6 +141,7 @@ export const LoginForm: React.FC<Props> = ({ userType }) => {
           case UserType.Learner:
             try {
               const learner = await api.getLearnerById(res.user.id)
+              delete learner.speeches
               setCookie(undefined, 'learner', JSON.stringify(learner), {
                 path: '/',
                 maxAge: 30 * 24 * 60 * 60,

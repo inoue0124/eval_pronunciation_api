@@ -9,7 +9,7 @@ app: Final = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "https://d1nxw7ykswad1e.cloudfront.net"
+    "https://dyhrezb6wpze3.cloudfront.net"
 ]
 
 app.add_middleware(

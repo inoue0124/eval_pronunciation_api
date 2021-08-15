@@ -9,7 +9,7 @@ export interface Learner {
   birth_place: string
   year_of_learning: number
   created_at: string
-  speeches: LearnerSpeech[]
+  speeches?: LearnerSpeech[]
   gop_average: number
   dtw_average: number
 }

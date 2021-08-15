@@ -80,7 +80,7 @@ export const WaveDisplay: React.FC<Props> = ({
   const audioContext = new AudioContext()
   const samplingRate = audioContext.sampleRate
   const [isCalculatingPitch, setIsCalculatingPitch] = useState<boolean>(false)
-  const setPitchData = useSetRecoilState<string>(pitchDataState)
+  const setPitchData = useSetRecoilState<string | undefined>(pitchDataState)
 
   // ピッチ計算
   useEffect(() => {
@@ -88,7 +88,7 @@ export const WaveDisplay: React.FC<Props> = ({
       setPitch(pitchDataProp.data, pitchDataProp.xmax)
     } else {
       setIsCalculatingPitch(true)
-      workerRef.current = new Worker(new URL('../util/pitch.worker', import.meta.url))
+      workerRef.current = new Worker(new URL('../util/pitch.worker.js', import.meta.url))
       // URLから音声データを取得しピッチを抽出
       axios
         .get(url, {

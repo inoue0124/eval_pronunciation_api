@@ -11,7 +11,6 @@ import Fade from '@material-ui/core/Fade'
 import { useSetRecoilState } from 'recoil'
 import { addedSpeechState } from '../../states/addTeacherSpeech/addedSpeechState'
 import { TeacherSpeech } from '../../types/TeacherSpeech'
-import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import StopIcon from '@material-ui/icons/Stop'
 import MicIcon from '@material-ui/icons/Mic'
 import { useReactMediaRecorder } from 'react-media-recorder'
@@ -95,7 +94,7 @@ export const AddSpeechModal: React.FC = () => {
       setIsRecording(true)
     }
   }
-  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+  const handleTabChange = (_: React.ChangeEvent<{}>, newValue: number) => {
     workerRef.current?.terminate()
     setIsCalculatingPitch(false)
     setTabIndex(newValue)
@@ -104,14 +103,14 @@ export const AddSpeechModal: React.FC = () => {
     if (file) {
       file.arrayBuffer().then((data) => {
         setIsCalculatingPitch(true)
-        workerRef.current = new Worker(new URL('../../util/pitch.worker', import.meta.url))
+        workerRef.current = new Worker(new URL('../../util/pitch.worker2.js', import.meta.url))
         audioContext.decodeAudioData(data, function onSuccess(buffer: any) {
           const siglen = buffer.length
           const fsignal = new Float32Array(siglen)
           const srcbuf = buffer.getChannelData(0)
           let sigmax = 0
-          for (let i = 0; i < siglen; i++) {
-            var s = srcbuf[i]
+          for (var i = 0; i < siglen; i++) {
+            const s = srcbuf[i]
             if (s > sigmax) sigmax = s
             if (s < -sigmax) sigmax = -s
           }
@@ -122,7 +121,7 @@ export const AddSpeechModal: React.FC = () => {
           const ffsignal = new Float32Array(nfsamp)
           const filt = new Filter()
           filt.design(filt.LOW_PASS, 4, samplingRate / 3, samplingRate / 3, samplingRate)
-          for (var i = 0; i < nfsamp; i++) {
+          for (i = 0; i < nfsamp; i++) {
             filt.sample(fsignal[3 * i])
             filt.sample(fsignal[3 * i + 1])
             ffsignal[i] = filt.sample(fsignal[3 * i + 2])

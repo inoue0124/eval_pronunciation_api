@@ -20,7 +20,7 @@ import { getCookie } from '../../../util/cookie'
 import { NextPage } from 'next'
 import { User } from '../../../types/User'
 import MicIcon from '@material-ui/icons/Mic'
-import { useRecoilValue } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { pitchDataState } from '../../../states/graphData/pitchDataState'
 const WaveDisplay = dynamic<any>(
   () => import('../../../components/WaveDisplay').then((module) => module.WaveDisplay),
@@ -77,7 +77,7 @@ const UnitDetail: NextPage = () => {
   const [dtw, setDtw] = useState<number>()
   const teacherWavRef = useRef<any>(null)
   const learnerWavRef = useRef<any>(null)
-  const pitchData = useRecoilValue(pitchDataState)
+  const [pitchData, setPitchData] = useRecoilState<string | undefined>(pitchDataState)
   const { status, startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
     audio: true,
     onStop: (_: string, blob: Blob) => {
@@ -122,16 +122,16 @@ const UnitDetail: NextPage = () => {
     setIsPlaying(true)
   }
   const onClickStartShadowing = () => {
-    setGop(undefined)
-    setDtw(undefined)
+    resetScore()
     setIsRepeating(false)
     startRecording()
-    setIsRecording(true)
-    teacherWavRef.current!.play()
+    setTimeout(() => {
+      setIsRecording(true)
+      teacherWavRef.current!.play()
+    }, 1000)
   }
   const onClickStopRecording = () => {
-    setGop(undefined)
-    setDtw(undefined)
+    resetScore()
     if (isPlaying) setIsPlaying(false)
     if (isRecording) {
       stopRecording()
@@ -145,8 +145,7 @@ const UnitDetail: NextPage = () => {
   }
   const onClickStartScoring = () => {
     if (audioBlob !== undefined) {
-      setGop(undefined)
-      setDtw(undefined)
+      resetScore()
       calculateGop(audioBlob)
       calculateDtw(audioBlob)
       setIsCalculatingScore(true)
@@ -154,7 +153,13 @@ const UnitDetail: NextPage = () => {
   }
   const onClickNext = async () => {
     // 音声アップロード
-    if (unit !== undefined && audioBlob !== undefined && gop !== undefined && dtw !== undefined) {
+    if (
+      unit !== undefined &&
+      audioBlob !== undefined &&
+      gop !== undefined &&
+      dtw !== undefined &&
+      pitchData !== undefined
+    ) {
       await api.registerLearnerSpeech(
         unit.id,
         unit.teacher_speeches[speechIndex].id,
@@ -172,8 +177,7 @@ const UnitDetail: NextPage = () => {
       return
     }
     setIsRecorded(false)
-    setGop(undefined)
-    setDtw(undefined)
+    resetScore()
     setSpeechIndex(speechIndex + 1)
   }
 
@@ -222,6 +226,13 @@ const UnitDetail: NextPage = () => {
           .catch(() => setDtw(0))
       })
       .catch(() => setDtw(0))
+  }
+
+  const resetScore = () => {
+    setGop(undefined)
+    setDtw(undefined)
+    setGopSeq(undefined)
+    setPitchData(undefined)
   }
 
   return (
@@ -291,10 +302,13 @@ const UnitDetail: NextPage = () => {
               color="primary"
               onClick={onClickNext}
               disableElevation
-              disabled={isRecording || !isRecorded || !isCalculatedScore}
+              disabled={isRecording || !isRecorded || !isCalculatedScore || pitchData === undefined}
             >
               次の課題へ
             </Button>
+            <Typography color="textPrimary" display="inline">
+              進捗：{speechIndex + 1}/{unit.teacher_speeches.length}
+            </Typography>
           </Card>
           {isShowText && (
             <Card className={classes.card}>
@@ -312,16 +326,19 @@ const UnitDetail: NextPage = () => {
               onFinishPlaying={
                 isRepeating
                   ? () => {
-                      setIsPlaying(false)
                       startRecording()
-                      setIsRecording(true)
-                      setGop(undefined)
-                      setDtw(undefined)
+                      setTimeout(() => {
+                        setIsPlaying(false)
+                        resetScore()
+                        setIsRecording(true)
+                      }, 1000)
                     }
                   : () => {
-                      stopRecording()
-                      setIsRecording(false)
-                      setIsRecorded(true)
+                      setTimeout(() => {
+                        stopRecording()
+                        setIsRecording(false)
+                        setIsRecorded(true)
+                      }, 3000)
                     }
               }
               pitchDataProp={JSON.parse(unit.teacher_speeches[speechIndex].pitch_seq)}
