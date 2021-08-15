@@ -8,11 +8,18 @@ from api.domain.entity.gop import Gop
 from api.domain.entity.teacher import Teacher
 from api.domain.entity.learner import Learner
 from fastapi import FastAPI
-from api.presenter import learner_speech, session, user, teacher, learner, teacher_speech, unit
+from api.presenter import learner_speech, session, user, teacher, learner, teacher_speech, unit, health
 from api.util.errors import DbError, error_response
 
 
 def add_routes(app: FastAPI) -> None:
+    # health
+    app.add_api_route("/health",
+                      health.hello,
+                      methods=["GET"],
+                      response_model=str,
+                      tags=["health"])
+
     # session
     app.add_api_route("/session",
                       session.login,

@@ -7,7 +7,7 @@ resource "aws_db_subnet_group" "private_db" {
 }
 
 resource "aws_db_instance" "db" {
-  identifier             = "${var.prj_name}"
+  identifier             = var.prj_name
   allocated_storage      = 20
   storage_type           = "gp2"
   engine                 = "mysql"
