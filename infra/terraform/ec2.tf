@@ -11,7 +11,7 @@ data "aws_ami" "api" {
 # ec2
 resource "aws_instance" "api" {
   ami                    = data.aws_ami.api.image_id
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = aws_subnet.public_1.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.api_http.id, aws_security_group.api_ssh.id]
   key_name               = aws_key_pair.ssh_key.id
