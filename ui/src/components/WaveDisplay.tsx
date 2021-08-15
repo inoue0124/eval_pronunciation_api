@@ -308,6 +308,7 @@ export const WaveDisplay: React.FC<Props> = ({
       <IconButton
         disabled={isDisableToolbar}
         onClick={() => {
+          wavesurfer.current?.unAll()
           wavesurfer.current?.play()
         }}
       >

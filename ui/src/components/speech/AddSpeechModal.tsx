@@ -96,7 +96,9 @@ export const AddSpeechModal: React.FC = () => {
   }
   const handleTabChange = (_: React.ChangeEvent<{}>, newValue: number) => {
     workerRef.current?.terminate()
+    setFile(null)
     setIsCalculatingPitch(false)
+    setIsCalculatedPitch(false)
     setTabIndex(newValue)
   }
   useEffect(() => {
@@ -104,46 +106,52 @@ export const AddSpeechModal: React.FC = () => {
       file.arrayBuffer().then((data) => {
         setIsCalculatingPitch(true)
         workerRef.current = new Worker(new URL('../../util/pitch.worker2.js', import.meta.url))
-        audioContext.decodeAudioData(data, function onSuccess(buffer: any) {
-          const siglen = buffer.length
-          const fsignal = new Float32Array(siglen)
-          const srcbuf = buffer.getChannelData(0)
-          let sigmax = 0
-          for (var i = 0; i < siglen; i++) {
-            const s = srcbuf[i]
-            if (s > sigmax) sigmax = s
-            if (s < -sigmax) sigmax = -s
-          }
-          for (let i = 0; i < siglen; i++) {
-            fsignal[i] = srcbuf[i] / sigmax
-          }
-          const nfsamp = Math.floor(fsignal.length / 3)
-          const ffsignal = new Float32Array(nfsamp)
-          const filt = new Filter()
-          filt.design(filt.LOW_PASS, 4, samplingRate / 3, samplingRate / 3, samplingRate)
-          for (i = 0; i < nfsamp; i++) {
-            filt.sample(fsignal[3 * i])
-            filt.sample(fsignal[3 * i + 1])
-            ffsignal[i] = filt.sample(fsignal[3 * i + 2])
-          }
-          // workerスレッドから終了メッセージを受信した際の動作
-          workerRef.current!.onmessage = (event) => {
-            const pitchData = []
-            for (i = 0; i < fsignal.length; i++) {
-              if (event.data.vs[i] > 0.3) {
-                pitchData.push({
-                  x: Math.round((i / FXRATE) * 100) / 100,
-                  y: Math.round(event.data.fx[i] * 100) / 100,
-                })
-              }
+        audioContext.decodeAudioData(
+          data,
+          function onSuccess(buffer: any) {
+            const siglen = buffer.length
+            const fsignal = new Float32Array(siglen)
+            const srcbuf = buffer.getChannelData(0)
+            let sigmax = 0
+            for (var i = 0; i < siglen; i++) {
+              const s = srcbuf[i]
+              if (s > sigmax) sigmax = s
+              if (s < -sigmax) sigmax = -s
             }
-            setPitchData(JSON.stringify({ data: pitchData, xmax: fsignal.length / samplingRate }))
-            setIsCalculatedPitch(true)
+            for (let i = 0; i < siglen; i++) {
+              fsignal[i] = srcbuf[i] / sigmax
+            }
+            const nfsamp = Math.floor(fsignal.length / 3)
+            const ffsignal = new Float32Array(nfsamp)
+            const filt = new Filter()
+            filt.design(filt.LOW_PASS, 4, samplingRate / 3, samplingRate / 3, samplingRate)
+            for (i = 0; i < nfsamp; i++) {
+              filt.sample(fsignal[3 * i])
+              filt.sample(fsignal[3 * i + 1])
+              ffsignal[i] = filt.sample(fsignal[3 * i + 2])
+            }
+            // workerスレッドから終了メッセージを受信した際の動作
+            workerRef.current!.onmessage = (event) => {
+              const pitchData = []
+              for (i = 0; i < fsignal.length; i++) {
+                if (event.data.vs[i] > 0.3) {
+                  pitchData.push({
+                    x: Math.round((i / FXRATE) * 100) / 100,
+                    y: Math.round(event.data.fx[i] * 100) / 100,
+                  })
+                }
+              }
+              setPitchData(JSON.stringify({ data: pitchData, xmax: fsignal.length / samplingRate }))
+              setIsCalculatedPitch(true)
+              setIsCalculatingPitch(false)
+            }
+            // workerスレッドを開始
+            workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
+          },
+          function onFailure() {
             setIsCalculatingPitch(false)
-          }
-          // workerスレッドを開始
-          workerRef.current!.postMessage({ signal: ffsignal, srate: samplingRate / 3 })
-        })
+          },
+        )
       })
     }
     return () => {
@@ -205,6 +213,9 @@ export const AddSpeechModal: React.FC = () => {
               )}
               {tabIndex === 1 && (
                 <div className="mt-4 text-center">
+                  <Typography variant="subtitle2" gutterBottom align="center" color="textSecondary">
+                    録音開始・停止時に3秒ほど間を空けると上手に録音できます。
+                  </Typography>
                   <Button
                     className="mr-4"
                     onClick={onClickRecordButton}
@@ -221,7 +232,7 @@ export const AddSpeechModal: React.FC = () => {
               )}
               {isCalculatingPitch && (
                 <Typography variant="subtitle2" gutterBottom align="center" color="textSecondary">
-                  音声の前処理をしています。
+                  音声を処理しています。
                   <CircularProgress size={10} />
                 </Typography>
               )}
@@ -233,7 +244,7 @@ export const AddSpeechModal: React.FC = () => {
               <textarea
                 className="w-full p-2 mb-4 border-2 resize-none"
                 style={{ overflow: 'auto', minHeight: 150 }}
-                placeholder="スクリプト"
+                placeholder="読み仮名を漢字と別に表記するとスコア計算に影響があるため、平仮名のみで表記するようにしてください。例）×薔薇（バラ）を育てる => ○バラを育てる"
                 onChange={onChangeText}
               />
             </div>
