@@ -26,7 +26,7 @@ const Copyright: React.FC = () => {
   )
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   paper: {
     display: 'flex',
     flexDirection: 'column',

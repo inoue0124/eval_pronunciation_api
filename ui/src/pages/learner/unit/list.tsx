@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react'
 import { NextPage } from 'next'
 import { Unit } from '../../../types/Unit'
@@ -6,7 +7,7 @@ import { getCookie } from '../../../util/cookie'
 import { SearchRequest } from '../../../types/SearchRequest'
 import { Card, makeStyles, Typography, Link } from '@material-ui/core'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     marginTop: 20,
   },
@@ -47,8 +48,8 @@ const UnitList: NextPage = () => {
     <div className={classes.root}>
       <div className={classes.container}>
         {units.map((unit) => (
-          <Link href={`/learner/unit/${unit.id}?ti=${teacherId}`}>
-            <Card className={classes.card} key={unit.id}>
+          <Link href={`/learner/unit/${unit.id}?ti=${teacherId}`} key={unit.id}>
+            <Card className={classes.card}>
               <Typography color="textPrimary">課題ID：{unit.id}</Typography>
               <Typography color="textPrimary">課題名：{unit.name}</Typography>
               <Typography color="textPrimary">

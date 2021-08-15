@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react'
 import { TeacherSpeechListTable } from '../../../components/speech/TeacherSpeechListTable'
 import dynamic from 'next/dynamic'
